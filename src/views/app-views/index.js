@@ -12,6 +12,7 @@ export const AppViews = () => {
         </Route>
         <Route path={`${APP_PREFIX_PATH}/dashboard`} component={lazy(() => import(`./Dashboard`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request`} component={lazy(() => import(`./claim_management/claim_request`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request/view_detail`} component={lazy(() => import(`./claim_management/claim_request/view_detail/index`))} />
         <Route exact path={`${APP_PREFIX_PATH}/travel_agency`} component={lazy(() => import(`./travel_agency`))} />
         <Route exact path={`${APP_PREFIX_PATH}/travel_agency/add_new`} component={lazy(() => import(`./travel_agency/add_new`))} />
         <Route exact path={`${APP_PREFIX_PATH}/traveler/members`} component={lazy(() => import(`./Members`))} />

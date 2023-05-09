@@ -128,7 +128,8 @@ const ClaimReq = () => {
               menu={
                 <Menu>
                   <Menu.Item>
-                    <Link to={`claim_request/view_detail/${record.id}`}>
+                    <Link to={`claim_request/view_detail`}>
+                    {/* <Link to={`claim_request/view_detail/${record.id}`}> */}
                       {" "}
                       View Details
                     </Link>
