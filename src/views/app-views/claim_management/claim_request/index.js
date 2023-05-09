@@ -41,7 +41,7 @@ const dataArray = [
     Sr_No: 3,
     UID_NO: "GHI789",
     Claim_ID: "C003",
-    Insured_Name: "Bob Johnson",
+    Insured_Name: "Bobs Johnson",
     Gender: "Male",
     Travel_Agency: "PQR Tours",
     Passport_No: "C2468101",
