@@ -40,9 +40,9 @@ export default function AddNew() {
             createMembership(values,'http://127.0.0.1:3333/membership/new')
         }
     };
-    const onFinishFailed = (errorInfo) => {
-        console.log('Failed:', errorInfo);
-    };
+    // const onFinishFailed = (errorInfo) => {
+    //     console.log('Failed:', errorInfo);
+    // };
 
     const createMembership = (values,url) => {
         const formData = new FormData();

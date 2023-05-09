@@ -30,7 +30,7 @@ const dashBoardNavTree = [{
         submenu: [
           {
             key: 'members',
-            path: `${APP_PREFIX_PATH}/membership/members`,
+            path: `${APP_PREFIX_PATH}/traveler/members`,
             title: 'Manifest Import',
             // icon: DashboardOutlined,
             breadcrumb: true,
@@ -63,16 +63,25 @@ const dashBoardNavTree = [{
         ]
     },
     {
+      key: "Travel_Agency",
+      // path: `${APP_PREFIX_PATH}/dashboard`,
+      path: `${APP_PREFIX_PATH}/travel_agency`,
+      title: "Travel Agency",
+      icon: DashboardOutlined,
+      breadcrumb: true,
+      submenu: []
+    },
+    {
       key: 'event_management',
         path: `${APP_PREFIX_PATH}/events/event_booking`,
-        title: 'event_management',
+        title: 'Claim Management',
         icon: DashboardOutlined,
         breadcrumb: true,
         submenu: [
           {
             key: 'event_booking',
-            path: `${APP_PREFIX_PATH}/events/event_booking`,
-            title: 'event_booking',
+            path: `${APP_PREFIX_PATH}/claim_management/claim_request`,
+            title: 'Claim Request',
             // icon: DashboardOutlined,
             breadcrumb: true,
             submenu: []

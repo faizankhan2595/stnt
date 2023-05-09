@@ -11,7 +11,11 @@ export const AppViews = () => {
           <Redirect to={`${APP_PREFIX_PATH}/dashboard`} />
         </Route>
         <Route path={`${APP_PREFIX_PATH}/dashboard`} component={lazy(() => import(`./Dashboard`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/membership/members`} component={lazy(() => import(`./Members`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request`} component={lazy(() => import(`./claim_management/claim_request`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/travel_agency`} component={lazy(() => import(`./travel_agency`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/travel_agency/add_new`} component={lazy(() => import(`./travel_agency/add_new`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/traveler/members`} component={lazy(() => import(`./Members`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/traveler/manifest_import/add_new`} component={lazy(() => import(`./Members/manifest_import`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/members/membersdetails/:id`} component={lazy(() => import(`./Members/MembersDetails.js`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/membership_request`} component={lazy(() => import(`./Membership_Request`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/payments`} component={lazy(() => import(`./Payments`))} />
