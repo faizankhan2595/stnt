@@ -101,7 +101,7 @@ export default function Members() {
             <EllipsisDropdown menu={
               <Menu>
                 <Menu.Item>
-                  <Link to={`members/membersdetails/${record.id}`} > <EyeOutlined className='mr-2 ' />View Details</Link >
+                  <Link to={`members/memberdetails/${record.id}`} > <EyeOutlined className='mr-2 ' />View Details</Link >
                 </Menu.Item>
                 <Menu.Item>
                   <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>

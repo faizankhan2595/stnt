@@ -8,6 +8,7 @@ import CustomIcon from 'components/util-components/CustomIcon'
 import { Account, Edit, Export, History, Verified } from 'assets/svg/icon'
 import Helper from '../Helper'
 import { Modal, Drawer } from 'antd';
+import { Link } from 'react-router-dom'
 // import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
@@ -55,27 +56,31 @@ export default function MembershipRequest() {
 
   const membershipRequestColumns = [
     {
-      title: 'ID',
+      title: 'Sr No',
       dataIndex: 'id',
     },
     {
-      title: "Applicant Name",
+      title: "Insured Name",
       dataIndex: 'applicant_name',
     },
     {
-      title: "Phone Number",
+      title: "Gender",
       dataIndex: 'phone',
     },
     {
-      title: "Email ID",
+      title: "Passport No",
       dataIndex: 'email',
     },
     {
-      title: "Membership Type",
+      title: "NRIC/FIN",
       dataIndex: 'membershipType',
     },
     {
-      title: "Date of Request",
+      title: "Active Policies",
+      dataIndex: 'date_of_request',
+    },
+    {
+      title: "No of Claims",
       dataIndex: 'date_of_request',
     },
     {
@@ -94,7 +99,8 @@ export default function MembershipRequest() {
             <EllipsisDropdown menu={
               <Menu>
                 <Menu.Item>
-                  <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span >
+                  {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
+                  <Link to={`/app/membership/members/membersdetails/${record.id}`}><EyeOutlined className='mr-2 ' />View Details</Link>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'

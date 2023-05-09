@@ -39,7 +39,7 @@ const dashBoardNavTree = [{
           {
             key: 'membership_request',
             path: `${APP_PREFIX_PATH}/membership/membership_request`,
-            title: 'membership_request',
+            title: 'Travelers List ',
             // icon: DashboardOutlined,
             breadcrumb: true,
             submenu: []
