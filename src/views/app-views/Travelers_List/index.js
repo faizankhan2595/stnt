@@ -100,7 +100,7 @@ export default function MembershipRequest() {
               <Menu>
                 <Menu.Item>
                   {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
-                  <Link to={`/app/membership/members/membersdetails/${record.id}`}><EyeOutlined className='mr-2 ' />View Details</Link>
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><EyeOutlined className='mr-2 ' />View Details</Link>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'
