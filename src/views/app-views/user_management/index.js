@@ -137,7 +137,7 @@ const UserManage = () => {
           />
         </div>
         <Button className="bg-info text-white">
-          <Link to={"travel_agency/add_new"}>Register New User</Link>
+          <Link to={"user_management/register_new_user"}>Register New User</Link>
         </Button>
       </div>
       <Helper clients={users} attribiue={columns} />

@@ -1,22 +1,16 @@
-import { Button, Form, Input, Modal, Select } from "antd";
+import { Button, Form, Input, Modal} from "antd";
 import axios from "axios";
 import React from "react";
 import { useState } from "react";
-import { Tabs } from "antd";
 import { useLocation, useParams } from "react-router-dom";
-import { ChangeAgStatus } from "assets/svg/icon";
-import { Radio } from 'antd';
+import { EyeTwoTone,EyeInvisibleOutlined } from '@ant-design/icons';
+import { ResetPassColor } from "assets/svg/icon";
 export default function AddNew() {
-  const { TabPane } = Tabs;
   const param = useParams();
   const location = useLocation();
-  const [activeTab, setActiveTab] = useState("1");
-  const [value, setValue] = useState(1);
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
 
-  function handleTabClick(key) {
-    setActiveTab(key);
-  }
+ 
 
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
@@ -74,29 +68,6 @@ export default function AddNew() {
         console.log(error);
       });
   };
-  const onRadChange = (e) => {
-    console.log('radio checked', e.target.value);
-    setValue(e.target.value);
-  };
-
-  const operations = (
-    <div style={{ gap: "10px" }} className="mb-2 d-flex justify-content-end">
-      <Button
-        style={{ border: "1.6px solid #3e79f7" }}
-        className="px-4 font-weight-semibold text-info"
-        onClick={() => setIsChangeStudModalOpen(true)}
-      >
-        Change Agency Status
-      </Button>
-      {/* <Button
-          style={{ border: "1.6px solid #3e79f7" }}
-          className="px-4 font-weight-semibold text-info"
-          onClick={() => setIsDeactiveModalOpen(true)}
-        >
-          Deactivate Account
-        </Button> */}
-    </div>
-  );
 
   return (
     <div className="">
@@ -107,43 +78,42 @@ export default function AddNew() {
         form={form}
         name="control-hooks"
       >
-        <Tabs
-          activeKey={activeTab}
-          tabBarExtraContent={operations}
-          onTabClick={handleTabClick}
-        >
-          <TabPane
-            tab={
-              <div className="d-flex justify-content-center">
-                <span className="ml-2">Agency Details</span>
-              </div>
-            }
-            key="1"
-          >
             <div className="border rounded p-3 bg-white">
               {" "}
               <div style={{ gap: "60px" }} className="d-flex ">
                 <div style={{ width: "45%" }}>
                   <Form.Item
-                    name="id"
-                    label="Agency Name"
+                    name="first_name"
+                    label="First Name"
                     rules={[
-                      { required: true, message: "Please enter Agency Name" },
+                      { required: true, message: "Please enter First Name" },
                     ]}
                   >
-                    <Input placeholder="Agency Name" />
+                    <Input placeholder="First Name" />
                   </Form.Item>
                   <Form.Item
-                    name="phone_number"
-                    label="Phone Number"
-                    rules={[{ required: true, message: "Phone Number" }]}
+                    name="mobile_number"
+                    label="Mobile Number"
+                    rules={[{ required: true, message: "Mobile Number" }]}
                   >
-                    <Input placeholder="Phone number" />
+                    <Input placeholder="Mobile number" />
                   </Form.Item>
                 </div>
                 <div style={{ width: "45%" }}>
                   <Form.Item
-                    name="period"
+                    name="last_name"
+                    label="Last Name"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Please input Last Name!",
+                      },
+                    ]}
+                  >
+                    <Input placeholder="Last Name" />
+                  </Form.Item>
+                  <Form.Item
+                    name="email_id"
                     label="Email Id"
                     rules={[
                       { required: true, message: "Please enter email Id" },
@@ -151,131 +121,27 @@ export default function AddNew() {
                   >
                     <Input placeholder="Email Id" />
                   </Form.Item>
-                  <Form.Item
-                    name="Office_Contact_No"
-                    label="Office Contact No"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input Office Contact No!",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Office Contact No" />
-                  </Form.Item>
                 </div>
               </div>
-              <div className="mt-4">
-                <h5 className="text-info">Address Details</h5>
+              <div>
                 <div style={{ gap: "60px" }} className="d-flex ">
                   <div style={{ width: "45%" }}>
                     <Form.Item
-                      name="block_number"
-                      label="Block Number"
+                      name="job_title"
+                      label="Job Title"
                       rules={[
                         {
                           required: true,
-                          message: "Please input Block Number!",
+                          message: "Please input Job Title!",
                         },
                       ]}
                     >
-                      <Input placeholder="Block Number" />
-                    </Form.Item>
-                  </div>
-                  <div
-                    style={{
-                      width: "45%",
-                      display: "flex",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <Form.Item
-                      name="street_number"
-                      label="Street Number"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input street number!",
-                        },
-                      ]}
-                      style={{ width: "100%" }}
-                    >
-                      <Input placeholder="Street Number" />
-                    </Form.Item>
-                  </div>
-                </div>
-                <div style={{ gap: "60px" }} className="d-flex ">
-                  <div style={{ width: "45%" }}>
-                    <Form.Item
-                      name="level_number"
-                      label="Level Number"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input level number!",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="Level Number" />
-                    </Form.Item>
-                  </div>
-                  <div
-                    style={{
-                      width: "45%",
-                      display: "flex",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <Form.Item
-                      name="unit_number"
-                      label="Unit Number"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input unit number!",
-                        },
-                      ]}
-                      style={{ width: "100%" }}
-                    >
-                      <Input placeholder="Unit Number" />
-                    </Form.Item>
-                  </div>
-                </div>
-                <div style={{ gap: "60px" }} className="d-flex ">
-                  <div style={{ width: "45%" }}>
-                    <Form.Item
-                      name="postal_code"
-                      label="Postal Code"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input postal code!",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="Postal Code" />
-                    </Form.Item>
-                  </div>
-                  <div
-                    style={{
-                      width: "45%",
-                      display: "flex",
-                      alignItems: "flex-end",
-                    }}
-                  >
-                    <Form.Item
-                      name="country"
-                      label="Country"
-                      style={{ width: "100%" }}
-                    >
-                      <Input placeholder="Country" />
+                      <Input placeholder="Job Title" />
                     </Form.Item>
                   </div>
                 </div>
               </div>
             </div>
-          </TabPane>
-        </Tabs>
         <Form.Item>
           <div
             style={{ gap: "10px" }}
@@ -288,8 +154,8 @@ export default function AddNew() {
             >
               Back
             </Button>
-            <Button className="px-4 font-weight-semibold" htmlType="button">
-              Clear All
+            <Button className="px-4 font-weight-semibold" onClick={() => setIsChangeStudModalOpen(true)}>
+              Reset Password
             </Button>
             <Button
               className="px-4 font-weight-semibold text-white bg-info"
@@ -308,15 +174,24 @@ export default function AddNew() {
         onCancel={() => setIsChangeStudModalOpen(false)}
       >
         <div className="d-flex my-3 flex-column w-75">
-          <h3 className="mb-4 d-flex align-items-center">
-            {" "}
-            <ChangeAgStatus />{" "}
-            <span className="ml-2"> Change Agency Status</span>
-          </h3>
-          <Radio.Group className="ml-5" onChange={onRadChange} value={value}>
-            <Radio value={1}>Active</Radio>
-            <Radio className="ml-3" value={2}>Terminated</Radio>
-          </Radio.Group>
+          <h4 className="mb-4 d-flex align-items-center">
+            <div dangerouslySetInnerHTML={{ __html: ResetPassColor }}></div>
+            <span className="ml-2"> Reset Password</span>
+          </h4>
+          <div className="w-75 m-auto">
+            <div className="mt-3">
+              <h5>Username</h5>
+              <Input placeholder="Enter Username"/>
+            </div>
+            <div className="mt-3">
+              <h5>Password</h5>
+              <Input.Password placeholder="Enter password" />
+            </div>
+            <div className="mt-3">
+              <h5>Confirm Password</h5>
+              <Input.Password placeholder="Enter Confirm password" />
+            </div>
+          </div>
         </div>
         <div
           style={{ gap: "10px" }}
