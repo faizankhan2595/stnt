@@ -55,6 +55,7 @@
 .claimreqdetTab .ant-tabs-nav{
   background-color: white;
   padding: 1rem;
+  padding-bottom: 0;
 }
 
 .custshadow{

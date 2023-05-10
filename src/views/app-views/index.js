@@ -25,7 +25,10 @@ export const AppViews = () => {
         <Route exact path={`${APP_PREFIX_PATH}/traveler/manifest_import`} component={lazy(() => import(`./Members`))} />
         <Route exact path={`${APP_PREFIX_PATH}/traveler/manifest_import/add_new`} component={lazy(() => import(`./Members/manifest_import`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/members/membersdetails/:id`} component={lazy(() => import(`./Members/MembersDetails.js`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/traveler/travelers_list`} component={lazy(() => import(`./Travelers_List`))} />
+       
+        <Route exact path={`${APP_PREFIX_PATH}/traveler/travelers_list`} component={lazy(() => import(`./travelers_list`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/traveler/travelers_list/travel_list_details`} component={lazy(() => import(`./travelers_list/travel_list_details`))} />
+        
         <Route exact path={`${APP_PREFIX_PATH}/membership/payments`} component={lazy(() => import(`./Payments`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/membership_plans`} component={lazy(() => import(`./Membership_plans`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/membership_plans/add_new`} component={lazy(() => import(`./Membership_plans/AddNew.js`))} />

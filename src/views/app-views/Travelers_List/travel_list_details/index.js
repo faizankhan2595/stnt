@@ -1,5 +1,19 @@
 import React, { useState } from "react";
-import { Button, Checkbox, Divider, Tabs, Modal, Timeline } from "antd";
+import CustomIcon from "components/util-components/CustomIcon";
+import "../../Members/Members.css";
+import { Button, Form, Input, Menu, Select, Switch } from 'antd'
+import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
+import '.././MembershipRequest.css'
+import { DeleteOutlined, CloseOutlined, EyeOutlined, CreditCardOutlined } from '@ant-design/icons'
+import { membershipRequest } from '../../data'
+import { Account, Edit, Export, History, Verified } from 'assets/svg/icon'
+import Helper from '../../Helper'
+import { Modal, Drawer } from 'antd';
+import { Link } from 'react-router-dom'
+// import Drawer from 'react-modern-drawer'
+import 'react-modern-drawer/dist/index.css'
+
+import { Checkbox, Divider, Tabs, Timeline, Col, Row } from "antd";
 import {
   ClaimReqDet,
   ClaimdetHead,
@@ -12,898 +26,781 @@ import {
   UploadFileIcon,
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
-const arr = ["Medical & Other Expenses", "Emergency Medical Evacuation"];
-let styles = {
-  files: {
-    listStyle: "none",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "13px",
-    border: "1px solid lightblue",
-    padding: "10px",
-    borderRadius: "9px",
-    background: "#0093ff0a",
-  },
-  uploadFile: {
-    position: "absolute",
-    width: "100%",
-    height: "100%",
-    opacity: 0,
-  },
 
-  // Add the new styles here:
+export default function MembershipRequest() {
 
-  ".uploadFile::-webkit-file-upload-button": {
-    visibility: "hidden",
-  },
+  const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
+  const [insuranceClaimData, setInsuranceClaimData] = useState(membershipRequest)
+  const [claimSettlementTransactionsData, setclaimSettlementTransactionsData] = useState(membershipRequest)
+  const [visible, setVisible] = useState(false)
+  const showDrawer = () => {
+    setVisible(true);
+  };
 
-  ".uploadFile::before": {
-    content: "'Drag & Drop'",
-    display: "inline-block",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "4px",
-    cursor: "pointer",
-  },
+  const onClose = () => {
+    setVisible(false);
+  };
 
-  ".uploadFile:hover::before": {
-    backgroundColor: "#ccc",
-  },
-};
-const operations = (
-  <div className="ml-3 d-flex flex-column align-items-end">
-    <Button style={{ width: "125px" }} className="bg-warning text-white">
-      Pending
-    </Button>
-    <p className="m-0">Since 16 Jan 2022, 10:02:36 AM</p>
-  </div>
-);
-const ViewDet = () => {
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
-  const viewDocument = () => {
-    setIsDocModalOpen(true);
-  };
-  const delUplFile = (i) => {
-    let AfterDeleteFile = selectedFiles.filter((elem, index) => {
-      return index !== i;
-    });
-    setSelectedFiles(AfterDeleteFile);
-  };
-  function handleFileSelect(event) {
-    const fileList = event.target.files;
-    const newSelectedFiles = [];
 
-    for (let i = 0; i < fileList.length; i++) {
-      newSelectedFiles.push(fileList[i]);
-    }
-    //   console.log(selectedFiles)
+  const showModal = () => {
+    setIsModalOpen(true);
+    handleOk()
+  };
 
-    setSelectedFiles([...selectedFiles, newSelectedFiles[0]]);
+  const handleOk = () => {
+    setTimeout(() => {
+      setIsModalOpen(false);
+    }, 5000)
+  };
+
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+  const onDeleteData = (record) => {
+    Modal.confirm({
+      title: "Are you sure, you want to delete this members record ?",
+      okText: "Yes",
+      okType: "danger",
+      onOk: () => {
+        setmembershipRequestData((pre) => {
+          return pre.filter((member) => member.id !== record.id)
+        })
+      }
+    })
   }
+
+  const arr = ["Medical & Other Expenses", "Emergency Medical Evacuation"];
+
+  let styles = {
+    files: {
+      listStyle: "none",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "space-between",
+      gap: "13px",
+      border: "1px solid lightblue",
+      padding: "10px",
+      borderRadius: "9px",
+      background: "#0093ff0a",
+    },
+    uploadFile: {
+      position: "absolute",
+      width: "100%",
+      height: "100%",
+      opacity: 0,
+    },
+
+    // Add the new styles here:
+
+    ".uploadFile::-webkit-file-upload-button": {
+      visibility: "hidden",
+    },
+
+    ".uploadFile::before": {
+      content: "'Drag & Drop'",
+      display: "inline-block",
+      padding: "10px",
+      border: "1px solid #ccc",
+      borderRadius: "4px",
+      cursor: "pointer",
+    },
+
+    ".uploadFile:hover::before": {
+      backgroundColor: "#ccc",
+    },
+  };
+
+
+  function CustTimeline() {
+    const items = [
+      {
+        color: "#0078FF",
+        children: (
+          <>
+            <h5 className="m-0">Insurance Claim Initiated</h5>
+            <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
+          </>
+        ),
+      },
+      {
+        color: "#C05DEF",
+        children: (
+          <>
+            <h5 className="m-0">Insurance Claim Submitted</h5>
+            <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
+          </>
+        ),
+      },
+      {
+        color: "#05ADA3",
+        children: (
+          <>
+            <h5 className="m-0">Admin reviewed claim </h5>
+            <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
+          </>
+        ),
+      },
+      {
+        color: "#EDD500",
+        children: (
+          <>
+            <h5 className="m-0">Claims document sent to UOI underwriter</h5>
+            <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
+          </>
+        ),
+      },
+    ];
+
+    return (
+      <>
+        <h4 className="d-flex m-0">
+          {" "}
+          <InsuranceClaimTimeline />
+          <span className="ml-2">Insurance Claim Timeline</span>
+        </h4>
+        <div className="my-4">
+          <Timeline>
+            {items.map((item, index) => (
+              <Timeline.Item key={index} color={item.color} dot={item.dot}>
+                {item.children}
+              </Timeline.Item>
+            ))}
+          </Timeline>
+        </div>
+      </>
+    );
+  }
+
+
+  const membershipRequestColumns = [
+    {
+      title: 'Sr No',
+      dataIndex: 'id',
+    },
+    {
+      title: "Policy No",
+      dataIndex: 'applicant_name',
+    },
+    {
+      title: "Policy Type",
+      dataIndex: 'phone',
+    },
+    {
+      title: "Travel Agency",
+      dataIndex: 'email',
+    },
+    {
+      title: "Start Date",
+      dataIndex: 'membershipType',
+    },
+    {
+      title: "End Date",
+      dataIndex: 'date_of_request',
+    },
+
+    {
+      title: "Status",
+      dataIndex: 'status',
+      render: text => {
+        return <p className={`${text !== "Active" ? 'text-danger' : "text-success"} font-weight-semibold`}>{text}</p>
+      }
+    },
+    {
+      title: "Action",
+      // dataIndex: 'action',
+      render: (record) => {
+        return (
+          <>
+            <EllipsisDropdown menu={
+              <Menu>
+                <Menu.Item>
+                  {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><CreditCardOutlined className='mr-2 ' />Update Status</Link>
+                  <Drawer
+                    title={`Membership Request Details `}
+                    placement='right'
+                    width={400}
+                    onClose={onClose}
+                    visible={visible}
+                    className='membershipRequestDrawer'
+                  >
+                    <div className='membershipRequestProfile'>
+                      <div>
+                        <p className='membershipRequestTitle'>Membership Request Details</p>
+                        <p className='membershipRequestDesc'>Find Membership request details below.</p>
+                      </div>
+                      <CloseOutlined onClick={onClose} />
+                    </div>
+                    <div className='membershipRequestProfileLogo'>
+                      <CustomIcon svg={Account} />
+                      <span className='membershipRequestProfileName'>John Smith</span>
+                    </div>
+                    <div className='membershipRequestProfileDetail'>
+                      <div className='membershipRequestProfileDetailLeft'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Email Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>johnsmith@gmail.com</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>
+                            15 Changi Business Park Cres Singapore
+                          </p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Type</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>New Member</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Date of Application</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>12/09/2022</p>
+                        </div>
+                      </div>
+                      <div className='membershipRequestProfileDetailRight'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Phone Number</span>
+                          <p className='membershipRequestProfileDetailTitleAns num'>+65 123456789</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Gender</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Male</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Plan</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Plan1</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='membershipRequestProfileDetailForm'>
+                      <Form layout="vertical">
+                        <Form.Item name='membership_status' label="Membership Status" rules={[{ required: true, message: 'Please select membership status!' }]}>
+                          <Select placeholder="Active">
+                            <Select.Option value="active">Active</Select.Option>
+                            <Select.Option value="inactive">Inactive</Select.Option>
+                            <Select.Option value="pending">Pending</Select.Option>
+                            <Select.Option value="rejected">Rejected</Select.Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name='remarks' label="Remarks" >
+                          <Input placeholder='Type Here' />
+                        </Form.Item>
+                        <Form.Item className='d-flex flex-row-reverse align-items-center' name="sendMail" label="Do you want to send an email to applicant ?" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <div style={{ gap: "30px" }} className='d-flex justify-content-center'>
+                          <Form.Item>
+                            <Button onClick={onClose} htmlType="button">Cancel</Button>
+                          </Form.Item>
+                          <Form.Item>
+                            <Button onClick={showModal} type="primary" htmlType="submit">
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </div>
+                      </Form>
+                    </div>
+                    <Modal width={400} footer={null} visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                      <div className='d-flex my-3 align-items-center flex-column justify-content-center'>
+                        <CustomIcon svg={Verified} />
+                        <h3 className='font-weight-bold mt-4'>Membership Request Approved</h3>
+                        <span className='text-center font-size-sm w-75 font-weight-semibold'>Request Id #123 for membership plan 1 is
+                          approved successfully. </span>
+                      </div>
+                    </Modal>
+                  </Drawer>
+                </Menu.Item>
+                <Menu.Item>
+                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                </Menu.Item>
+                <Menu.Item>
+                  <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
+                </Menu.Item>
+              </Menu>
+            } />
+
+          </>
+        );
+      },
+    },
+  ]
+
+  const insuranceClaimColumns = [
+    {
+      title: 'Sr No',
+      dataIndex: 'id',
+    },
+    {
+      title: "UID",
+      dataIndex: 'applicant_name',
+    },
+    {
+      title: "Claim ID",
+      dataIndex: 'phone',
+    },
+    {
+      title: "Travel Agency",
+      dataIndex: 'email',
+    },
+    {
+      title: "Submitted Date",
+      dataIndex: 'membershipType',
+    },
+    {
+      title: "Last Updated On",
+      dataIndex: 'date_of_request',
+    },
+    {
+      title: "Claim Categories",
+      dataIndex: 'date_of_request',
+    },
+
+    {
+      title: "Status",
+      dataIndex: 'status',
+      render: text => {
+        return <p className={`${text !== "Active" ? 'text-danger' : "text-success"} font-weight-semibold`}>{text}</p>
+      }
+    },
+    {
+      title: "Action",
+      // dataIndex: 'action',
+      render: (record) => {
+        return (
+          <>
+            <EllipsisDropdown menu={
+              <Menu>
+                <Menu.Item>
+                  {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><EyeOutlined className='mr-2 ' />View Details</Link>
+                  <Drawer
+                    title={`Membership Request Details `}
+                    placement='right'
+                    width={400}
+                    onClose={onClose}
+                    visible={visible}
+                    className='membershipRequestDrawer'
+                  >
+                    <div className='membershipRequestProfile'>
+                      <div>
+                        <p className='membershipRequestTitle'>Membership Request Details</p>
+                        <p className='membershipRequestDesc'>Find Membership request details below.</p>
+                      </div>
+                      <CloseOutlined onClick={onClose} />
+                    </div>
+                    <div className='membershipRequestProfileLogo'>
+                      <CustomIcon svg={Account} />
+                      <span className='membershipRequestProfileName'>John Smith</span>
+                    </div>
+                    <div className='membershipRequestProfileDetail'>
+                      <div className='membershipRequestProfileDetailLeft'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Email Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>johnsmith@gmail.com</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>
+                            15 Changi Business Park Cres Singapore
+                          </p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Type</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>New Member</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Date of Application</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>12/09/2022</p>
+                        </div>
+                      </div>
+                      <div className='membershipRequestProfileDetailRight'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Phone Number</span>
+                          <p className='membershipRequestProfileDetailTitleAns num'>+65 123456789</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Gender</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Male</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Plan</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Plan1</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='membershipRequestProfileDetailForm'>
+                      <Form layout="vertical">
+                        <Form.Item name='membership_status' label="Membership Status" rules={[{ required: true, message: 'Please select membership status!' }]}>
+                          <Select placeholder="Active">
+                            <Select.Option value="active">Active</Select.Option>
+                            <Select.Option value="inactive">Inactive</Select.Option>
+                            <Select.Option value="pending">Pending</Select.Option>
+                            <Select.Option value="rejected">Rejected</Select.Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name='remarks' label="Remarks" >
+                          <Input placeholder='Type Here' />
+                        </Form.Item>
+                        <Form.Item className='d-flex flex-row-reverse align-items-center' name="sendMail" label="Do you want to send an email to applicant ?" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <div style={{ gap: "30px" }} className='d-flex justify-content-center'>
+                          <Form.Item>
+                            <Button onClick={onClose} htmlType="button">Cancel</Button>
+                          </Form.Item>
+                          <Form.Item>
+                            <Button onClick={showModal} type="primary" htmlType="submit">
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </div>
+                      </Form>
+                    </div>
+                    <Modal width={400} footer={null} visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                      <div className='d-flex my-3 align-items-center flex-column justify-content-center'>
+                        <CustomIcon svg={Verified} />
+                        <h3 className='font-weight-bold mt-4'>Membership Request Approved</h3>
+                        <span className='text-center font-size-sm w-75 font-weight-semibold'>Request Id #123 for membership plan 1 is
+                          approved successfully. </span>
+                      </div>
+                    </Modal>
+                  </Drawer>
+                </Menu.Item>
+                <Menu.Item>
+                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                </Menu.Item>
+                <Menu.Item>
+                  <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
+                </Menu.Item>
+              </Menu>
+            } />
+
+          </>
+        );
+      },
+    },
+  ]
+
+  const claimSettlementTransactionsColumns = [
+    {
+      title: 'Sr No',
+      dataIndex: 'id',
+    },
+    {
+      title: "UID",
+      dataIndex: 'applicant_name',
+    },
+    {
+      title: "Policy Type",
+      dataIndex: 'phone',
+    },
+    {
+      title: "Approved On",
+      dataIndex: 'email',
+    },
+    {
+      title: "Approved Category",
+      dataIndex: 'membershipType',
+    },
+    {
+      title: "Settlement Amount",
+      dataIndex: 'date_of_request',
+    },
+
+
+    {
+      title: "Status",
+      dataIndex: 'status',
+      render: text => {
+        return <p className={`${text !== "Active" ? 'text-danger' : "text-success"} font-weight-semibold`}>{text}</p>
+      }
+    },
+    {
+      title: "Action",
+      // dataIndex: 'action',
+      render: (record) => {
+        return (
+          <>
+            <EllipsisDropdown menu={
+              <Menu>
+                <Menu.Item>
+                  {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><EyeOutlined className='mr-2 ' />View Details</Link>
+                  <Drawer
+                    title={`Membership Request Details `}
+                    placement='right'
+                    width={400}
+                    onClose={onClose}
+                    visible={visible}
+                    className='membershipRequestDrawer'
+                  >
+                    <div className='membershipRequestProfile'>
+                      <div>
+                        <p className='membershipRequestTitle'>Membership Request Details</p>
+                        <p className='membershipRequestDesc'>Find Membership request details below.</p>
+                      </div>
+                      <CloseOutlined onClick={onClose} />
+                    </div>
+                    <div className='membershipRequestProfileLogo'>
+                      <CustomIcon svg={Account} />
+                      <span className='membershipRequestProfileName'>John Smith</span>
+                    </div>
+                    <div className='membershipRequestProfileDetail'>
+                      <div className='membershipRequestProfileDetailLeft'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Email Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>johnsmith@gmail.com</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Address</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>
+                            15 Changi Business Park Cres Singapore
+                          </p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Type</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>New Member</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Date of Application</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>12/09/2022</p>
+                        </div>
+                      </div>
+                      <div className='membershipRequestProfileDetailRight'>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Phone Number</span>
+                          <p className='membershipRequestProfileDetailTitleAns num'>+65 123456789</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Gender</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Male</p>
+                        </div>
+                        <div>
+                          <span className='membershipRequestProfileDetailTitle'>Membership Plan</span>
+                          <p className='membershipRequestProfileDetailTitleAns'>Plan1</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className='membershipRequestProfileDetailForm'>
+                      <Form layout="vertical">
+                        <Form.Item name='membership_status' label="Membership Status" rules={[{ required: true, message: 'Please select membership status!' }]}>
+                          <Select placeholder="Active">
+                            <Select.Option value="active">Active</Select.Option>
+                            <Select.Option value="inactive">Inactive</Select.Option>
+                            <Select.Option value="pending">Pending</Select.Option>
+                            <Select.Option value="rejected">Rejected</Select.Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name='remarks' label="Remarks" >
+                          <Input placeholder='Type Here' />
+                        </Form.Item>
+                        <Form.Item className='d-flex flex-row-reverse align-items-center' name="sendMail" label="Do you want to send an email to applicant ?" valuePropName="checked">
+                          <Switch />
+                        </Form.Item>
+                        <div style={{ gap: "30px" }} className='d-flex justify-content-center'>
+                          <Form.Item>
+                            <Button onClick={onClose} htmlType="button">Cancel</Button>
+                          </Form.Item>
+                          <Form.Item>
+                            <Button onClick={showModal} type="primary" htmlType="submit">
+                              Submit
+                            </Button>
+                          </Form.Item>
+                        </div>
+                      </Form>
+                    </div>
+                    <Modal width={400} footer={null} visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                      <div className='d-flex my-3 align-items-center flex-column justify-content-center'>
+                        <CustomIcon svg={Verified} />
+                        <h3 className='font-weight-bold mt-4'>Membership Request Approved</h3>
+                        <span className='text-center font-size-sm w-75 font-weight-semibold'>Request Id #123 for membership plan 1 is
+                          approved successfully. </span>
+                      </div>
+                    </Modal>
+                  </Drawer>
+                </Menu.Item>
+                <Menu.Item>
+                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                </Menu.Item>
+                <Menu.Item>
+                  <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
+                </Menu.Item>
+              </Menu>
+            } />
+
+          </>
+        );
+      },
+    },
+  ]
+
   const items = [
     {
       label: (
         <div className="d-flex align-items-center">
-          <span className="ml-2">Personnel Details</span>
+          <span className="ml-2">Policy History</span>
         </div>
       ),
       key: 1,
       children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              {" "}
-              <div dangerouslySetInnerHTML={{ __html: PersDetHead }}></div>{" "}
-              <span className="ml-2">Personal Details</span>
-            </h4>
-            <p className="m-0">See the details of insured traveler below.</p>
-            <div className="d-flex mt-4">
-              <div className="w-50">
+        <div className="p-3 bg-white border rounded ml-1">
+
+          <div className='memberDetailTableSearchFilter'>
+            <form className='memberDetailSearch'>
+              <CustomIcon svg={History} /> <input className='memberDetailSerachInput' placeholder='Search' type="text" name="search" id="" />
+            </form>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filters</span>
+            </div>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export</span>
+            </div>
+
+          </div>
+
+          <div>
+            <Helper clients={membershipRequestData} attribiue={membershipRequestColumns} />
+          </div>
+
+        </div>
+      ),
+    },
+    {
+      label: (
+        <div className="d-flex align-items-center">
+          <span className="ml-2">Insurance Claims</span>
+        </div>
+      ),
+      key: 2,
+      children: (
+        <div className="p-3 bg-white border rounded ml-1">
+
+          <div className='memberDetailTableSearchFilter'>
+            <form className='memberDetailSearch'>
+              <CustomIcon svg={History} /> <input className='memberDetailSerachInput' placeholder='Search' type="text" name="search" id="" />
+            </form>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filters</span>
+            </div>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export</span>
+            </div>
+
+          </div>
+
+          <div>
+            <Helper clients={insuranceClaimData} attribiue={insuranceClaimColumns} />
+          </div>
+
+        </div>
+      ),
+    },
+
+    {
+      label: (
+        <div className="d-flex align-items-center">
+          <span className="ml-2">Claim Settlement Transactions</span>
+        </div>
+      ),
+      key: 2,
+      children: (
+        <div className="p-3 bg-white border rounded ml-1">
+
+          <div className='memberDetailTableSearchFilter'>
+            <form className='memberDetailSearch'>
+              <CustomIcon svg={History} /> <input className='memberDetailSerachInput' placeholder='Search' type="text" name="search" id="" />
+            </form>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filters</span>
+            </div>
+            <div className='memberDetailFilter'>
+              <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export</span>
+            </div>
+
+          </div>
+
+          <div>
+            <Helper clients={claimSettlementTransactionsData} attribiue={claimSettlementTransactionsColumns} />
+          </div>
+
+        </div>
+      ),
+    },
+
+
+
+  ];
+
+  return (
+    <div>
+
+      <div className="p-3 bg-white">
+        <div className="d-flex justify-content-between">
+          <h4 className="d-flex align-items-center">
+            {" "}
+            <ClaimReqDet /> <span className="ml-2">Traveler Details</span>
+          </h4>
+        </div>
+
+        <div className="p-3">
+          <Row>
+            <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
+              <div>
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Insured Name
                 </p>
                 <h5>MR. Abdul Azeem</h5>
               </div>
-              <div className="w-50">
+            </Col>
+            <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
+              <div>
                 <p style={{ color: "black" }} className="m-0 mb-1">
-                  Passport No
+                  Passport No.
                 </p>
                 <h5>KXXXX956R</h5>
               </div>
-            </div>
-
-            <div className="d-flex mt-4">
-              <div className="w-50">
+            </Col>
+            <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
+              <div>
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   NRIC/FIN
                 </p>
-                <h5>S508699S</h5>
+                <h5>S805675S</h5>
               </div>
-              <div className="w-50">
+            </Col>
+            <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
+              <div>
+                <p style={{ color: "black" }} className="m-0 mb-1">
+                  Phone No
+                </p>
+                <h5>+65 1425 5698</h5>
+              </div>
+            </Col>
+            <Col span={4} style={{ padding: '10px' }}>
+              <div>
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Email ID
                 </p>
-                <h5>+65 133569966</h5>
+                <h5>abdulazeem@gmail.com</h5>
               </div>
-            </div>
-
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Phone Number
-                </p>
-                <h5>+65 133569966</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Gender
-                </p>
-                <h5>
-                  <img src="/img/male.png" alt="img" />
-                </h5>
-              </div>
-            </div>
-
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Date of Birth
-                </p>
-                <h5>1 Jan 1997</h5>
-              </div>
-            </div>
-
-            <h4 className="mt-5">Address</h4>
-
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Postal Code
-                </p>
-                <h5>123456</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Block Number
-                </p>
-                <h5>012</h5>
-              </div>
-            </div>
-
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Street Number
-                </p>
-                <h5>123</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Unit Number
-                </p>
-                <h5>1324</h5>
-              </div>
-            </div>
-
-            <div className="d-flex mt-4 mb-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Level Number
-                </p>
-                <h5>456</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Country
-                </p>
-                <h5>Singapore</h5>
-              </div>
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-            <CustTimeline />
-          </div>
+            </Col>
+            <Col span={4}></Col>
+          </Row>
         </div>
-      ),
-    },
-    {
-      label: (
-        <div className="d-flex align-items-center">
-          <span className="ml-2">Travel Details</span>
-        </div>
-      ),
-      key: 2,
-      children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              <img src="/img/male.png" alt="img" />
-              <span className="ml-2">Travel Details</span>
-            </h4>
-            <p className="m-0">
-              See the different claim category details requested by customer
-              below
-            </p>
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Insurance Policy Package
-                </p>
-                <h5>Hajj 1443H</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  UID
-                </p>
-                <h5>S-STT-S1004-5921</h5>
-              </div>
-            </div>
 
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Traveler Agent
-                </p>
-                <h5>Mr. Rashid M</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Country where Loss Occurred
-                </p>
-                <h5>Saudi Arabia</h5>
-              </div>
-            </div>
+        <div className="claimreqdetTab">
+          <Tabs>
+            {items.map((item) => (
+              <Tabs.TabPane tab={item.label} key={item.key}>
+                {item.children}
+              </Tabs.TabPane>
+            ))}
+          </Tabs>
+        </div>
 
-            <div className="d-flex mt-4">
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Departure date from Singapore
-                </p>
-                <h5>15 Apr 2023</h5>
-              </div>
-              <div className="w-50">
-                <p style={{ color: "black" }} className="m-0 mb-1">
-                  Return date to Singapore
-                </p>
-                <h5>22 Apr 2023</h5>
-              </div>
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-            <CustTimeline />
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: (
-        <div className="d-flex align-items-center">
-          <span className="ml-2">Claim Details</span>
-        </div>
-      ),
-      key: 3,
-      children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              <ClaimdetHead />
-              <span className="ml-2">Claim Details</span>
-            </h4>
-            <p className="m-0">See the details of insured traveler below.</p>
-            <div
-              style={{ flexWrap: "wrap", gap: "2rem" }}
-              className="mt-3 d-flex justify-content-start"
-            >
-              {arr.map((elem) => {
-                return (
-                  <div style={{ width: "300px" }} className="my-2">
-                    <div className="shadow rounded p-2">
-                      <img
-                        style={{ width: "100%", borderRadius: "5px" }}
-                        src="https://images.unsplash.com/photo-1592805144716-feeccccef5ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
-                        alt="test"
-                      />
-                      <div className="my-2 d-flex justify-content-between">
-                        <p className="m-0">Claim Request #1</p>
-                        <p className="m-0" style={{ color: "black" }}>
-                          22 Apr 2023
-                        </p>
-                      </div>
-                      <h5>{elem}</h5>
-
-                      <div className="d-flex justify-content-center my-3">
-                        {" "}
-                        <Button
-                          style={{ border: "1.5px solid rgb(62, 121, 247)" }}
-                          className="text-info m-auto"
-                          onClick={() => viewDocument()}
-                        >
-                          View Documents
-                        </Button>{" "}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-             <CustTimeline />
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: (
-        <div className="d-flex align-items-center">
-          <span className="ml-2">Payment Details</span>
-        </div>
-      ),
-      key: 4,
-      children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              <ClaimdetHead />
-              <span className="ml-2">Payment Details</span>
-            </h4>
-            <p className="m-0">
-              See the payment details below for money transfer upon successful
-              insurance claim.{" "}
-            </p>
-            <div className="my-4 p-4 custshadow rounded">
-              <h5 className="my-3">Payment Method</h5>
-              <div className="d-flex justify-content-between">
-                <p className="w-50">
-                  Payment Option:{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    DBS/POSB Account
-                  </span>
-                </p>
-                <p className="w-50">
-                  Payee Name (as per bank account):{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    Mr. Abdul Azeem
-                  </span>
-                </p>
-              </div>
-              <div className="d-flex justify-content-between">
-                <p className="w-50">
-                  Payee NRIC/FIN:{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    FRB1235476
-                  </span>
-                </p>
-                <p className="w-50">
-                  Bank Name (DBS/POSB Only):{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    DBS
-                  </span>
-                </p>
-              </div>
-              <div className="d-flex justify-content-between">
-                <p className="w-50">
-                  Bank Account Number:{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    1254 56985 696
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-             <CustTimeline />
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: (
-        <div className="d-flex align-items-center">
-          <span className="ml-2">Summary of Claims</span>
-        </div>
-      ),
-      key: 5,
-      children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              <SummaryOfClaim />
-              <span className="ml-2">Summary of Claims</span>
-            </h4>
-            <p className="m-0">Download claim settlement details form below.</p>
-            <div className="mt-5">
-              <h4 style={{ background: "#FCFAFA" }} className="d-flex m-0 p-1">
-                <img src="/img/male.png" alt="img" />
-                <span className="ml-2">Travel Details</span>
-              </h4>
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Insurance Policy Package
-                  </p>
-                  <h5>Hajj 1443H</h5>
-                </div>
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    UID
-                  </p>
-                  <h5>S-STT-S1004-5921</h5>
-                </div>
-              </div>
-
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Traveler Agent
-                  </p>
-                  <h5>Mr. Rashid M</h5>
-                </div>
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Country where Loss Occurred
-                  </p>
-                  <h5>Saudi Arabia</h5>
-                </div>
-              </div>
-
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Departure date from Singapore
-                  </p>
-                  <h5>15 Apr 2023</h5>
-                </div>
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Return date to Singapore
-                  </p>
-                  <h5>22 Apr 2023</h5>
-                </div>
-              </div>
-            </div>
-            <Divider />
-            <div className="mt-5">
-              <h4 style={{ background: "#FCFAFA" }} className="d-flex m-0 p-1">
-                <img src="/img/male.png" alt="img" />
-                <span className="ml-2">Claim Details</span>
-              </h4>
-              <h4 className="d-flex align-items-center my-3">
-                <ClaimReqDet />
-                <span className="ml-2">Claim Details</span>
-              </h4>
-
-              <h5>Claim Category</h5>
-              <h5 className="font-weight-bold">I had a medical situation</h5>
-
-              <h5 className="mt-4">Documents Uploaded</h5>
-              <ul className="p-0" style={{ width: "40%" }}>
-                <li className="my-3" style={styles.files}>
-                  {" "}
-                  <div className="d-flex align-items-center">
-                    <UploadFileIcon color={"#0E7CEB"} />{" "}
-                    <span className="ml-2">
-                      {" "}
-                      File_name.pdf <br />{" "}
-                      <p className="m-0"> Uploaded 1min ago</p>{" "}
-                    </span>
-                  </div>
-                </li>
-                <li className="my-3" style={styles.files}>
-                  {" "}
-                  <div className="d-flex align-items-center">
-                    <UploadFileIcon color={"#0E7CEB"} />{" "}
-                    <span className="ml-2">
-                      {" "}
-                      File_name.pdf <br />{" "}
-                      <p className="m-0"> Uploaded 1min ago</p>{" "}
-                    </span>
-                  </div>
-                </li>
-              </ul>
-            </div>
-            <Divider />
-            <div className="mt-5">
-              <h4 style={{ background: "#FCFAFA" }} className="d-flex m-0 p-1">
-                <img src="/img/male.png" alt="img" />
-                <span className="ml-2">Payment Details</span>
-              </h4>
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payment Option
-                  </p>
-                  <h5>DBS/POSB Account</h5>
-                </div>
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payee Name (as per bank acccount)
-                  </p>
-                  <h5>100256500266</h5>
-                </div>
-              </div>
-
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payee NRIC
-                  </p>
-                  <h5>S800256S</h5>
-                </div>
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Bank Name
-                  </p>
-                  <h5>DBS</h5>
-                </div>
-              </div>
-
-              <div className="d-flex mt-4">
-                <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Bank Account No
-                  </p>
-                  <h5>1256645 6954669 66456</h5>
-                </div>
-              </div>
-            </div>
-            <Divider />
-            <div className="mt-5">
-              <h4 style={{ background: "#FCFAFA" }} className="d-flex m-0 p-1">
-                <img src="/img/male.png" alt="img" />
-                <span className="ml-2">Declaration</span>
-              </h4>
-              <h5>Declaration</h5>
-              <Checkbox>
-                Loreum ipsum is dummy text.Loreum ipsum is dummy text.Loreum
-                ipsum is dummy text.Loreum ipsum is dummy text.Loreum ipsum is
-                dummy text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.
-              </Checkbox>
-              <div className="mt-5 d-flex justify-content-between">
-                <div>
-                  <h5>Date :</h5>
-                  <h5 className="font-weight-bold">24 Apr 2023</h5>
-                </div>
-                <div style={{ minWidth: "100px" }}>
-                  <h5>Signature :</h5>
-                  <h5 className="font-weight-bold">xyz</h5>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-            <CustTimeline />
-          </div>
-        </div>
-      ),
-    },
-    {
-      label: (
-        <div className="d-flex align-items-center">
-          <span className="ml-2">Claim Settlement</span>
-        </div>
-      ),
-      key: 6,
-      children: (
-        <div className="d-flex">
-          <div
-            style={{ width: "68%" }}
-            className="p-3 bg-white border rounded mr-1"
-          >
-            <h4 className="d-flex m-0">
-              <ClaimdetHead />
-              <span className="ml-2">Claim Settlement</span>
-            </h4>
-            <p className="m-0">
-              Download/Upload claim settlement details form below.
-            </p>
-            <div className="border dashed bg-white rounded p-3 mt-4 p-5">
-              <div className="d-flex flex-column justify-content-center align-items-center position-relative uploaddoc">
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="64"
-                  height="64"
-                  fill="none"
-                  viewBox="0 0 64 64"
-                >
-                  <path
-                    fill="#41C1B2"
-                    d="M18.57 15.51l7.86 7a2 2 0 001.33.51H56v34.9A2.93 2.93 0 0153.26 61H5.74A2.93 2.93 0 013 57.92V18a2.85 2.85 0 012.68-3h11.56a2 2 0 011.33.51z"
-                  ></path>
-                  <path fill="#D7E6EF" d="M49 57H7V3h42v54z"></path>
-                  <path
-                    fill="#41C1B2"
-                    d="M45 23h16v-6a2 2 0 00-2-2h-6l-8 8z"
-                  ></path>
-                  <path fill="#F7FCFF" d="M14 9h42v14H14V9z"></path>
-                  <path
-                    fill="#41C1B2"
-                    d="M25.69 15.51l7.42 7a1.8 1.8 0 001.25.51H61v34.9A2.87 2.87 0 0158.41 61H13.59A2.87 2.87 0 0111 57.92V18a2.79 2.79 0 012.53-3h10.9c.47 0 .922.184 1.26.51z"
-                  ></path>
-                  <path
-                    fill="#F7FCFF"
-                    d="M36 55c7.18 0 13-5.82 13-13s-5.82-13-13-13-13 5.82-13 13 5.82 13 13 13z"
-                  ></path>
-                  <path
-                    fill="#D7E6EF"
-                    d="M52 13H32a1 1 0 000 2h20a1 1 0 000-2zm0 4H37a1 1 0 000 2h15a1 1 0 000-2z"
-                  ></path>
-                  <path
-                    fill="#44394A"
-                    d="M36.5 49.28l6.72-6.72a5.501 5.501 0 00-7.78-7.78l-8.84 8.84a1.002 1.002 0 000 1.42A1 1 0 0028 45l8.84-8.84a3.5 3.5 0 114.95 4.95l-6.71 6.71a1.998 1.998 0 01-3.38-.571A2 2 0 0132.26 45L39 38.32a.5.5 0 01.71 0 .48.48 0 010 .71l-6 6a1 1 0 101.42 1.41l6-6a2.503 2.503 0 00-3.54-3.54l-6.72 6.72a4 4 0 000 5.66 4.003 4.003 0 005.66 0h-.03z"
-                  ></path>
-                </svg>
-                <h5 className="mb-0 mt-2">
-                  Drag & Drop Files Or{" "}
-                  <span className="mb-0" style={{ color: "#4096ff" }}>
-                    Choosen File
-                  </span>
-                </h5>
-                <h5 className="mb-0" style={{ color: "#4096ff" }}>
-                  Upload jpg, pdf, png, etc up to 25 mb
-                </h5>
-                <input
-                  style={styles.uploadFile}
-                  className="uploadFile"
-                  type="file"
-                  multiple
-                  onChange={handleFileSelect}
-                />
-              </div>
-            </div>
-            <div className="mt-4">
-              {selectedFiles.length > 0 && (
-                <ul className="p-0" style={{ width: "60%" }}>
-                  {selectedFiles.map((file, i) => (
-                    <li key={file.name} className="my-3" style={styles.files}>
-                      <div className="d-flex align-items-center">
-                        <UploadFileIcon color={"#0E7CEB"} />{" "}
-                        <span className="ml-2">
-                          {file.name} <br />{" "}
-                          <p className="m-0"> Uploaded 1min ago</p>{" "}
-                        </span>
-                      </div>
-                      <span>
-                        <span style={{ cursor: "pointer" }} className="mr-2">
-                          <DownloadSvg />
-                        </span>
-                        <span
-                          style={{ cursor: "pointer" }}
-                          className="mr-2"
-                          onClick={() => delUplFile(i)}
-                        >
-                          <CrossFileSvg />
-                        </span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
-          </div>
-          <div
-            style={{ width: "32%" }}
-            className="p-3 bg-white border rounded ml-1"
-          >
-             <CustTimeline />
-          </div>
-        </div>
-      ),
-    },
-  ];
-  return (
-    <div>
-      <div className="p-3 bg-white">
-        <div className="d-flex justify-content-between">
-          <h4 className="d-flex align-items-center">
-            {" "}
-            <ClaimReqDet /> <span className="ml-2">Claim Request Details</span>
-          </h4>
-          <Button
-            style={{ width: "125px" }}
-            onClick={() => setIsModalOpen(true)}
-            className="bg-info text-white"
-          >
-            Add Remarks
-          </Button>
-        </div>
       </div>
-      <div className="claimreqdetTab">
-        <Tabs tabBarExtraContent={operations}>
-          {items.map((item) => (
-            <Tabs.TabPane tab={item.label} key={item.key}>
-              {item.children}
-            </Tabs.TabPane>
-          ))}
-        </Tabs>
-      </div>
-      <Modal
-        width={600}
-        footer={null}
-        visible={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-      >
-        <h4>Claim Status Update</h4>
-        <Divider className="m-0 mb-4" />
-        <h5>Add Remarks</h5>
-        <TextArea placeholder="Type here..." />
-        <div className="d-flex justify-content-end mt-3">
-          <Button className="px-4 font-weight-semibold text-white bg-info">
-            Save
-          </Button>
-        </div>
-        <Divider />
-        <div>
-          <h5 className="d-flex align-items-center">
-            <img src="/img/avatars/thumb-1.jpg" alt="." />
-            Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
-          </h5>
-          <p style={{ color: "black" }}>
-            Loreum ipsum is dummy text,Loreum ipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dumipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dummy{" "}
-          </p>
-        </div>
-        <Divider />
-        <div>
-          <h5 className="d-flex align-items-center">
-            <img src="/img/avatars/thumb-1.jpg" alt="." />
-            Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
-          </h5>
-          <p style={{ color: "black" }}>
-            Loreum ipsum is dummy text,Loreum ipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dumipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dummy{" "}
-          </p>
-        </div>
-      </Modal>
-      <Modal
-        width={600}
-        footer={null}
-        visible={isDocModalOpen}
-        onCancel={() => setIsDocModalOpen(false)}
-      >
-        <h4 className="my-3">
-          {" "}
-          <GreenExportFile /> <span> View documents and pictures of claim</span>
-        </h4>
-        <ul className="p-0" style={{ width: "100%" }}>
-          <li className="my-3" style={styles.files}>
-            {" "}
-            <div className="d-flex align-items-center">
-              <UploadFileIcon color={"#0E7CEB"} />{" "}
-              <span className="ml-2">
-                {" "}
-                File_name.pdf <br /> <p className="m-0">
-                  {" "}
-                  Uploaded 1min ago
-                </p>{" "}
-              </span>
-            </div>
-            <span>
-              <span style={{ cursor: "pointer" }} className="mr-2">
-                <DownloadSvg />
-              </span>
-            </span>
-          </li>
-          <li className="my-3" style={styles.files}>
-            {" "}
-            <div className="d-flex align-items-center">
-              <UploadFileIcon color={"#0E7CEB"} />{" "}
-              <span className="ml-2">
-                {" "}
-                File_name.pdf <br /> <p className="m-0">
-                  {" "}
-                  Uploaded 1min ago
-                </p>{" "}
-              </span>
-            </div>
-            <span>
-              <span style={{ cursor: "pointer" }} className="mr-2">
-                <DownloadSvg />
-              </span>
-            </span>
-          </li>
-        </ul>
-      </Modal>
+
     </div>
-  );
-};
-
-export default ViewDet;
-
-function CustTimeline() {
-  const items = [
-    {
-      color: "#0078FF",
-      children: (
-        <>
-          <h5 className="m-0">Insurance Claim Initiated</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#C05DEF",
-      children: (
-        <>
-          <h5 className="m-0">Insurance Claim Submitted</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#05ADA3",
-      children: (
-        <>
-          <h5 className="m-0">Admin reviewed claim </h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#EDD500",
-      children: (
-        <>
-          <h5 className="m-0">Claims document sent to UOI underwriter</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <h4 className="d-flex m-0">
-        {" "}
-        <InsuranceClaimTimeline />
-        <span className="ml-2">Insurance Claim Timeline</span>
-      </h4>
-      <div className="my-4">
-        <Timeline>
-          {items.map((item, index) => (
-            <Timeline.Item key={index} color={item.color} dot={item.dot}>
-              {item.children}
-            </Timeline.Item>
-          ))}
-        </Timeline>
-      </div>
-    </>
-  );
+  )
 }
