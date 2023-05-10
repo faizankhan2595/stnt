@@ -23,14 +23,14 @@ const dashBoardNavTree = [{
     },
     {
       key: 'membership',
-        path: `${APP_PREFIX_PATH}/membership/members`,
+        path: `${APP_PREFIX_PATH}/`,
         title: 'Traveler',
         icon: DashboardOutlined,
         breadcrumb: true,
         submenu: [
           {
             key: 'members',
-            path: `${APP_PREFIX_PATH}/traveler/members`,
+            path: `${APP_PREFIX_PATH}/traveler/manifest_import`,
             title: 'Manifest Import',
             // icon: DashboardOutlined,
             breadcrumb: true,
@@ -38,28 +38,28 @@ const dashBoardNavTree = [{
           },
           {
             key: 'membership_request',
-            path: `${APP_PREFIX_PATH}/membership/membership_request`,
-            title: 'Travelers List ',
+            path: `${APP_PREFIX_PATH}/traveler/travelers_list`,
+            title: 'Travelers List',
             // icon: DashboardOutlined,
             breadcrumb: true,
             submenu: []
           },
-          {
-            key: 'payments',
-            path: `${APP_PREFIX_PATH}/membership/payments`,
-            title: 'payments',
-            // icon: DashboardOutlined,
-            breadcrumb: true,
-            submenu: []
-          },
-          {
-            key: 'membership_plans',
-            path: `${APP_PREFIX_PATH}/membership/membership_plans`,
-            title: 'membership_plans',
-            // icon: DashboardOutlined,
-            breadcrumb: true,
-            submenu: []
-          },
+          // {
+          //   key: 'payments',
+          //   path: `${APP_PREFIX_PATH}/membership/payments`,
+          //   title: 'payments',
+          //   // icon: DashboardOutlined,
+          //   breadcrumb: true,
+          //   submenu: []
+          // },
+          // {
+          //   key: 'membership_plans',
+          //   path: `${APP_PREFIX_PATH}/membership/membership_plans`,
+          //   title: 'membership_plans',
+          //   // icon: DashboardOutlined,
+          //   breadcrumb: true,
+          //   submenu: []
+          // },
         ]
     },
     {
@@ -86,15 +86,24 @@ const dashBoardNavTree = [{
             breadcrumb: true,
             submenu: []
           },
-          {
-            key: 'event_list',
-            path: `${APP_PREFIX_PATH}/events/event_list`,
-            title: 'event_list',
-            // icon: DashboardOutlined,
-            breadcrumb: true,
-            submenu: []
-          },
+          // {
+          //   key: 'event_list',
+          //   path: `${APP_PREFIX_PATH}/events/event_list`,
+          //   title: 'event_list',
+          //   // icon: DashboardOutlined,
+          //   breadcrumb: true,
+          //   submenu: []
+          // },
         ]
+    },
+    {
+      key: "User_Management",
+      // path: `${APP_PREFIX_PATH}/dashboard`,
+      path: `${APP_PREFIX_PATH}/user_management`,
+      title: "User Management",
+      icon: DashboardOutlined,
+      breadcrumb: true,
+      submenu: []
     },
     {
       key: 'facility_management',
