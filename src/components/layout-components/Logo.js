@@ -4,6 +4,7 @@ import { APP_NAME } from 'configs/AppConfig';
 import { connect } from "react-redux";
 import utils from 'utils';
 import { Grid } from 'antd';
+import MainLogo from '../../assets/main_logo.png'
 
 const { useBreakpoint } = Grid;
 
@@ -29,13 +30,13 @@ const getLogo = (props) => {
     if(navCollapsed) {
       return '/img/logo-sm-white.png'
     }
-    return '/img/logo-white.png'
+    return MainLogo
   }
 
   if (navCollapsed) {
     return '/img/logo-sm.png'
   }
-  return '/img/logo.png'
+  return MainLogo
 }
 
 const getLogoDisplay = (isMobile, mobileLogo) => {

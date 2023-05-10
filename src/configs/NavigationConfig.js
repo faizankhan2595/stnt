@@ -106,30 +106,48 @@ const dashBoardNavTree = [{
       submenu: []
     },
     {
-      key: 'facility_management',
-        path: `${APP_PREFIX_PATH}/facilities/facility_booking`,
-        title: 'facility_management',
-        icon: DashboardOutlined,
-        breadcrumb: true,
-        submenu: [
-          {
-            key: 'facility_booking',
-            path: `${APP_PREFIX_PATH}/facilities/facility_booking`,
-            title: 'facility_booking',
-            // icon: DashboardOutlined,
-            breadcrumb: true,
-            submenu: []
-          },
-          {
-            key: 'facility_list',
-            path: `${APP_PREFIX_PATH}/facilities/facility_list`,
-            title: 'facility_list',
-            // icon: DashboardOutlined,
-            breadcrumb: true,
-            submenu: []
-          },
-        ]
+      key: "Claim_Document_Manager",
+      // path: `${APP_PREFIX_PATH}/dashboard`,
+      path: `${APP_PREFIX_PATH}/claim_document_manager`,
+      title: "Claim Document Manager",
+      icon: DashboardOutlined,
+      breadcrumb: true,
+      submenu: []
     },
+    {
+      key: "Virtual_Card_Management",
+      // path: `${APP_PREFIX_PATH}/dashboard`,
+      path: `${APP_PREFIX_PATH}/virtual_card_management`,
+      title: "Virtual Card Management",
+      icon: DashboardOutlined,
+      breadcrumb: false,
+      submenu: []
+    },
+    // {
+    //   key: 'facility_management',
+    //     path: `${APP_PREFIX_PATH}/facilities/facility_booking`,
+    //     title: 'facility_management',
+    //     icon: DashboardOutlined,
+    //     breadcrumb: true,
+    //     submenu: [
+    //       {
+    //         key: 'facility_booking',
+    //         path: `${APP_PREFIX_PATH}/facilities/facility_booking`,
+    //         title: 'facility_booking',
+    //         // icon: DashboardOutlined,
+    //         breadcrumb: true,
+    //         submenu: []
+    //       },
+    //       {
+    //         key: 'facility_list',
+    //         path: `${APP_PREFIX_PATH}/facilities/facility_list`,
+    //         title: 'facility_list',
+    //         // icon: DashboardOutlined,
+    //         breadcrumb: true,
+    //         submenu: []
+    //       },
+    //     ]
+    // },
     
 
   ]

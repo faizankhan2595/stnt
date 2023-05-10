@@ -1,17 +1,14 @@
-import { Button, Form, Input, Modal} from "antd";
+import { Button, Form, Input, Modal,Result  } from "antd";
 import axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
-import { EyeTwoTone,EyeInvisibleOutlined } from '@ant-design/icons';
 import { ResetPassColor } from "assets/svg/icon";
 export default function AddNew() {
   const param = useParams();
   const location = useLocation();
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
-
- 
-
+  const [SuccessModal, setSuccessModal] = useState(false);
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
   };
@@ -78,70 +75,66 @@ export default function AddNew() {
         form={form}
         name="control-hooks"
       >
-            <div className="border rounded p-3 bg-white">
-              {" "}
-              <div style={{ gap: "60px" }} className="d-flex ">
-                <div style={{ width: "45%" }}>
-                  <Form.Item
-                    name="first_name"
-                    label="First Name"
-                    rules={[
-                      { required: true, message: "Please enter First Name" },
-                    ]}
-                  >
-                    <Input placeholder="First Name" />
-                  </Form.Item>
-                  <Form.Item
-                    name="mobile_number"
-                    label="Mobile Number"
-                    rules={[{ required: true, message: "Mobile Number" }]}
-                  >
-                    <Input placeholder="Mobile number" />
-                  </Form.Item>
-                </div>
-                <div style={{ width: "45%" }}>
-                  <Form.Item
-                    name="last_name"
-                    label="Last Name"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Please input Last Name!",
-                      },
-                    ]}
-                  >
-                    <Input placeholder="Last Name" />
-                  </Form.Item>
-                  <Form.Item
-                    name="email_id"
-                    label="Email Id"
-                    rules={[
-                      { required: true, message: "Please enter email Id" },
-                    ]}
-                  >
-                    <Input placeholder="Email Id" />
-                  </Form.Item>
-                </div>
-              </div>
-              <div>
-                <div style={{ gap: "60px" }} className="d-flex ">
-                  <div style={{ width: "45%" }}>
-                    <Form.Item
-                      name="job_title"
-                      label="Job Title"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Please input Job Title!",
-                        },
-                      ]}
-                    >
-                      <Input placeholder="Job Title" />
-                    </Form.Item>
-                  </div>
-                </div>
+        <div className="border rounded p-3 bg-white">
+          {" "}
+          <div style={{ gap: "60px" }} className="d-flex ">
+            <div style={{ width: "45%" }}>
+              <Form.Item
+                name="first_name"
+                label="First Name"
+                rules={[{ required: true, message: "Please enter First Name" }]}
+              >
+                <Input placeholder="First Name" />
+              </Form.Item>
+              <Form.Item
+                name="mobile_number"
+                label="Mobile Number"
+                rules={[{ required: true, message: "Mobile Number" }]}
+              >
+                <Input placeholder="Mobile number" />
+              </Form.Item>
+            </div>
+            <div style={{ width: "45%" }}>
+              <Form.Item
+                name="last_name"
+                label="Last Name"
+                rules={[
+                  {
+                    required: true,
+                    message: "Please input Last Name!",
+                  },
+                ]}
+              >
+                <Input placeholder="Last Name" />
+              </Form.Item>
+              <Form.Item
+                name="email_id"
+                label="Email Id"
+                rules={[{ required: true, message: "Please enter email Id" }]}
+              >
+                <Input placeholder="Email Id" />
+              </Form.Item>
+            </div>
+          </div>
+          <div>
+            <div style={{ gap: "60px" }} className="d-flex ">
+              <div style={{ width: "45%" }}>
+                <Form.Item
+                  name="job_title"
+                  label="Job Title"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input Job Title!",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Job Title" />
+                </Form.Item>
               </div>
             </div>
+          </div>
+        </div>
         <Form.Item>
           <div
             style={{ gap: "10px" }}
@@ -154,7 +147,10 @@ export default function AddNew() {
             >
               Back
             </Button>
-            <Button className="px-4 font-weight-semibold" onClick={() => setIsChangeStudModalOpen(true)}>
+            <Button
+              className="px-4 font-weight-semibold"
+              onClick={() => setIsChangeStudModalOpen(true)}
+            >
               Reset Password
             </Button>
             <Button
@@ -181,7 +177,7 @@ export default function AddNew() {
           <div className="w-75 m-auto">
             <div className="mt-3">
               <h5>Username</h5>
-              <Input placeholder="Enter Username"/>
+              <Input placeholder="Enter Username" />
             </div>
             <div className="mt-3">
               <h5>Password</h5>
@@ -207,11 +203,20 @@ export default function AddNew() {
             className="px-4 font-weight-semibold text-white bg-info"
             onClick={() => {
               setIsChangeStudModalOpen(false);
+              setSuccessModal(true)
             }}
           >
             Save
           </Button>
         </div>
+      </Modal>
+      <Modal
+        width={600}
+        footer={null}
+        visible={SuccessModal}
+        onCancel={() => setSuccessModal(false)}
+      >
+        <Result status="success" title="User's password has been reset" />
       </Modal>
     </div>
   );
