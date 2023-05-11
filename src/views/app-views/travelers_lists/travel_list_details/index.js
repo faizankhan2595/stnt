@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import CustomIcon from "components/util-components/CustomIcon";
 import "../../Members/Members.css";
-import { Button, Form, Input, Menu, Select, Switch } from 'antd'
+import { Button, Form, Input, Menu, Select, Switch, Radio } from 'antd'
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
 import '.././MembershipRequest.css'
 import { DeleteOutlined, CloseOutlined, EyeOutlined, CreditCardOutlined, HistoryOutlined } from '@ant-design/icons'
@@ -15,6 +15,7 @@ import 'react-modern-drawer/dist/index.css'
 
 import { Checkbox, Divider, Tabs, Timeline, Col, Row } from "antd";
 import {
+  ChangeAgStatus,
   ClaimReqDet,
   ClaimdetHead,
   CrossFileSvg,
@@ -37,6 +38,8 @@ export default function MembershipRequest() {
     setVisible(true);
   };
 
+  const [value, setValue] = useState(1);
+
   const onClose = () => {
     setVisible(false);
   };
@@ -46,6 +49,11 @@ export default function MembershipRequest() {
   const showModal = () => {
     setIsModalOpen(true);
     handleOk()
+  };
+
+  const onRadChange = (e) => {
+    console.log('radio checked', e.target.value);
+    setValue(e.target.value);
   };
 
   const handleOk = () => {
@@ -230,7 +238,7 @@ export default function MembershipRequest() {
               <Menu>
                 <Menu.Item>
                   {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
-                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><HistoryOutlined className='mr-2 ' />Update Status</Link>
+                  <Link onClick={() => showModal()}><HistoryOutlined className='mr-2 ' />Update Status</Link>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'
@@ -339,34 +347,46 @@ export default function MembershipRequest() {
     },
   ]
 
+  const insuranceClaimsData = [
+    {
+      sr_no: 1,
+      uid: "12",
+      claim_id: "23",
+      travel_agency: "Abu Bakar Travel Services Pte Ltd",
+      submitted_date: "2022-05-07",
+      last_updated_on: "2022-10-07",
+      claim_categories: "Category",
+      status: "Active",
+    }
+  ]
   const insuranceClaimColumns = [
     {
       title: 'Sr No',
-      dataIndex: 'id',
+      dataIndex: 'sr_no',
     },
     {
       title: "UID",
-      dataIndex: 'applicant_name',
+      dataIndex: 'uid',
     },
     {
       title: "Claim ID",
-      dataIndex: 'phone',
+      dataIndex: 'claim_id',
     },
     {
       title: "Travel Agency",
-      dataIndex: 'email',
+      dataIndex: 'travel_agency',
     },
     {
       title: "Submitted Date",
-      dataIndex: 'membershipType',
+      dataIndex: 'submitted_date',
     },
     {
       title: "Last Updated On",
-      dataIndex: 'date_of_request',
+      dataIndex: 'last_updated_on',
     },
     {
       title: "Claim Categories",
-      dataIndex: 'date_of_request',
+      dataIndex: 'claim_categories',
     },
 
     {
@@ -481,11 +501,8 @@ export default function MembershipRequest() {
                   </Drawer>
                 </Menu.Item>
                 <Menu.Item>
-                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
-                </Menu.Item>
-                <Menu.Item>
-                  <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
-                </Menu.Item>
+                    <span><HistoryOutlined className='mr-2'/> Update Status</span>
+                  </Menu.Item>
               </Menu>
             } />
 
@@ -495,33 +512,44 @@ export default function MembershipRequest() {
     },
   ]
 
+  const claimSettlementTransactionData = [
+    {
+      sr_no: 1,
+      uid: "12",
+      policy_type: "23",
+      approved_on: "Abu Bakar Travel Services Pte Ltd",
+      approved_category: "2022-05-07",
+      settlement_amount: "2022-10-07",
+      status: "Active",
+    }
+  ]
+
   const claimSettlementTransactionsColumns = [
+
     {
       title: 'Sr No',
-      dataIndex: 'id',
+      dataIndex: 'sr_no',
     },
     {
       title: "UID",
-      dataIndex: 'applicant_name',
+      dataIndex: 'uid',
     },
     {
       title: "Policy Type",
-      dataIndex: 'phone',
+      dataIndex: 'policy_type',
     },
     {
       title: "Approved On",
-      dataIndex: 'email',
+      dataIndex: 'approved_on',
     },
     {
       title: "Approved Category",
-      dataIndex: 'membershipType',
+      dataIndex: 'approved_category',
     },
     {
       title: "Settlement Amount",
-      dataIndex: 'date_of_request',
+      dataIndex: 'settlement_amount',
     },
-
-
     {
       title: "Status",
       dataIndex: 'status',
@@ -539,7 +567,7 @@ export default function MembershipRequest() {
               <Menu>
                 <Menu.Item>
                   {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
-                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><EyeOutlined className='mr-2 ' />View Details</Link>
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><EyeOutlined className='mr-2 ' />View Invoice</Link>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'
@@ -633,12 +661,12 @@ export default function MembershipRequest() {
                     </Modal>
                   </Drawer>
                 </Menu.Item>
-                <Menu.Item>
+                {/* <Menu.Item>
                   <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
                 </Menu.Item>
                 <Menu.Item>
                   <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
-                </Menu.Item>
+                </Menu.Item> */}
               </Menu>
             } />
 
@@ -703,7 +731,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={insuranceClaimData} attribiue={insuranceClaimColumns} />
+            <Helper clients={insuranceClaimsData} attribiue={insuranceClaimColumns} />
           </div>
 
         </div>
@@ -734,7 +762,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={claimSettlementTransactionsData} attribiue={claimSettlementTransactionsColumns} />
+            <Helper clients={claimSettlementTransactionData} attribiue={claimSettlementTransactionsColumns} />
           </div>
 
         </div>
@@ -813,6 +841,48 @@ export default function MembershipRequest() {
         </div>
 
       </div>
+
+      <Modal
+        width={600}
+        footer={null}
+        visible={isModalOpen}
+        onOk={handleOk} 
+        onCancel={() => showModal(false)}
+      >
+        <div className="d-flex my-3 flex-column">
+          <h3 className="mb-4 d-flex align-items-center">
+            
+            <ChangeAgStatus />
+            <span className="ml-2"> Change Policy Status</span>
+          </h3>
+          <Radio.Group className="ml-5" onChange={onRadChange} value={value}>
+            <Radio className="ml-3" value={1}>Active</Radio>
+            <Radio className="ml-3" value={2}>Inactive</Radio>
+
+          </Radio.Group>
+          <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
+          <TextArea className="ml-5 w-75"/>
+        </div>
+        <div
+          style={{ gap: "10px" }}
+          className="mt-5 d-flex justify-content-end"
+        >
+          <Button
+            className="px-4 font-weight-semibold"
+            onClick={() => showModal(false)}
+          >
+            Cancel
+          </Button>
+          <Button
+            className="px-4 font-weight-semibold text-white bg-info"
+            // onClick={() => {
+            //   setIsChangeStudModalOpen(false);
+            // }}
+          >
+            Save
+          </Button>
+        </div>
+      </Modal>
 
     </div>
   )
