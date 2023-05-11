@@ -125,9 +125,9 @@ const ManfestImp = () => {
                   onChange={onTravelAgentChange}
                   allowClear
                 >
-                  <Option value="first">first</Option>
-                  <Option value="second">second</Option>
-                  <Option value="other">other</Option>
+                  <Option value="first">Abu Bakar Travel Services Pte Ltd</Option>
+                  <Option value="second">Afandi Travels & services Pte Ltd</Option>
+                  <Option value="other">Al-Fattah Travel & Tours Pte Ltd</Option>
                 </Select>
               </Form.Item>
             </div>
@@ -240,12 +240,12 @@ const ManfestImp = () => {
           </div>
         </div>
         <div style={{ gap: "10px" }} className="d-flex justify-content-end">
-          <Button
+          {/* <Button
             className="px-4 font-weight-semibold"
             onClick={() => setIsModalOpen(false)}
           >
             No, Not Now
-          </Button>
+          </Button> */}
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
             onClick={() => {

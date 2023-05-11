@@ -13,26 +13,55 @@ const Dashboard = () => {
 	const uniqueVisitorsData = {
 		series: [
 			{
-				name: "Session Duration",
+				name: "<30",
 				data: [45, 52, 38, 24, 33, ]
 			},
 			{
-				name: "Page Views",
+				name: "31-60",
 				data: [35, 41, 62, 42, 13, ]
 			},
 			{
-				name: "Page Views",
+				name: ">60",
 				data: [41, 62, 35, 13, 35, ]
 			}
 		],
 		categories:[
-			'01 Jan', 
-			'02 Jan', 
-			'03 Jan', 
-			'04 Jan', 
-			'05 Jan', 
+			'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+
 		]
 	}
+
+  const claimsByCountry = {
+		series: [
+			{
+				name: "Singapore",
+				data: [45, 52, 38, 24, 33, ]
+			},
+			{
+				name: "Brunei",
+				data: [35, 41, 62, 42, 13, ]
+			},
+			{
+				name: "Malaysia",
+				data: [41, 62, 35, 13, 35, ]
+			}
+		],
+		categories:[
+			'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+
+		]
+	}
+  
   const visitorChartData = {
     series: [
     //   {
@@ -40,8 +69,16 @@ const Dashboard = () => {
     //     data: [45, 52, 38, 24, 33, 26, 21],
     //   },
       {
-        name: "Renew Membership",
+        name: "Singapore",
         data: [35, 41, 62, 42, 13, 18, 29],
+      },
+      {
+        name: "Brunei",
+        data: [ 41, 35, 62, 20, 45, 22, 56],
+      },
+      {
+        name: "Malaysia",
+        data: [30, 80, 90, 42, 45, 8, 89],
       },
     ],
     categories: [
@@ -116,7 +153,7 @@ const Dashboard = () => {
 		  <ChartWidget 
 			series={uniqueVisitorsData.series} 
 			xAxis={uniqueVisitorsData.categories} 
-			title="Unique Visitors"
+			title="Traveler by Age Group"
 			height={410}
 			type="bar"
 			customOptions={
@@ -124,17 +161,17 @@ const Dashboard = () => {
 					colors: ['#5A6ACF', '#FF928E', '#41C1B2']
 				}
 			}
-			extra={
-				<Button type="default" size="small">Extra Content</Button>
-			}
+			// extra={
+			// 	<Button type="default" size="small">Extra Content</Button>
+			// }
 		/>
           </div>
         </div>
         <div className="w-50">
           <div className="ml-2">
 		  <ChartWidget 
-			series={uniqueVisitorsData.series} 
-			xAxis={uniqueVisitorsData.categories} 
+			series={claimsByCountry.series} 
+			xAxis={claimsByCountry.categories} 
 			title="Unique Visitors"
 			height={410}
 			type="bar"
@@ -143,15 +180,15 @@ const Dashboard = () => {
 					colors: ['#E8414E', '#FCB323', '#41C1B2']
 				}
 			}
-			extra={
-				<Button type="default" size="small">Extra Content</Button>
-			}
+			// extra={
+			// 	<Button type="default" size="small">Extra Content</Button>
+			// }
 		/>
           </div>
         </div>
       </div>
 
-      <div className="dashboard_container">
+      {/* <div className="dashboard_container">
         <StatisticWidget
           title="Total Revenue"
           value="$1000"
@@ -178,7 +215,7 @@ const Dashboard = () => {
             // extra={<Select defaultValue="This Month" style={{width : 120,}} onChange={handleChange} options={[{value :'jan',label:'JAN'},{value :'feb',label:'FEB'},{value :'mar',label:'MAR'},{value :'apr',label:'APR'},]} ></Select>}
           />
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
