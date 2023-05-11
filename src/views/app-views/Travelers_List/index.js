@@ -12,6 +12,10 @@ import { Link } from 'react-router-dom'
 // import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
+
+
+
+
 export default function MembershipRequest() {
 
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
@@ -53,6 +57,48 @@ export default function MembershipRequest() {
       }
     })
   }
+
+  const travelersData = [
+    {
+      sr_no: 1,
+      insured_Name: "John Doe",
+      gender: "Male",
+      passport_number: "Abu Bakar Travel Services Pte Ltd",
+      nric_fin: "2022-05-07",
+      active_policies: 10,
+      no_of_claims: "ST&T Employee A",
+      Status: "Active",
+    },
+  ];
+  
+
+  const travelersColumns = [
+    {
+      title: 'Sr No',
+      dataIndex: 'sr_no',
+    },
+    {
+      title: 'Insured Name',
+      dataIndex: 'insured_Name',
+    },
+    {
+      title: 'Gender',
+      dataIndex: 'gender',
+    },
+    {
+      title: 'Sr No',
+      dataIndex: 'sr_no',
+    },
+    {
+      title: 'Sr No',
+      dataIndex: 'sr_no',
+    },
+    {
+      title: 'Sr No',
+      dataIndex: 'sr_no',
+    },
+  
+  ]; 
 
   const membershipRequestColumns = [
     {
@@ -224,7 +270,7 @@ export default function MembershipRequest() {
 
       </div>
       <div>
-        <Helper clients={membershipRequestData} attribiue={membershipRequestColumns} />
+        <Helper clients={travelersData} attribiue={travelersColumns} />
       </div>
 
     </div>

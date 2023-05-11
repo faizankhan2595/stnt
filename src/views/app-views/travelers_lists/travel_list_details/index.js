@@ -4,7 +4,7 @@ import "../../Members/Members.css";
 import { Button, Form, Input, Menu, Select, Switch } from 'antd'
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
 import '.././MembershipRequest.css'
-import { DeleteOutlined, CloseOutlined, EyeOutlined, CreditCardOutlined } from '@ant-design/icons'
+import { DeleteOutlined, CloseOutlined, EyeOutlined, CreditCardOutlined, HistoryOutlined } from '@ant-design/icons'
 import { membershipRequest } from '../../data'
 import { Account, Edit, Export, History, Verified } from 'assets/svg/icon'
 import Helper from '../../Helper'
@@ -174,30 +174,43 @@ export default function MembershipRequest() {
   }
 
 
-  const membershipRequestColumns = [
+  const policyHistoryData = [
+    {
+      sr_no: 1,
+      policy_no: "126534",
+      policy_type: "Deluxe",
+      travel_agency: "Abu Bakar Travel Services Pte Ltd",
+      start_date: "2022-05-07",
+      end_date: "2022-10-07",
+      status: "Active",
+    },
+  ];
+
+
+  const policyHistoryColumns = [
     {
       title: 'Sr No',
-      dataIndex: 'id',
+      dataIndex: 'sr_no',
     },
     {
       title: "Policy No",
-      dataIndex: 'applicant_name',
+      dataIndex: 'policy_no',
     },
     {
       title: "Policy Type",
-      dataIndex: 'phone',
+      dataIndex: 'policy_type',
     },
     {
       title: "Travel Agency",
-      dataIndex: 'email',
+      dataIndex: 'travel_agency',
     },
     {
       title: "Start Date",
-      dataIndex: 'membershipType',
+      dataIndex: 'start_date',
     },
     {
       title: "End Date",
-      dataIndex: 'date_of_request',
+      dataIndex: 'end_date',
     },
 
     {
@@ -217,7 +230,7 @@ export default function MembershipRequest() {
               <Menu>
                 <Menu.Item>
                   {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
-                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><CreditCardOutlined className='mr-2 ' />Update Status</Link>
+                  <Link to={`/app/traveler/travelers_list/travel_list_details`}><HistoryOutlined className='mr-2 ' />Update Status</Link>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'
@@ -312,11 +325,11 @@ export default function MembershipRequest() {
                   </Drawer>
                 </Menu.Item>
                 <Menu.Item>
-                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                  <span onClick={() => onDeleteData(record)}> <CreditCardOutlined className='mr-2 ' />View Virtual Card</span>
                 </Menu.Item>
-                <Menu.Item>
+                {/* <Menu.Item>
                   <span className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</span>
-                </Menu.Item>
+                </Menu.Item> */}
               </Menu>
             } />
 
@@ -660,7 +673,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={membershipRequestData} attribiue={membershipRequestColumns} />
+            <Helper clients={policyHistoryData} attribiue={policyHistoryColumns} />
           </div>
 
         </div>
