@@ -66,3 +66,16 @@ box-shadow: 1px 3px 17px -8px rgba(199,199,199,1);
 .claimDocManSvg svg{
   transform: scale(0.8);
 }
+.custBorder {
+  background-image: repeating-linear-gradient(0deg, #C8C9CA, #C8C9CA 12.74px, transparent 14px, transparent 23.1px, #C8C9CA 24px), repeating-linear-gradient(90deg, #C8C9CA, #C8C9CA 12.74px, transparent 14px, transparent 23.1px, #C8C9CA 24px), repeating-linear-gradient(180deg, #C8C9CA, #C8C9CA 12.74px, transparent 14px, transparent 23.1px, #C8C9CA 24px), repeating-linear-gradient(270deg, #C8C9CA, #C8C9CA 12.74px, transparent 14px, transparent 23.1px, #C8C9CA 24px);
+  background-size: 3px 100%, 100% 3px, 3px 100% , 100% 3px;
+  background-position: 0 0, 0 0, 100% 0, 0 100%;
+  background-repeat: no-repeat;
+  border-radius: 5px;
+  position: relative;
+  }
+
+  .fileImage img{
+    width: 100%;
+    height: auto;
+  }
