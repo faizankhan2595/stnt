@@ -38,7 +38,7 @@ const VirtualCardManagement = () => {
               <h5 className="m-0 mt-2">Virtual Cards </h5>
             </div>
           </div>
-          <Button className="bg-info text-white">View History</Button>
+          <Button className="bg-info"> <Link className="text-white" to={'virtual_card_management/view_card_history'}> View History</Link></Button>
         </div>
       </div>
       <div
