@@ -99,25 +99,25 @@ export const ThemeConfigurator = ({
 			<div className="mb-5">
 				<h4 className="mb-3 font-weight-bold">Navigation</h4>
 				{
-					isNavTop ?
-					<ListOption 
-						name="Top Nav Color:"
-						vertical
-						selector={
-							<ColorPicker color={topNavColor} colorChange={ontopNavColorClick}/>
-						}
-					/>
-					:
-					<ListOption 
-						name="Header Nav Color:"
-						vertical
-						selector={
-							<ColorPicker color={headerNavColor} colorChange={onHeaderNavColorClick}/>
-						}
-					/>
+					// isNavTop ?
+					// <ListOption 
+					// 	name="Top Nav Color:"
+					// 	vertical
+					// 	selector={
+					// 		<ColorPicker color={topNavColor} colorChange={ontopNavColorClick}/>
+					// 	}
+					// />
+					// :
+					// <ListOption 
+					// 	name="Header Nav Color:"
+					// 	vertical
+					// 	selector={
+					// 		<ColorPicker color={headerNavColor} colorChange={onHeaderNavColorClick}/>
+					// 	}
+					// />
 				}
 				
-				<ListOption 
+				{/* <ListOption 
 					name="Navigation Type:"
 					selector={
 						<Radio.Group 
@@ -129,8 +129,8 @@ export const ThemeConfigurator = ({
 							<Radio.Button value={NAV_TYPE_TOP}>Top</Radio.Button>
 						</Radio.Group>
 					}
-				/>
-				<ListOption 
+				/> */}
+				{/* <ListOption 
 					name="Side Nav Color:"
 					selector={
 						<Radio.Group
@@ -144,8 +144,8 @@ export const ThemeConfigurator = ({
 						</Radio.Group>
 					}
 					disabled={isNavTop}
-				/>
-				<ListOption 
+				/> */}
+				{/* <ListOption 
 					name="Side Nav Collapse:"
 					selector={
 						<Switch 
@@ -155,14 +155,14 @@ export const ThemeConfigurator = ({
 						/>
 					}
 					disabled={isNavTop}
-				/>
+				/> */}
 				<ListOption 
 					name="Dark Theme:"
 					selector={
 						<Switch checked={currentTheme === 'dark'} onChange={toggleTheme} />
 					}
 				/>
-				<ListOption 
+				{/* <ListOption 
 					name="Direction:"
 					selector={
 						<Radio.Group
@@ -174,9 +174,9 @@ export const ThemeConfigurator = ({
 							<Radio.Button value={DIR_RTL}>RTL</Radio.Button>
 						</Radio.Group>
 					}
-				/>
+				/> */}
 			</div>
-			<div className="mb-5">
+			{/* <div className="mb-5">
 				<h4 className="mb-3 font-weight-bold">Locale</h4>
 				<ListOption 
 					name="Language:"
@@ -194,7 +194,7 @@ export const ThemeConfigurator = ({
 						<span>Copy Setting</span>
 					</Button>
 				</CopyToClipboard>
-			</div>
+			</div> */}
 		</>
 	)
 }

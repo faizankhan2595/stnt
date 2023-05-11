@@ -13,6 +13,8 @@ export const AppViews = () => {
         <Route path={`${APP_PREFIX_PATH}/dashboard`} component={lazy(() => import(`./Dashboard`))} />
         <Route exact path={`${APP_PREFIX_PATH}/user_management`} component={lazy(() => import(`./user_management`))} />
         <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management`} component={lazy(() => import(`./virtual_card_management`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/view_card_history`} component={lazy(() => import(`./virtual_card_management/view_card_history`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/add_new`} component={lazy(() => import(`./virtual_card_management/add_new`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager`} component={lazy(() => import(`./claim_document_manager`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/add_new_category`} component={lazy(() => import(`./claim_document_manager/add_new_category`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/view_document`} component={lazy(() => import(`./claim_document_manager/view_document`))} />

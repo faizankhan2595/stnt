@@ -5,6 +5,7 @@ import { connect } from "react-redux";
 import utils from 'utils';
 import { Grid } from 'antd';
 import MainLogo from '../../assets/main_logo.png'
+import MainLogoSm from '../../assets/main_logo_sm.png'
 
 const { useBreakpoint } = Grid;
 
@@ -28,7 +29,7 @@ const getLogo = (props) => {
   const { navCollapsed, logoType } = props;
   if(logoType === 'light') {
     if(navCollapsed) {
-      return '/img/logo-sm-white.png'
+      return MainLogoSm
     }
     return MainLogo
   }
