@@ -125,6 +125,7 @@ const props = {
 const ClaimSubmission = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [data, setData] = useState({});
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -715,7 +716,7 @@ const ClaimSubmission = () => {
                         </Row>
 
                         <div className="btns-container">
-                            <div className="web-btn" onClick={isModalOpen}>Add more claims</div>
+                            <div className="web-btn" onClick={()=> setIsModalOpen(true)}>Add more claims</div>
                             <div className="d-flex align-items-center">
                                 <div className="secondary-btn mr-2">Save as draft</div>
                                 <div className="web-btn" onClick={() => handleStepChange(3)}>Next</div>
@@ -723,9 +724,15 @@ const ClaimSubmission = () => {
                         </div>
 
                         <Modal title="Confirm" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                            <p>Some contents...</p>
-                            <p>Some contents...</p>
-                            <p>Some contents...</p>
+                            <div className="claim-modal-text-container">
+                            <span>Would you like to add another claim?</span>
+                            </div>
+
+                            <div className="d-flex justify-content-center align-items-center">
+                                <div className="secondary-btn mr-2">No</div>
+                                <div className="web-btn">Yes</div>
+                            </div>
+
                         </Modal>
 
                     </div>

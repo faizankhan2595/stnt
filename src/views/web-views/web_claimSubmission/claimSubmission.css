@@ -612,3 +612,12 @@ body {
     align-items: center;
     width: 100%;
 }
+
+.claim-modal-text-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    font-weight: 600;
+    color: #000000;
+}
