@@ -1,0 +1,110 @@
+.body {
+    font-family: 'poppins';
+}
+
+.banner-container {
+    background-size: cover;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.verify-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+    width: 100%;
+    margin-top: -35px;
+    padding-bottom: 100px;
+
+}
+
+.verify-details-heading {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 41px;
+    display: flex;
+    align-items: center;
+    color: #000000;
+}
+
+.verify-details-sub-text {
+    /*font-family: 'Open Sans';*/
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    color: #72849A;
+}
+
+.label-field-container {
+    width: 100%;
+}
+
+.label {
+    /*font-family: 'Open Sans';*/
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    display: flex;
+    align-items: center;
+    color: #050505;
+    margin-top: 15px;
+}
+
+/* .input-field-main {
+    background: #FFFFFF;
+    border: 1px solid #e1e1e1;
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: #72849A;
+    border: none;
+    width: 100%;
+} */
+
+.input-field {
+    background: #FFFFFF;
+    border: 1px solid #E6EBF1 !important;
+    border-radius: 6px;
+    padding: 10px 10px;
+    color: #72849A;
+    border: none;
+    margin-top: 10px;
+}
+
+.input-field-main {
+    background: #FFFFFF;
+    /* border: 1px solid #E6EBF1;
+    border-radius: 6px;
+    padding: 10px 20px; */
+    color: #72849A;
+    border: none;
+}
+
+
+
+.input-field-main:focus {
+    outline: none;
+}
+
+.web-btn {
+    width: 100%;
+    background: #41C1B2;
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}

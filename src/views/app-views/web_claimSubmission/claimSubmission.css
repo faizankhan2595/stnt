@@ -1,0 +1,482 @@
+.banner-container {
+    background: url(../../../assets/img/banner-img.png) no-repeat center center;
+    background-size: cover;
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.claim-title-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    position: absolute;
+    top:50px;
+}
+
+.claim-title-text {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 36px;
+    line-height: 180%;
+    color: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    align-self: center;
+    margin-bottom: 15px;
+}
+
+.claim-title-sub-text {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 180%;
+    color: #FFFFFF;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.verify-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.verify-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.verify-details-heading {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 41px;
+    display: flex;
+    /* align-items: center; */
+    color: #000000;
+}
+
+.verify-details-sub-text {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    color: #72849A;
+}
+
+.label {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 22px;
+    display: flex;
+    align-items: center;
+    color: #050505;
+    margin-top: 15px;
+}
+
+.input-field-main {
+    background: #FFFFFF;
+    border: 1px solid #E6EBF1;
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: #72849A;
+    border: none;
+}
+
+.input-field-main:focus {
+    outline: none;
+}
+
+.web-btn {
+    background: #41C1B2;
+    border-radius: 6px;
+    padding: 10px 20px;
+    color: white;
+    border: none;
+    cursor: pointer;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.steps-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding: 30px 20px;
+    position: absolute;
+    top: 200px;
+}
+
+.step-container {
+    display: flex;
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px 35px;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.virtual-card-container {
+    margin-bottom: 25px;
+}
+
+.drafts-container {
+    background-color: #EEEEEE;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #EEEEEE;
+    margin-bottom: 20px;
+}
+
+.draft-heading-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.virtual-card {
+    background-color: #EEEEEE;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #EEEEEE;
+}
+
+
+.virtual-card-desc {
+    padding-right: 25px;
+    border-right: 1px solid #d8d8d8;
+}
+
+.virtual-card-desc-policy {
+    padding-right: 25px;
+   
+}
+
+.virtual-card-img{
+    width: 100%;
+    height: auto;
+
+}
+
+.virtual-card-img-container{
+    padding-left: 45px;
+}
+
+.virtual-card-heading{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.virtual-card-heading-text {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 25px;
+    display: flex;
+    align-items: center;
+    color: #000000;
+}
+
+.virtual-card-icon-container {
+    background: url(../../../assets/img/virtual-card-icon.png);
+    margin-right: 10px;
+    width: 36px;
+    height: auto;
+}
+
+.policy-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    align-items: flex-start;
+    margin-bottom:20px;
+}
+
+.policy-detail-container {
+    background-color: #FBFBFB;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #EEEEEE;
+}
+
+.policy-details-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.policy-detail-icon {
+    margin-right: 10px;
+    width: 36px;
+    height: auto;
+}
+
+.details-container {
+    display: flex;
+    width: 100%;
+}
+
+.policy-detail {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 21px;
+    letter-spacing: -0.359574px;
+    color: #050505;
+}
+
+.policy-details-label {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 21px;
+    letter-spacing: -0.359574px;
+    color: #67748E;
+}
+
+.initiate-claim-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 15px;
+    margin-bottom: 15px;
+}
+
+.initiate-claim-heading-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.inititae-claim-heading {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 32px;
+    line-height: 44px;
+    display: flex;
+    align-items: center;
+    color: #050505;
+}
+
+.inititae-claim-sub-heading {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    color: #72849A;
+}
+
+.travel-details-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.select-country-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.back-icon-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+
+}
+
+.back-text {
+    font-family: 'Inter';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 19px;
+    display: flex;
+    align-items: center;
+    color: #8692A6;
+}
+
+.claim-details-main-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.claim-details-heading {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 30px;
+    line-height: 41px;
+    display: flex;
+    align-items: center;
+    color: #000000;
+}
+
+.claim-details-sub-text {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 28px;
+    display: flex;
+    align-items: center;
+    color: #72849A;
+}
+
+.claim-category-details {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+}
+
+.documents-upload-heading {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 22px;
+    display: flex;
+    align-items: center;
+    color: #050505;
+}
+
+.documents-upload-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+.document-upload-label {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 19px;
+    display: flex;
+    align-items: center;
+    color: #050505;
+}
+
+.btns-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.secondary-btn {
+    background: #FFFFFF;
+    border: 1px solid #E6EBF1;
+    border-radius: 6px;
+    padding: 10px 20px;
+}
+
+.claim-category-select {
+    display: flex;
+    flex-direction: column;
+    min-width: 40%;
+}
+
+.payment-details-container {
+    display: flex;
+    width: flex-start;
+}
+
+.review-header-container {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    background-color: #FCFAFA;
+    padding: 10px 15px;
+    border-radius: 5px;
+    margin-bottom: 25px;
+}
+
+.review-details-container {
+    display: flex;
+    width: 100%;
+}
+
+.review-details-container {
+    padding: 10px 15px;
+}
+
+.edit-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 7px 22px;
+    background-color: #2EA3F233;
+    border-radius: 25px;
+    color: #2EA3F2;
+    cursor: pointer;
+}
+
+.claim-header {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 10px 0px;
+}
+
+.ip-address-holder {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 21px;
+    color: #72849A;
+}
+
+/* .edit-icon-container {
+    width: 35%;
+} */

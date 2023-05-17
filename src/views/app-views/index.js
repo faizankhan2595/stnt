@@ -44,6 +44,8 @@ export const AppViews = () => {
         <Route exact path={`${APP_PREFIX_PATH}/facilities/facility_list/add_new`} component={lazy(() => import(`./Facility/AddNew.js`))} />
         <Route exact path={`${APP_PREFIX_PATH}/facilities/facility_list/:facility_types`} component={lazy(() => import(`./Facility/FacilityType.js`))} />
         <Route exact path={`${APP_PREFIX_PATH}/facilities/facility_list/:facility_types/add_new`} component={lazy(() => import(`./Facility/AddNewFacilityTypes.js`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/web_homepage`} component={lazy(() => import(`./web_homepage/web_homepage`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/web_claimSubmission`} component={lazy(() => import(`./web_claimSubmission/web_claimSubmission`))} />
       </Switch>
     </Suspense>
   )

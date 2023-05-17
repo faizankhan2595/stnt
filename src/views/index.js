@@ -8,6 +8,7 @@ import { IntlProvider } from "react-intl";
 import { ConfigProvider } from 'antd';
 import { APP_PREFIX_PATH, AUTH_PREFIX_PATH } from 'configs/AppConfig'
 import useBodyClass from 'hooks/useBodyClass';
+import WebLayout from "layouts/web-layout";
 
 export const Views = (props) => {
   const { locale, location, direction } = props;
@@ -20,7 +21,10 @@ export const Views = (props) => {
       <ConfigProvider locale={currentAppLocale.antd} direction={direction}>
         <Switch>
           <Route exact path="/">
-            <Redirect to={APP_PREFIX_PATH} />
+            <WebLayout />
+          </Route>
+          <Route path="/web">
+            <WebLayout />
           </Route>
           <Route path={AUTH_PREFIX_PATH}>
             <AuthLayout direction={direction} />
