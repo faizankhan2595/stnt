@@ -5,6 +5,8 @@ import { UploadOutlined } from '@ant-design/icons';
 import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'
+
 
 
 const description = 'This is a description.';
@@ -43,8 +45,14 @@ const columns = [
     },
     {
         title: 'Action',
-        dataIndex: 'address',
-        key: 'address',
+        render: (record) => {
+            return (
+                <>
+                    <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>Resume editing</div>
+
+                </>
+            );
+        },
     },
 
 ];
@@ -55,12 +63,16 @@ const claimHistory = [
         sno: '1',
         name: 'Draft1',
         date: '24 Apr 2023, 10:00:00 Am',
+        claim_id: 'S-STT-S-1004-5921-01',
+        status: 'WIP'
     },
     {
         key: '2',
         sno: '2',
         name: 'Draft2',
         date: '24 Apr 2023, 10:00:00 Am',
+        claim_id: 'S-STT-S-1004-5921-02',
+        status: 'Pending'
     },
 ];
 
@@ -71,9 +83,9 @@ const claimHistoryColumns = [
         key: 'sno',
     },
     {
-        title: 'UID',
-        dataIndex: 'uid',
-        key: 'uid',
+        title: 'Claim ID',
+        dataIndex: 'claim_id',
+        key: 'claim_id',
     },
     {
         title: 'Date',
@@ -87,8 +99,14 @@ const claimHistoryColumns = [
     },
     {
         title: 'Action',
-        dataIndex: 'address',
-        key: 'address',
+        render: (record) => {
+            return (
+                <>
+                    <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>View Summary Claim</div>
+
+                </>
+            );
+        },
     },
 
 ];
@@ -125,7 +143,60 @@ const props = {
 const ClaimSubmission = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [data, setData] = useState({});
+
+    //flip image logic starts here
+
+    const [imageSrc, setImageSrc] = useState("/img/sgp-card.jpg");
+    const [isAlternateImage, setIsAlternateImage] = useState(false);
+
+    const handleImageToggle = () => {
+        if (isAlternateImage) {
+            setImageSrc("/img/sgp-card.jpg");
+        } else {
+            setImageSrc("/img/sgp-card-rear.jpg");
+        }
+        setIsAlternateImage(!isAlternateImage);
+    };
+
+
+    const handleImageChange = () => {
+        setImageSrc("/img/sgp-card-rear.jpg");
+    };
+
+    //flip image logic ends here 
+
+
+    //dropdown logic starts here
+    const [selectedOption, setSelectedOption] = useState(null);
+
+    const handleOptionChange = (value) => {
+        setSelectedOption(value);
+    };
+
+    const handleDocumentUpload = (file) => {
+        if (selectedOption === 'medical_other_Expenses') {
+            // Handle document upload logic for the "Medical & Other Expenses" option
+        } else if (selectedOption === 'hospital_confinement_allowance') {
+            // Handle document upload logic for the "Hospital Confinement Allowance" option
+        }
+        // Add more conditional blocks for other options
+    };
+
+    //dropdown logic ends here
+
+    //add claim logic starts here
+
+    const [addAnotherClaim, setAddAnotherClaim] = useState(false);
+    const handleAddAnotherClaim = () => {
+        setAddAnotherClaim(true);
+        setIsModalOpen(false);
+
+    };
+
+
+
+    //add claim logic ends here
+
 
     const showModal = () => {
         setIsModalOpen(true);
@@ -156,6 +227,23 @@ const ClaimSubmission = () => {
     };
 
 
+    //payment logic starts here
+
+    const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
+
+    const handlePaymentOptionChange = (value) => {
+        setSelectedPaymentOption(value);
+    };
+
+    //payment logic ends here
+
+    //submot clainm logic starts here
+
+    const [isSubmitClaimModalOpen, setIsSubmitClaimModalOpen] = useState(false);
+
+    const openSubmitClaimModal = () => {
+        setIsSubmitClaimModalOpen(true);
+    };
 
     return (
         <div>
@@ -164,8 +252,8 @@ const ClaimSubmission = () => {
             </div>
 
             <div className="logout-btn-container">
-                <div className="logout-btn">Logout</div>
-                <div className="update-details-container">
+            <Link to={`/`}><div className="logout-btn">Logout</div></Link>
+                <div className="update-details-container" onClick={() => setIsModalOpen(true)}>
                     <div className="update-icon-container">
                         <img src="/img/update-icon.svg" alt="update-icon" style={{ width: '20px', height: 'auto' }} />
                     </div>
@@ -269,7 +357,11 @@ const ClaimSubmission = () => {
                                 </Col>
                                 <Col span={12} className="virtual-card-img">
                                     <div className="virtual-card-img-container">
-                                        <img src="/img/virtual-crd.png" alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
+
+                                        <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
+                                        {/* <img src="/img/sgp-card.jpg" alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} /> */}
+
+                                        <button className="secondary-btn mt-2" onClick={handleImageToggle}>Flip Card</button>
                                     </div>
                                 </Col>
                             </Row>
@@ -436,7 +528,7 @@ const ClaimSubmission = () => {
                                     <Select
                                         style={{ width: '100%' }}
                                         showSearch
-                                        placeholder="Select a person"
+                                        placeholder="Select a country"
                                         optionFilterProp="children"
                                         onChange={onChange}
                                         onSearch={onSearch}
@@ -446,27 +538,27 @@ const ClaimSubmission = () => {
                                         options={[
                                             {
                                                 value: 'Singapore',
-                                                label: 'singapore',
+                                                label: 'Singapore',
                                             },
                                             {
                                                 value: 'Saudi Arabia',
-                                                label: 'ksa',
+                                                label: 'Saudi Arabia',
                                             },
                                             {
                                                 value: 'Brunei',
-                                                label: 'brunei',
+                                                label: 'Brunei',
                                             },
                                             {
                                                 value: 'Malaysia',
-                                                label: 'malaysia',
+                                                label: 'Malaysia',
                                             },
                                             {
                                                 value: 'Indonesia',
-                                                label: 'indonesia',
+                                                label: 'Indonesia',
                                             },
                                             {
                                                 value: 'Thailand',
-                                                label: 'thailand',
+                                                label: 'Thailand',
                                             },
                                         ]}
                                     />
@@ -519,13 +611,12 @@ const ClaimSubmission = () => {
                     </div>
 
                     <div className="claim-category-select mb-3">
-                        <div className="label" >Claim Category</div>
+                        <div className="label" style={{ marginBottom: '10px' }}>Claim Category</div>
                         <Select
                             showSearch
-
-                            placeholder="Select a person"
+                            onChange={handleOptionChange}
+                            placeholder="Select a category"
                             optionFilterProp="children"
-                            onChange={onChange}
                             onSearch={onSearch}
                             filterOption={(input, option) =>
                                 (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -634,98 +725,83 @@ const ClaimSubmission = () => {
 
                     <div className="documents-upload-container">
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Copy of Certificate of Insurance*</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                        {selectedOption === 'medical_other_Expenses' && (
+                            <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                                <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*</Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Tour Operators Confirmation of booking invoices, Airline ticket counterfoil(s)/ Booking Pass(es)**</Col>
-                            <Col span={12}>
-                                <Upload {...props} className="pl-4">
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                                <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any*</Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Copies of your other insurance policy and proof of receiving compensation, if any*</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Medical Report and/or Hospital Discharge Summary showing nature and/or diagnosis of injury/ sickness</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                                <Col span={12} className="document-upload-label mb-2">Copy of actual travel itinerary of Trip*</Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Original Medical Bills/ Receipts for the full amount of the claim</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Police Report (for accident-related cases)</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                                <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any Medical Report and/or Hospital Discharge Summary showing nature and/or diagnosis of injury/ sickness*
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Death Certificate, Burial/ Cremation Permit (if death occurred) and bill incurred for burial in the locality</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                                </Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Child’s birth certificate (for Child’s Education Fund)</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                                <Col span={12} className="document-upload-label mb-2">Original Medical Bills/ Receipts for the full amount of the claim*
+                                </Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
+                            </Row>
 
-                        <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                            <Col span={12} className="document-upload-label">Bills/Receipts for additional expenses incurred (for compassionate visit and child help claim)</Col>
-                            <Col span={12} className="pl-4">
-                                <Upload {...props}>
-                                    <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                </Upload>
-                            </Col>
-                        </Row>
+                        )}
 
-                        <div className="btns-container">
-                            <div className="web-btn" onClick={()=> setIsModalOpen(true)}>Add more claims</div>
-                            <div className="d-flex align-items-center">
-                                <div className="secondary-btn mr-2">Save as draft</div>
-                                <div className="web-btn" onClick={() => handleStepChange(3)}>Next</div>
-                            </div>
-                        </div>
+                        {selectedOption === 'loss_of_baggage' && (
+                            <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                                <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*
+                                </Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
+
+                                <Col span={12} className="document-upload-label mb-2">Photograph(s) of damaged baggage where applicable
+                                </Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
+
+                                <Col span={12} className="document-upload-label mb-2">Property Irregularity Report for loss of or damaged baggage by an airline or carrier
+                                </Col>
+                                <Col span={12} className="pl-4 mb-2">
+                                    <Upload {...props}>
+                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                    </Upload>
+                                </Col>
+                            </Row>
+                        )}
+
 
                         <Modal title="Confirm" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
                             <div className="claim-modal-text-container">
-                            <span>Would you like to add another claim?</span>
+                                <span>Would you like to add another claim?</span>
                             </div>
 
                             <div className="d-flex justify-content-center align-items-center">
@@ -735,6 +811,230 @@ const ClaimSubmission = () => {
 
                         </Modal>
 
+                    </div>
+
+                    {addAnotherClaim && (
+                        <div>
+                            <div className="heading-icon-container-2" style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className="virtual-card-icon-container">
+                                    <img src="/img/policy-details-icon.svg" alt="policy-details-icon" style={{ width: '32px', height: 'auto', marginRight: '10px' }} />
+                                </div>
+                                <div className="virtual-card-heading-text" style={{ backgroundColor: '#FCFAFA', padding: '15px' }}>
+                                    Claim request 1
+                                </div>
+                            </div>
+
+                            <div className="claim-category-select mb-3">
+                                <div className="label" style={{ marginBottom: '10px' }}>Claim Category</div>
+                                <Select
+                                    showSearch
+                                    onChange={handleOptionChange}
+                                    placeholder="Select a category"
+                                    optionFilterProp="children"
+                                    onSearch={onSearch}
+                                    filterOption={(input, option) =>
+                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                    }
+                                    options={[
+                                        {
+                                            label: 'Medical & Other Expenses',
+                                            value: 'medical_other_Expenses',
+                                        },
+                                        {
+                                            label: 'Hospital Confinement Allowance',
+                                            value: 'hospital_confinement_allowance',
+                                        },
+                                        {
+                                            label: 'Emergency Medical Evacuation',
+                                            value: 'emergency_medical_evacuation',
+                                        },
+                                        {
+                                            label: 'Personal Accident / Permanent Total Disablement / Child’s Education Fund',
+                                            value: 'personal_accident_permanent_total_disablement_child_education_fund',
+                                        },
+                                        {
+                                            label: 'Compassionate Visit/ Child Caretaker/ Child Help Get Well Benefit',
+                                            value: 'compassionate_visit',
+                                        },
+                                        {
+                                            label: 'Bereavement Benefit due to COVID-19',
+                                            value: 'benefit_covid_19',
+                                        },
+                                        {
+                                            label: 'Cancellation/Postponement (before onset of trip)',
+                                            value: 'cancellation',
+                                        },
+                                        {
+                                            label: 'Trip Curtailment',
+                                            value: 'trip_curtailment',
+                                        },
+                                        {
+                                            label: 'Travel Delay',
+                                            value: 'travel_delay',
+                                        },
+                                        {
+                                            label: 'Travel Misconnection',
+                                            value: 'travel_misconnection',
+                                        },
+                                        {
+                                            label: 'Overbooked Scheduled Public Conveyance',
+                                            value: 'overbooked_scheduled',
+                                        },
+                                        {
+                                            label: 'Flight Deviation',
+                                            value: 'flight_deviation',
+                                        },
+                                        {
+                                            label: 'Hijacking / Kidnapping',
+                                            value: 'hijacking_kidnapping',
+                                        },
+                                        {
+                                            label: 'Baggage Delay',
+                                            value: 'baggage_delay',
+                                        },
+                                        {
+                                            label: 'Loss of Baggage & Personal Effects',
+                                            value: 'loss_of_baggage',
+                                        },
+                                        {
+                                            label: 'Credit Card Indemnity',
+                                            value: 'credit_card_indemnity',
+                                        },
+                                        {
+                                            label: 'Personal Liability',
+                                            value: 'personal_liability',
+                                        },
+                                        {
+                                            label: 'Rental Vehicle Excess',
+                                            value: 'rental_vehicle_excess',
+                                        },
+                                        {
+                                            label: 'Home Protection / Burglary',
+                                            value: 'home_protection',
+                                        },
+                                        {
+                                            label: 'Emergency Phone Charges',
+                                            value: 'emergency_phone_charges',
+                                        },
+                                        {
+                                            label: 'Un-utilized Entertainment Ticket',
+                                            value: 'un_utilized_entertainment_ticket',
+                                        },
+                                        {
+                                            label: 'Credit Card Liability Protector',
+                                            value: 'credit_card_liability_protector',
+                                        },
+                                        {
+                                            label: 'Others',
+                                            value: 'others',
+                                        },
+
+
+                                    ]}
+                                />
+                            </div>
+
+                            <div className="documents-upload-heading" style={{ margrinBottom: '10px', margrinTop: '20px' }}>Documents Upload</div>
+                            <div className="mandatory-items-note">* are mandatory items</div>
+
+                            <div className="documents-upload-container">
+
+                                {selectedOption === 'medical_other_Expenses' && (
+                                    <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                                        <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*</Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+                                        <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any*</Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+
+                                        <Col span={12} className="document-upload-label mb-2">Copy of actual travel itinerary of Trip*</Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+
+                                        <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any Medical Report and/or Hospital Discharge Summary showing nature and/or diagnosis of injury/ sickness*
+
+                                        </Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+                                        <Col span={12} className="document-upload-label mb-2">Original Medical Bills/ Receipts for the full amount of the claim*
+                                        </Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+                                    </Row>
+
+                                )}
+
+                                {selectedOption === 'loss_of_baggage' && (
+                                    <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                                        <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*
+                                        </Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+                                        <Col span={12} className="document-upload-label mb-2">Photograph(s) of damaged baggage where applicable
+                                        </Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+
+                                        <Col span={12} className="document-upload-label mb-2">Property Irregularity Report for loss of or damaged baggage by an airline or carrier
+                                        </Col>
+                                        <Col span={12} className="pl-4 mb-2">
+                                            <Upload {...props}>
+                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                            </Upload>
+                                        </Col>
+                                    </Row>
+                                )}
+
+                            </div>
+                        </div>
+                    )}
+
+
+                    <Modal title="Confirm" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                        <div className="claim-modal-text-container">
+                            <span>Would you like to add another claim?</span>
+                        </div>
+
+                        <div className="d-flex justify-content-center align-items-center">
+                            <div className="secondary-btn mr-2" onClick={() => setIsModalOpen(false)}>No</div>
+                            <div className="web-btn" onClick={handleAddAnotherClaim}>Yes</div>
+                        </div>
+
+                    </Modal>
+
+                    <div className="btns-container">
+                        <div className="web-btn" onClick={() => setIsModalOpen(true)}>Add more claims</div>
+                        <div className="d-flex align-items-center">
+                            <div className="secondary-btn mr-2">Save as draft</div>
+                            <div className="web-btn" onClick={() => handleStepChange(3)}>Next</div>
+                        </div>
                     </div>
 
                 </div>
@@ -748,7 +1048,7 @@ const ClaimSubmission = () => {
 
             {activeStep === 3 && (
 
-                <div className="payemnt-details-container">
+                <div className="payemnt-details-container pb-5">
 
                     <div className="payment-details-container">
 
@@ -776,9 +1076,9 @@ const ClaimSubmission = () => {
                                         <div style={{ marginTop: '15px' }}>
                                             <Select className="w-100"
                                                 showSearch
-                                                placeholder="Select a person"
+                                                placeholder="Select Payment Option"
                                                 optionFilterProp="children"
-                                                onChange={onChange}
+                                                onChange={handlePaymentOptionChange}
                                                 onSearch={onSearch}
                                                 filterOption={(input, option) =>
                                                     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -806,81 +1106,96 @@ const ClaimSubmission = () => {
 
                                 {/* In case of DBS slelect, show this field */}
 
+                                {selectedPaymentOption === "dbs_posb" && (
+                                    <div>
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">Payee Name (as per bank account)*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Input placeholder="Payee Name" />
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">Payee Name (as per bank account)*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Input placeholder="Payee Name" />
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">Payee NRIC*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Input placeholder="Payee NRIC" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">Bank Name (DBS/POSB Only)*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Select className="w-100"
+                                                        showSearch
+                                                        placeholder="Select a person"
+                                                        optionFilterProp="children"
+                                                        onChange={onChange}
+                                                        onSearch={onSearch}
+                                                        filterOption={(input, option) =>
+                                                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                                        }
+                                                        options={[
+                                                            {
+                                                                value: 'dbs',
+                                                                label: 'DBS',
+                                                            },
+                                                            {
+                                                                value: 'posb',
+                                                                label: 'POSB',
+                                                            },
+                                                        ]}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">Bank Account Number*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Input placeholder="Enter Bank Account Number" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">Payee NRIC*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Input placeholder="Payee NRIC" />
+                                {selectedPaymentOption === "paynow_linked_account" && (
+                                    <div>
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">PayNow registered mobile number or NRIC/FIN*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Input placeholder="Enter Bank Account Number" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
 
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">Bank Name (DBS/POSB Only)*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Select className="w-100"
-                                                showSearch
-                                                placeholder="Select a person"
-                                                optionFilterProp="children"
-                                                onChange={onChange}
-                                                onSearch={onSearch}
-                                                filterOption={(input, option) =>
-                                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                                }
-                                                options={[
-                                                    {
-                                                        value: 'dbs',
-                                                        label: 'DBS',
-                                                    },
-                                                    {
-                                                        value: 'posb',
-                                                        label: 'POSB',
-                                                    },
-                                                ]}
-                                            />
+                                {selectedPaymentOption === "cheque" && (
+                                    <div>
+                                        <div className="single-detail-entry-container">
+                                            <div className="label-field-container">
+                                                <div className="label">Payee name*</div>
+                                                <div style={{ marginTop: '15px' }}>
+                                                    <Input placeholder="Enter Bank Account Number" />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">Bank Account Number*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Input placeholder="Enter Bank Account Number" />
-                                        </div>
-                                    </div>
-                                </div>
+                                )}
 
                                 {/* In case of paynow slelect, show this field */}
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">PayNow registered mobile number or NRIC/FIN*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Input placeholder="Enter Bank Account Number" />
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 {/* In case of cheque slelect, show this field */}
-                                <div className="single-detail-entry-container">
-                                    <div className="label-field-container">
-                                        <div className="label">Payee name*</div>
-                                        <div style={{ marginTop: '15px' }}>
-                                            <Input placeholder="Enter Bank Account Number" />
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <div className="web-btn-full" onClick={() => handleStepChange(4)}>Next</div>
 
@@ -965,7 +1280,7 @@ const ClaimSubmission = () => {
 
                                 </Col>
                                 <Col span={8} className="d-flex justify-content-end align-items-start">
-                                    <div className="edit-icon-container">
+                                    <div className="edit-icon-container" onClick={() => handleStepChange(1)}>
                                         <div className="edit-icon">
                                             <div className="icon">
                                                 <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
@@ -1024,7 +1339,7 @@ const ClaimSubmission = () => {
 
                                 </Col>
                                 <Col span={8} className="d-flex justify-content-end align-items-start">
-                                    <div className="edit-icon-container">
+                                    <div className="edit-icon-container" onClick={() => handleStepChange(2)}>
                                         <div className="edit-icon">
                                             <div className="icon">
                                                 <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
@@ -1084,7 +1399,7 @@ const ClaimSubmission = () => {
 
                                 </Col>
                                 <Col span={8} className="d-flex justify-content-end align-items-start">
-                                    <div className="edit-icon-container">
+                                    <div className="edit-icon-container" onClick={() => handleStepChange(3)}>
                                         <div className="edit-icon">
                                             <div className="icon">
                                                 <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
@@ -1137,12 +1452,24 @@ const ClaimSubmission = () => {
 
                     <div >
                         <div className="btn-container">
-                            <div className="web-btn mb-3" >Submit Claim</div>
+                            <div className="web-btn mb-3" onClick={() => {
+                                setIsSubmitClaimModalOpen(true);
+                            }}>Submit</div>
                         </div>
                     </div>
+                    <Modal title="Confirm" visible={isSubmitClaimModalOpen} footer={null}>
+                            <div className="claim-modal-text-container">
+                                <span>Your claim has been submitted</span>
+                            </div>
 
+                            <div className="d-flex justify-content-center align-items-center">
+                                <div className="web-btn" onClick={() => {
+                                    handleStepChange(0);
+                                    setIsSubmitClaimModalOpen(false);
+                                }}>OK</div>
+                            </div>
+                    </Modal>
                 </div>
-
             )}
 
             {/* Review tab end */}
