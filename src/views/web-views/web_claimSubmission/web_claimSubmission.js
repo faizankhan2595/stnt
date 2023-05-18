@@ -1171,7 +1171,7 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">PayNow registered mobile number or NRIC/FIN*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Bank Account Number" />
+                                                    <Input placeholder="Enter Mobile Number or NRIC/FIN" />
                                                 </div>
                                             </div>
                                         </div>
@@ -1184,7 +1184,7 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee name*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Bank Account Number" />
+                                                    <Input placeholder="Enter Payee Name" />
                                                 </div>
                                             </div>
                                         </div>
