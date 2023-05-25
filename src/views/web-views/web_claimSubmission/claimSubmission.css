@@ -195,6 +195,14 @@ body {
     margin-bottom: 25px;
 }
 
+.virtual-card-container-traveler {
+    margin-bottom: 25px;
+}
+
+.virtual-card-container-mobile {
+    display: none;
+}
+
 .drafts-container {
     background-color: #EEEEEE;
     padding: 15px;
@@ -484,7 +492,7 @@ body {
 
 .review-header-container {
     display: flex;
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     background-color: #FCFAFA;
     padding: 10px 15px;
@@ -584,7 +592,7 @@ body {
 
 .ant-steps-item-icon {
     cursor: pointer;
-} 
+}
 
 .logout-btn {
     background: #ED2939;
@@ -620,4 +628,138 @@ body {
     width: 100%;
     font-weight: 600;
     color: #000000;
+}
+
+.review-details-container-mobile {
+    display: none;
+}
+
+.review-edit-icon-container {
+    display: none !important;
+}
+
+/* Media queries for mobile view --------------------------- */
+
+@media only screen and (max-width: 768px) {
+    .virtual-card-container-mobile {
+        display: flex;
+        margin-bottom: 25px;
+    }
+
+    .claim-title-text {
+        font-style: normal;
+        font-weight: 800;
+        font-size: 24px;
+        line-height: 90%;
+        margin-bottom: 15px;
+    }
+
+    .claim-title-sub-text {
+        /*font-family: 'Open Sans';*/
+        font-style: normal;
+        font-weight: 500;
+        font-size: 14px;
+        line-height: 90%;
+        color: #FFFFFF;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        margin-bottom: 15px;
+    }
+
+    .steps-container {
+        display: none;
+    }
+
+    .virtual-card-img-container {
+        padding-left: 0px;
+        padding-top: 15px;
+        padding-bottom: 15px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .virtual-card-desc {
+        padding-right: 0px;
+        border: none;
+    }
+
+    .virtual-card-heading-text {
+        font-size: 14px;
+        line-height: 18px;
+
+    }
+
+    .virtual-card-container {
+        display: none;
+    }
+
+    .initiate-claim-container {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .claim-title-sub-text {
+        padding: 0px 20px;
+    }
+
+    .travel-details-main-container {
+        padding: 0px 20px;
+    }
+
+    .btns-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+    }
+
+    .save-draft-next-btn-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .policy-details-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+
+    .review-details-container {
+        display: none;
+    }
+
+    .review-details-container-mobile {
+        display: flex;
+    }
+
+    .policy-detail {
+        display: flex;
+        justify-content: flex-end;
+        width: 100%;
+    }
+
+    .policy-details-label {
+        width: 100%;
+    }
+
+    .review-edit-icon-container {
+        display: flex !important;
+    }
+
+    .edit-icon-container {
+        display: none;
+    }
+
+
+
 }

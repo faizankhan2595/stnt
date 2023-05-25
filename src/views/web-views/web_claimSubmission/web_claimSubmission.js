@@ -6,8 +6,8 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-
-
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave } from "services/apiService";
+import axios from "axios";
 
 const description = 'This is a description.';
 const { Step } = Steps;
@@ -111,14 +111,6 @@ const claimHistoryColumns = [
 
 ];
 
-
-const onChange = (value) => {
-    console.log(`selected ${value}`);
-};
-const onSearch = (value) => {
-    console.log('search:', value);
-};
-
 const props = {
     name: 'file',
     action: 'https://www.mocky.io/v2/5cc8019d300000980a055e76',
@@ -165,12 +157,63 @@ const ClaimSubmission = () => {
 
     //flip image logic ends here 
 
+    const onChange = () => {
+
+    }
+
+    const [countries, setCountries] = useState([]);
+
+    //get countries list from api
+    useEffect(() => {
+          getCountryDropdown().then((data) => {
+                const countries2 = data.data.countries.map((country) => {
+                    return {
+                        key: country,
+                        value: country,
+                        label: country,
+                    };
+                });
+                setCountries(countries2);
+            });
+    }, []);
+
+    const [country, setCountry] = useState();
+
+    const onCountrySelect = (value) => {
+        console.log(`selected ${value}`);
+        setCountry(value);
+    };
+
+    const [claims, setClaims] = useState([{
+        claimCategoryId: null,
+        isDraft: true,
+        claimDocs: [],
+    }]);
+
+    const [claimCategories, setClaimCategories] = useState([]);
+
+    useEffect(() => {
+        getClaimCategories().then((data) => {
+            const claimCategoriesNew = data.data.claimCategories.map((claimCategory) => {
+                return {
+                    value: claimCategory.id,
+                    label: claimCategory.title,
+                };
+            });
+            setClaimCategories(claimCategoriesNew);
+        });
+    }, []);
+
+    //claim category dropdown logic ends here
 
     //dropdown logic starts here
     const [selectedOption, setSelectedOption] = useState(null);
 
     const handleOptionChange = (value) => {
         setSelectedOption(value);
+    };
+
+    const onSearch = (val) => {
     };
 
     const handleDocumentUpload = (file) => {
@@ -186,21 +229,31 @@ const ClaimSubmission = () => {
 
     //add claim logic starts here
 
-    const [addAnotherClaim, setAddAnotherClaim] = useState(false);
-    const handleAddAnotherClaim = () => {
-        setAddAnotherClaim(true);
-        setIsModalOpen(false);
+    const addAllClaims = async () => {
 
-    };
+        for(const claim of claims) {
+            const FormData = require('form-data');
+            let data = new FormData();
+            data.append('claimCategoryId', claim.claimCategoryId);
+            data.append('lossCountry', country);
 
-
-
-    //add claim logic ends here
-
-
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+            for (const claimDoc of claim.claimDocs) {
+                data.append(claimDoc.title, claimDoc.file);
+            }
+        
+            let config = {
+                method: 'post',
+                maxBodyLength: Infinity,
+                url: 'http://54.255.28.58:8000/api/website/claim-request',
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+                data: data
+            };
+        
+            await axios.request(config)
+        }      
+    }
 
     const handleOk = () => {
         setIsModalOpen(false);
@@ -213,8 +266,6 @@ const ClaimSubmission = () => {
     useEffect(() => {
         setIsModalOpen(true); // Open the modal when the component mounts
     }, []);
-
-
 
     const [activeStep, setActiveStep] = useState(0);
 
@@ -229,10 +280,59 @@ const ClaimSubmission = () => {
 
     //payment logic starts here
 
+    const [paymentDetails, setPaymentDetails] = useState({});
     const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
+
+    const [bankAccountNumber, setBankAccountNumber] = useState('');
+    const [bankName, setBankName] = useState('');
+    const [payeeName, setPayeeName] = useState('');
+    const [payNowMobileNumber, setPayNowMobileNumber] = useState('');
+    const [PayeeNRIC, setPayeeNRIC] = useState('');
+
 
     const handlePaymentOptionChange = (value) => {
         setSelectedPaymentOption(value);
+    };
+
+    // const submit = async () => {
+    //     const res = await verifyDetailsHome({ 
+    //          name: lastName,
+    //          passportNo: passportNumber, 
+    //          uidNo: uid
+    //      }).catch(err => {
+    //          message.error('Verification failed. User not exists')
+    //          setTimeout(() => {
+    //              window.location.href = '/web/web_claimSubmission'
+    //          }, 1000);
+    //      })
+ 
+    //      message.success('Details verified successfully');
+    //      localStorage.setItem('token', res.data.token);
+    //      setTimeout(() => {
+    //          window.location.href = '/web/web_claimSubmission'
+    //      }, 1000);
+    //  }
+
+    const paymentSave = async () => {
+        if (selectedPaymentOption === 'dbs_posb') {
+            setPaymentDetails({
+                payeeName: payeeName,
+                PayeeNRIC: PayeeNRIC,
+                bankName: bankName,
+                bankAccountNumber: bankAccountNumber,
+            });
+        }
+
+        else if (selectedPaymentOption === 'cheque') {
+            setPaymentDetails({
+                payeeName: payeeName,
+            });
+        } else if (selectedPaymentOption === 'paynow_linked_account') {
+            setPaymentDetails({
+                payNowMobileNumber: payNowMobileNumber,
+
+            });
+        }
     };
 
     //payment logic ends here
@@ -248,11 +348,11 @@ const ClaimSubmission = () => {
     return (
         <div>
             <div className="banner-container">
-                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: 'auto' }} />
+                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: '375px', objectFit: 'cover' }} />
             </div>
 
             <div className="logout-btn-container">
-            <Link to={`/`}><div className="logout-btn">Logout</div></Link>
+                <Link to={`/`}><div className="logout-btn">Logout</div></Link>
                 <div className="update-details-container" onClick={() => setIsModalOpen(true)}>
                     <div className="update-icon-container">
                         <img src="/img/update-icon.svg" alt="update-icon" style={{ width: '20px', height: 'auto' }} />
@@ -329,7 +429,7 @@ const ClaimSubmission = () => {
                     </Modal>
 
 
-                    <div className="virtual-card-container">
+                    <div className="virtual-card-container-traveler">
                         <div className="virtual-card">
                             <div className="virtual-card-heading" style={{ marginBottom: '15px' }}>
                                 <div className="heading-cion-container" style={{ display: 'flex', alignItems: 'center' }}>
@@ -351,11 +451,11 @@ const ClaimSubmission = () => {
 
                             </div>
                             <Row>
-                                <Col span={12} className="virtual-card-desc">
+                                <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-desc">
                                     A virtual claim payment card is unique digit computer generated number that is created solely for a use between a payer and payee.
                                     We will provide a Claim Assistance Card for your to ensure that you have handy policy details as well as direct claims assistance number always with you.
                                 </Col>
-                                <Col span={12} className="virtual-card-img">
+                                <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
                                     <div className="virtual-card-img-container">
 
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
@@ -450,6 +550,81 @@ const ClaimSubmission = () => {
                         </div>
                     </div>
 
+                    <div className="virtual-card-container-mobile">
+                        <div className="virtual-card">
+                            <div className="virtual-card-heading" style={{ marginBottom: '15px' }}>
+                                <div className="heading-icon-container" style={{ display: 'flex', alignItems: 'center' }}>
+                                    <div className="virtual-card-icon-container">
+                                        <img src="/img/policy-details-icon.svg" alt="policy-details-icon" style={{ width: '32px', height: 'auto', marginRight: '10px' }} />
+                                    </div>
+                                    <div className="virtual-card-heading-text">
+                                        Policy Details
+                                    </div>
+                                </div>
+
+                            </div>
+                            <Row>
+                                <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
+                                    <div className="virtual-card-img-container">
+                                        <img src="/img/policy-img.png" alt="virtual-card-img" style={{ width: '150px', height: 'auto' }} />
+                                    </div>
+                                </Col>
+                                <Col lg={{ span: 6 }} xs={{ span: 12 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Policy Effective Date:</div>
+                                        <div className="policy-detail">1 Apr 2023, 10:00:00 Am</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Policy Type::</div>
+                                        <div className="policy-detail">UMRAH EMA 1444H</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">UID No:</div>
+                                        <div className="policy-detail">S-STT-S1004-5921</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Duration of Package:</div>
+                                        <div className="policy-detail">16 Days</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Cost:</div>
+                                        <div className="policy-detail">S$175.00</div>
+                                    </div>
+
+                                </Col>
+                                <Col lg={{ span: 6 }} xs={{ span: 12 }} className="virtual-card-desc" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Policy Expiration Date::</div>
+                                        <div className="policy-detail">20 Apr 2023, 10:00:00 Am</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Policy No:</div>
+                                        <div className="policy-detail">100025399969</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Date of Birth:</div>
+                                        <div className="policy-detail">10 Jan 1990</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Geographical Limit:</div>
+                                        <div className="policy-detail">Saudi Arabia Only</div>
+                                    </div>
+
+                                </Col>
+
+                            </Row>
+                        </div>
+                    </div>
+
                     <div className="drafts-container">
                         <div className="draft-heading-container">
                             <div className="drafts-icon">
@@ -503,7 +678,7 @@ const ClaimSubmission = () => {
                 <Row>
                     <Col span={8}></Col>
 
-                    <Col span={8}>
+                    <Col lg={{ span: 8 }} xs={{ span: 24 }}>
                         <div className="travel-details-main-container">
                             <div className="back-icon-container" onClick={handleStepBack}>
                                 <div className="back-icon">
@@ -530,37 +705,14 @@ const ClaimSubmission = () => {
                                         showSearch
                                         placeholder="Select a country"
                                         optionFilterProp="children"
-                                        onChange={onChange}
+                                        onChange={onCountrySelect}
+                                        name="country"
+                                        value={country}
                                         onSearch={onSearch}
                                         filterOption={(input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                         }
-                                        options={[
-                                            {
-                                                value: 'Singapore',
-                                                label: 'Singapore',
-                                            },
-                                            {
-                                                value: 'Saudi Arabia',
-                                                label: 'Saudi Arabia',
-                                            },
-                                            {
-                                                value: 'Brunei',
-                                                label: 'Brunei',
-                                            },
-                                            {
-                                                value: 'Malaysia',
-                                                label: 'Malaysia',
-                                            },
-                                            {
-                                                value: 'Indonesia',
-                                                label: 'Indonesia',
-                                            },
-                                            {
-                                                value: 'Thailand',
-                                                label: 'Thailand',
-                                            },
-                                        ]}
+                                        options={countries}
                                     />
                                 </div>
 
@@ -595,445 +747,116 @@ const ClaimSubmission = () => {
                     </div>
 
                     <div className="claim-details-title">
-                        <div className="claim-details-heading">
-                            Claim requests
+                            <div className="claim-details-heading">
+                                Claim requests
+                            </div>
+                            <div className="claim-details-sub-text">claim request can be initiated by selecting category of claim and uploading documents & pictures. User can add multiple claims for different categories from list</div>
                         </div>
-                        <div className="claim-details-sub-text">claim request can be initiated by selecting category of claim and uploading documents & pictures. User can add multiple claims for different categories from list</div>
-                    </div>
 
-                    <div className="heading-icon-container-2" style={{ display: 'flex', alignItems: 'center' }}>
-                        <div className="virtual-card-icon-container">
-                            <img src="/img/policy-details-icon.svg" alt="policy-details-icon" style={{ width: '32px', height: 'auto', marginRight: '10px' }} />
+                    {claims.map((claim, index) => (<>
+
+
+                        <div className="heading-icon-container-2" style={{ display: 'flex', alignItems: 'center' }}>
+                            <div className="virtual-card-icon-container">
+                                <img src="/img/policy-details-icon.svg" alt="policy-details-icon" style={{ width: '32px', height: 'auto', marginRight: '10px' }} />
+                            </div>
+                            <div className="virtual-card-heading-text" style={{ backgroundColor: '#FCFAFA', padding: '15px' }}>
+                                Claim request {index + 1}
+                            </div>
                         </div>
-                        <div className="virtual-card-heading-text" style={{ backgroundColor: '#FCFAFA', padding: '15px' }}>
-                            Claim request 1
+
+                        <div className="claim-category-select mb-3">
+                            <div className="label" style={{ marginBottom: '10px' }}>Claim Category</div>
+                            <Select
+                                showSearch
+                                onChange={async (value) => {
+                                    const claimNew = [...claims];
+                                    const data = await getClaimCategoryAndDocs({id: value});
+                                    const claimCategoryData = data.data?.claimCategoryData;
+                                    claimNew[index].claimCategoryId = value;
+                                    claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
+                                    setClaims(claimNew);
+                                }}
+                                placeholder="Select a category"
+                                optionFilterProp="children"
+                                name="categories"
+                                value={claim.claimCategoryId}
+                                options={claimCategories}
+                            />
                         </div>
-                    </div>
 
-                    <div className="claim-category-select mb-3">
-                        <div className="label" style={{ marginBottom: '10px' }}>Claim Category</div>
-                        <Select
-                            showSearch
-                            onChange={handleOptionChange}
-                            placeholder="Select a category"
-                            optionFilterProp="children"
-                            onSearch={onSearch}
-                            filterOption={(input, option) =>
-                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                            }
-                            options={[
-                                {
-                                    label: 'Medical & Other Expenses',
-                                    value: 'medical_other_Expenses',
-                                },
-                                {
-                                    label: 'Hospital Confinement Allowance',
-                                    value: 'hospital_confinement_allowance',
-                                },
-                                {
-                                    label: 'Emergency Medical Evacuation',
-                                    value: 'emergency_medical_evacuation',
-                                },
-                                {
-                                    label: 'Personal Accident / Permanent Total Disablement / Child’s Education Fund',
-                                    value: 'personal_accident_permanent_total_disablement_child_education_fund',
-                                },
-                                {
-                                    label: 'Compassionate Visit/ Child Caretaker/ Child Help Get Well Benefit',
-                                    value: 'compassionate_visit',
-                                },
-                                {
-                                    label: 'Bereavement Benefit due to COVID-19',
-                                    value: 'benefit_covid_19',
-                                },
-                                {
-                                    label: 'Cancellation/Postponement (before onset of trip)',
-                                    value: 'cancellation',
-                                },
-                                {
-                                    label: 'Trip Curtailment',
-                                    value: 'trip_curtailment',
-                                },
-                                {
-                                    label: 'Travel Delay',
-                                    value: 'travel_delay',
-                                },
-                                {
-                                    label: 'Travel Misconnection',
-                                    value: 'travel_misconnection',
-                                },
-                                {
-                                    label: 'Overbooked Scheduled Public Conveyance',
-                                    value: 'overbooked_scheduled',
-                                },
-                                {
-                                    label: 'Flight Deviation',
-                                    value: 'flight_deviation',
-                                },
-                                {
-                                    label: 'Hijacking / Kidnapping',
-                                    value: 'hijacking_kidnapping',
-                                },
-                                {
-                                    label: 'Baggage Delay',
-                                    value: 'baggage_delay',
-                                },
-                                {
-                                    label: 'Loss of Baggage & Personal Effects',
-                                    value: 'loss_of_baggage',
-                                },
-                                {
-                                    label: 'Credit Card Indemnity',
-                                    value: 'credit_card_indemnity',
-                                },
-                                {
-                                    label: 'Personal Liability',
-                                    value: 'personal_liability',
-                                },
-                                {
-                                    label: 'Rental Vehicle Excess',
-                                    value: 'rental_vehicle_excess',
-                                },
-                                {
-                                    label: 'Home Protection / Burglary',
-                                    value: 'home_protection',
-                                },
-                                {
-                                    label: 'Emergency Phone Charges',
-                                    value: 'emergency_phone_charges',
-                                },
-                                {
-                                    label: 'Un-utilized Entertainment Ticket',
-                                    value: 'un_utilized_entertainment_ticket',
-                                },
-                                {
-                                    label: 'Credit Card Liability Protector',
-                                    value: 'credit_card_liability_protector',
-                                },
-                                {
-                                    label: 'Others',
-                                    value: 'others',
-                                },
+                        <div className="documents-upload-heading" style={{ margrinBottom: '10px', margrinTop: '20px' }}>Documents Upload</div>
+                        <div className="mandatory-items-note">* are mandatory items</div>
 
+                        <div className="documents-upload-container">
 
-                            ]}
-                        />
-                    </div>
-
-                    <div className="documents-upload-heading" style={{ margrinBottom: '10px', margrinTop: '20px' }}>Documents Upload</div>
-                    <div className="mandatory-items-note">* are mandatory items</div>
-
-                    <div className="documents-upload-container">
-
-                        {selectedOption === 'medical_other_Expenses' && (
                             <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                                <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*</Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-                                <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any*</Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-
-                                <Col span={12} className="document-upload-label mb-2">Copy of actual travel itinerary of Trip*</Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-
-                                <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any Medical Report and/or Hospital Discharge Summary showing nature and/or diagnosis of injury/ sickness*
-
-                                </Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-                                <Col span={12} className="document-upload-label mb-2">Original Medical Bills/ Receipts for the full amount of the claim*
-                                </Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-                            </Row>
-
-                        )}
-
-                        {selectedOption === 'loss_of_baggage' && (
-                            <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                                <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*
-                                </Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-                                <Col span={12} className="document-upload-label mb-2">Photograph(s) of damaged baggage where applicable
-                                </Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-
-                                <Col span={12} className="document-upload-label mb-2">Property Irregularity Report for loss of or damaged baggage by an airline or carrier
-                                </Col>
-                                <Col span={12} className="pl-4 mb-2">
-                                    <Upload {...props}>
-                                        <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                    </Upload>
-                                </Col>
-                            </Row>
-                        )}
-
-
-                        <Modal title="Confirm" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                            <div className="claim-modal-text-container">
-                                <span>Would you like to add another claim?</span>
-                            </div>
-
-                            <div className="d-flex justify-content-center align-items-center">
-                                <div className="secondary-btn mr-2">No</div>
-                                <div className="web-btn">Yes</div>
-                            </div>
-
-                        </Modal>
-
-                    </div>
-
-                    {addAnotherClaim && (
-                        <div>
-                            <div className="heading-icon-container-2" style={{ display: 'flex', alignItems: 'center' }}>
-                                <div className="virtual-card-icon-container">
-                                    <img src="/img/policy-details-icon.svg" alt="policy-details-icon" style={{ width: '32px', height: 'auto', marginRight: '10px' }} />
-                                </div>
-                                <div className="virtual-card-heading-text" style={{ backgroundColor: '#FCFAFA', padding: '15px' }}>
-                                    Claim request 1
-                                </div>
-                            </div>
-
-                            <div className="claim-category-select mb-3">
-                                <div className="label" style={{ marginBottom: '10px' }}>Claim Category</div>
-                                <Select
-                                    showSearch
-                                    onChange={handleOptionChange}
-                                    placeholder="Select a category"
-                                    optionFilterProp="children"
-                                    onSearch={onSearch}
-                                    filterOption={(input, option) =>
-                                        (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                    }
-                                    options={[
-                                        {
-                                            label: 'Medical & Other Expenses',
-                                            value: 'medical_other_Expenses',
-                                        },
-                                        {
-                                            label: 'Hospital Confinement Allowance',
-                                            value: 'hospital_confinement_allowance',
-                                        },
-                                        {
-                                            label: 'Emergency Medical Evacuation',
-                                            value: 'emergency_medical_evacuation',
-                                        },
-                                        {
-                                            label: 'Personal Accident / Permanent Total Disablement / Child’s Education Fund',
-                                            value: 'personal_accident_permanent_total_disablement_child_education_fund',
-                                        },
-                                        {
-                                            label: 'Compassionate Visit/ Child Caretaker/ Child Help Get Well Benefit',
-                                            value: 'compassionate_visit',
-                                        },
-                                        {
-                                            label: 'Bereavement Benefit due to COVID-19',
-                                            value: 'benefit_covid_19',
-                                        },
-                                        {
-                                            label: 'Cancellation/Postponement (before onset of trip)',
-                                            value: 'cancellation',
-                                        },
-                                        {
-                                            label: 'Trip Curtailment',
-                                            value: 'trip_curtailment',
-                                        },
-                                        {
-                                            label: 'Travel Delay',
-                                            value: 'travel_delay',
-                                        },
-                                        {
-                                            label: 'Travel Misconnection',
-                                            value: 'travel_misconnection',
-                                        },
-                                        {
-                                            label: 'Overbooked Scheduled Public Conveyance',
-                                            value: 'overbooked_scheduled',
-                                        },
-                                        {
-                                            label: 'Flight Deviation',
-                                            value: 'flight_deviation',
-                                        },
-                                        {
-                                            label: 'Hijacking / Kidnapping',
-                                            value: 'hijacking_kidnapping',
-                                        },
-                                        {
-                                            label: 'Baggage Delay',
-                                            value: 'baggage_delay',
-                                        },
-                                        {
-                                            label: 'Loss of Baggage & Personal Effects',
-                                            value: 'loss_of_baggage',
-                                        },
-                                        {
-                                            label: 'Credit Card Indemnity',
-                                            value: 'credit_card_indemnity',
-                                        },
-                                        {
-                                            label: 'Personal Liability',
-                                            value: 'personal_liability',
-                                        },
-                                        {
-                                            label: 'Rental Vehicle Excess',
-                                            value: 'rental_vehicle_excess',
-                                        },
-                                        {
-                                            label: 'Home Protection / Burglary',
-                                            value: 'home_protection',
-                                        },
-                                        {
-                                            label: 'Emergency Phone Charges',
-                                            value: 'emergency_phone_charges',
-                                        },
-                                        {
-                                            label: 'Un-utilized Entertainment Ticket',
-                                            value: 'un_utilized_entertainment_ticket',
-                                        },
-                                        {
-                                            label: 'Credit Card Liability Protector',
-                                            value: 'credit_card_liability_protector',
-                                        },
-                                        {
-                                            label: 'Others',
-                                            value: 'others',
-                                        },
-
-
-                                    ]}
-                                />
-                            </div>
-
-                            <div className="documents-upload-heading" style={{ margrinBottom: '10px', margrinTop: '20px' }}>Documents Upload</div>
-                            <div className="mandatory-items-note">* are mandatory items</div>
-
-                            <div className="documents-upload-container">
-
-                                {selectedOption === 'medical_other_Expenses' && (
-                                    <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                                        <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*</Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
+                                {claim.claimDocs.map((claim_doc, claim_doc_index) => (<>
+                                        <Col lg={{ span: 24 }} xs={{ span: 24 }} className="document-upload-label mb-2 mt-2">
+                                            {claim_doc.title}
+                                            {claim_doc.isMandatory && <span className="mandatory-item">*</span>}
+                                        </Col>
+                                        <Col lg={{ span: 24 }} xs={{ span: 24 }} className="pl-4 mb-2">
+                                            <Upload 
+                                                name="file"
+                                                action={(file) => {
+                                                    const claimNew = [...claims];
+                                                    claimNew[index].claimDocs[claim_doc_index].file = file;
+                                                    setClaims(claimNew);
+                                                }}
+                                                customRequest={({ file, onSuccess }) => {
+                                                    setTimeout(() => {
+                                                        onSuccess("ok");
+                                                    }, 0);
+                                                }}
+                                            >
                                                 <Button icon={<UploadOutlined />}>Click to Upload</Button>
                                             </Upload>
                                         </Col>
+                                </>))}
+                             </Row>
 
-                                        <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any*</Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-
-
-                                        <Col span={12} className="document-upload-label mb-2">Copy of actual travel itinerary of Trip*</Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-
-
-                                        <Col span={12} className="document-upload-label mb-2">Copies of your other insurance policy and proof of receiving compensation, if any Medical Report and/or Hospital Discharge Summary showing nature and/or diagnosis of injury/ sickness*
-
-                                        </Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-
-                                        <Col span={12} className="document-upload-label mb-2">Original Medical Bills/ Receipts for the full amount of the claim*
-                                        </Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-                                    </Row>
-
-                                )}
-
-                                {selectedOption === 'loss_of_baggage' && (
-                                    <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                                        <Col span={12} className="document-upload-label mb-2">Copy of Certificate of Insurance*
-                                        </Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-
-                                        <Col span={12} className="document-upload-label mb-2">Photograph(s) of damaged baggage where applicable
-                                        </Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-
-                                        <Col span={12} className="document-upload-label mb-2">Property Irregularity Report for loss of or damaged baggage by an airline or carrier
-                                        </Col>
-                                        <Col span={12} className="pl-4 mb-2">
-                                            <Upload {...props}>
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
-                                    </Row>
-                                )}
-
-                            </div>
                         </div>
-                    )}
+
+                    </>))}
 
 
-                    <Modal title="Confirm" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
+                    <Modal title="Confirm" visible={isModalOpen} onCancel={handleCancel}>
                         <div className="claim-modal-text-container">
                             <span>Would you like to add another claim?</span>
                         </div>
 
                         <div className="d-flex justify-content-center align-items-center">
-                            <div className="secondary-btn mr-2" onClick={() => setIsModalOpen(false)}>No</div>
-                            <div className="web-btn" onClick={handleAddAnotherClaim}>Yes</div>
+                            <div className="secondary-btn mr-2"
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                }}
+                            >No</div>
+                            <div className="web-btn"
+                                onClick={() => {
+                                    setIsModalOpen(false);
+                                    const claimNew = [...claims];
+                                    claimNew.push({
+                                        claimCategoryId: '',
+                                        claimDocs: []
+                                    });
+                                    setClaims(claimNew);
+                                }}
+                            >Yes</div>
                         </div>
 
                     </Modal>
 
                     <div className="btns-container">
                         <div className="web-btn" onClick={() => setIsModalOpen(true)}>Add more claims</div>
-                        <div className="d-flex align-items-center">
-                            <div className="secondary-btn mr-2">Save as draft</div>
-                            <div className="web-btn" onClick={() => handleStepChange(3)}>Next</div>
+                        <div className="save-draft-next-btn-container d-flex align-items-center">
+                            <div className="secondary-btn mr-2" onClick={addAllClaims}>
+                                Save as draft
+                            </div>
+                            <div className="web-btn" onClick={() => {
+                                addAllClaims();
+                                handleStepChange(3);
+                            }}>Next</div>
                         </div>
                     </div>
 
@@ -1048,22 +871,21 @@ const ClaimSubmission = () => {
 
             {activeStep === 3 && (
 
-                <div className="payemnt-details-container pb-5">
+                <div className="payemnt-details-container pb-5 px-3">
 
                     <div className="payment-details-container">
 
                         <Row className="w-100">
                             <Col span={8}></Col>
-                            <Col span={8}>
-
-                                <div className="back-icon-container" onClick={handleStepBack}>
-                                    <div className="back-icon">
-                                        <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '7px', height: 'auto', marginRight: '10px' }} />
-                                    </div>
-                                    <div className="back-text">Back</div>
-                                </div>
+                            <Col lg={{ span: 8 }} xs={{ span: 24 }}>
 
                                 <div className="travel-details-container">
+                                    <div className="back-icon-container" onClick={handleStepBack}>
+                                        <div className="back-icon">
+                                            <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '7px', height: 'auto', marginRight: '10px' }} />
+                                        </div>
+                                        <div className="back-text">Back</div>
+                                    </div>
                                     <div className="verify-details-heading">
                                         Payment Details
                                     </div>
@@ -1097,7 +919,6 @@ const ClaimSubmission = () => {
                                                         label: 'Cheque',
                                                     },
 
-
                                                 ]}
                                             />
                                         </div>
@@ -1112,7 +933,12 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee Name (as per bank account)*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Payee Name" />
+                                                    <Input placeholder="Payee Name" 
+                                                        value={payeeName}
+                                                        onChange={(e) => {
+                                                            setPayeeName(e.target.value);
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1121,7 +947,12 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee NRIC*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Payee NRIC" />
+                                                    <Input placeholder="Payee NRIC" 
+                                                        value={PayeeNRIC}
+                                                        onChange={(e) => {
+                                                            setPayeeNRIC(e.target.value);
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1134,7 +965,10 @@ const ClaimSubmission = () => {
                                                         showSearch
                                                         placeholder="Select a person"
                                                         optionFilterProp="children"
-                                                        onChange={onChange}
+                                                        value={bankName}
+                                                        onChange={(value) => {
+                                                            setBankName(value);
+                                                        }}
                                                         onSearch={onSearch}
                                                         filterOption={(input, option) =>
                                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
@@ -1158,7 +992,12 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Bank Account Number*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Bank Account Number" />
+                                                    <Input placeholder="Enter Bank Account Number" 
+                                                        value={bankAccountNumber}
+                                                        onChange={(e) => {
+                                                            setBankAccountNumber(e.target.value);
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1171,7 +1010,12 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">PayNow registered mobile number or NRIC/FIN*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Mobile Number or NRIC/FIN" />
+                                                    <Input placeholder="Enter Mobile Number or NRIC/FIN"
+                                                    value={payNowMobileNumber} 
+                                                        onChange={(e) => { 
+                                                            setPayNowMobileNumber(e.target.value);
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1184,7 +1028,12 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee name*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Payee Name" />
+                                                    <Input placeholder="Enter Payee Name"
+                                                        value={payeeName}
+                                                        onChange={(e) => {
+                                                            setPayeeName(e.target.value);
+                                                        }}
+                                                    />
                                                 </div>
                                             </div>
                                         </div>
@@ -1233,12 +1082,19 @@ const ClaimSubmission = () => {
 
                     <div className="review-container">
                         <div className="review-header-container">
-                            <div className="icon-container">
-                                <img src="/img/travel-icon.svg" alt="claim-details-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
-                            </div>
+                            <div className="d-flex justify-content-between">
+                                <div className="icon-container">
+                                    <img src="/img/travel-icon.svg" alt="claim-details-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
+                                </div>
 
-                            <div className="virtual-card-heading-text">
-                                Travel Details
+                                <div className="virtual-card-heading-text">
+                                    Travel Details
+                                </div>
+                            </div>
+                            <div className="review-edit-icon-container d-flex">
+                                <div className="review-edit-icon">
+                                    <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
+                                </div>
                             </div>
                         </div>
 
@@ -1291,16 +1147,88 @@ const ClaimSubmission = () => {
                                 </Col>
                             </Row>
                         </div>
+
+                        <div className="review-details-container-mobile">
+                            <Row className="w-100">
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Insurance Policy Package</div>
+                                        <div className="policy-detail">Hajj 1443H</div>
+                                    </div>
+
+                                </Col>
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Traveler Agent</div>
+                                        <div className="policy-detail">Mr. Rashid M</div>
+                                    </div>
+
+                                </Col>
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Departure date from Singapore:</div>
+                                        <div className="policy-detail">15 Apr 2023</div>
+                                    </div>
+                                </Col>
+
+
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Policy Number</div>
+                                        <div className="policy-detail">100256500266</div>
+                                    </div>
+                                </Col>
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Country where Loss Occurred</div>
+                                        <div className="policy-detail">Saudi Arabia</div>
+                                    </div>
+                                </Col>
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Return date to Singapore</div>
+                                        <div className="policy-detail">22 Apr 2023</div>
+                                    </div>
+
+                                </Col>
+
+                                <Col span={8} className="d-flex justify-content-end align-items-start">
+                                    <div className="edit-icon-container" onClick={() => handleStepChange(1)}>
+                                        <div className="edit-icon">
+                                            <div className="icon">
+                                                <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
+                                            </div>
+                                            <span>Edit</span>
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+
+
                     </div>
 
                     <div className="review-container">
                         <div className="review-header-container">
-                            <div className="icon-container">
-                                <img src="/img/claim-icon.svg" alt="claim-details-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
-                            </div>
+                            <div className="d-flex justify-content-between">
+                                <div className="icon-container">
+                                    <img src="/img/claim-icon.svg" alt="claim-details-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
+                                </div>
 
-                            <div className="virtual-card-heading-text">
-                                Claim Details
+                                <div className="virtual-card-heading-text">
+                                    Claim Details
+                                </div>
+                            </div>
+                            <div className="review-edit-icon-container d-flex">
+                                <div className="review-edit-icon">
+                                    <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
+                                </div>
                             </div>
                         </div>
 
@@ -1349,7 +1277,33 @@ const ClaimSubmission = () => {
                                     </div>
                                 </Col>
                             </Row>
+
                         </div>
+
+                        <div className="review-details-container-mobile">
+
+                            <Row className="w-100">
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Claim Category</div>
+                                        <div className="policy-detail">Medical and other expenses</div>
+                                    </div>
+
+                                </Col>
+                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                <div className="policy-details-container">
+                                        <div className="policy-details-label">Documents Uploaded</div>
+                                        <div className="policy-detail">Copy of Certificate of Insurance*</div>
+                                    </div>
+
+                                </Col>
+                              
+                            </Row>
+
+                        </div>
+
                     </div>
 
                     <div className="review-container">
@@ -1458,16 +1412,16 @@ const ClaimSubmission = () => {
                         </div>
                     </div>
                     <Modal title="Confirm" visible={isSubmitClaimModalOpen} footer={null}>
-                            <div className="claim-modal-text-container">
-                                <span>Your claim has been submitted</span>
-                            </div>
+                        <div className="claim-modal-text-container">
+                            <span>Your claim has been submitted</span>
+                        </div>
 
-                            <div className="d-flex justify-content-center align-items-center">
-                                <div className="web-btn" onClick={() => {
-                                    handleStepChange(0);
-                                    setIsSubmitClaimModalOpen(false);
-                                }}>OK</div>
-                            </div>
+                        <div className="d-flex justify-content-center align-items-center">
+                            <div className="web-btn" onClick={() => {
+                                handleStepChange(0);
+                                setIsSubmitClaimModalOpen(false);
+                            }}>OK</div>
+                        </div>
                     </Modal>
                 </div>
             )}

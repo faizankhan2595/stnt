@@ -6,6 +6,8 @@ import { Tabs } from "antd";
 import { useLocation, useParams } from "react-router-dom";
 import { ChangeAgStatus } from "assets/svg/icon";
 import { Radio } from 'antd';
+import { AddTravelAgent, GetTravelAgency, UpdateTravelAgency } from "services/apiService";
+import { useEffect } from "react";
 export default function AddNew() {
   const { TabPane } = Tabs;
   const param = useParams();
@@ -30,26 +32,47 @@ export default function AddNew() {
   };
 
   const handleOk = () => {
-    setTimeout(() => {}, 10000);
+    setTimeout(() => { }, 10000);
   };
 
   const [form] = Form.useForm();
 
   const onFinish = (values) => {
-    console.log("Success:", values);
-    if (
-      location.pathname ===
-      `/app/membership/membership_plans/update/${param.id}`
-    ) {
-      // let newVal =
-      createMembership(
-        { ...values, id: param.id },
-        `http://127.0.0.1:3333/membership/update`
-      );
-    } else {
-      createMembership(values, "http://127.0.0.1:3333/membership/new");
+    let data = {};
+
+    data.agencyName = values.agency_name;
+    data.email = values.email;
+    data.phoneNo = values.phone_number;
+    data.phoneCode = values.phone_code;
+    data.officeContactNo = values.office_contact_no;
+    data.blockNumber = values.block_number;
+    data.streetNumber = values.street_number;
+    data.levelNumber = values.level_number;
+    data.unitNumber = values.unit_number;
+    data.postalCode = values.postal_code;
+    data.country = values.country;
+    data.gsaCode = values.gsa_code;
+
+    if(param.id) {
+      data.id = param.id;
+      UpdateTravelAgency(data);
     }
+    AddTravelAgent(data);
+    console.log("Success:", values);
+
   };
+
+  // UpdateTravelAgency
+
+  //on status change of agency hit api
+  const onStatusChange = (e) => {
+    console.log(e.target.value);
+    let data = {};
+    data.id = param.id;
+    data.status = e.target.value;
+    UpdateTravelAgency(data);
+  };
+
 
   const createMembership = (values, url) => {
     const formData = new FormData();
@@ -74,10 +97,33 @@ export default function AddNew() {
         console.log(error);
       });
   };
+
   const onRadChange = (e) => {
     console.log('radio checked', e.target.value);
     setValue(e.target.value);
   };
+
+  useEffect(async () => {
+    if(param.id) {
+      const response = await GetTravelAgency({id: param.id})
+      console.log(response.data);
+      const data = response.data.data;
+      form.setFieldsValue({
+        agency_name: data.agencyName,
+        email: data.email,
+        phone_number: data.phoneNo,
+        phone_code: data.phoneCode,
+        office_contact_no: data.officeContactNo,
+        block_number: data.blockNumber,
+        street_number: data.streetNumber,
+        level_number: data.levelNumber,
+        unit_number: data.unitNumber,
+        postal_code: data.postalCode,
+        country: data.country,
+        gsa_code: data.gsaCode,
+      })
+    }
+  }, []);
 
   const operations = (
     <div style={{ gap: "10px" }} className="mb-2 d-flex justify-content-end">
@@ -97,6 +143,7 @@ export default function AddNew() {
         </Button> */}
     </div>
   );
+
 
   return (
     <div className="">
@@ -125,13 +172,20 @@ export default function AddNew() {
               <div style={{ gap: "60px" }} className="d-flex ">
                 <div style={{ width: "45%" }}>
                   <Form.Item
-                    name="id"
+                    name="agency_name"
                     label="Agency Name"
                     rules={[
                       { required: true, message: "Please enter Agency Name" },
                     ]}
                   >
                     <Input placeholder="Agency Name" />
+                  </Form.Item>
+                  <Form.Item
+                    name="phone_code"
+                    label="Phone Code"
+                    rules={[{ required: true, message: "Phone Number" }]}
+                  >
+                    <Input placeholder="Phone number" />
                   </Form.Item>
                   <Form.Item
                     name="phone_number"
@@ -143,7 +197,7 @@ export default function AddNew() {
                 </div>
                 <div style={{ width: "45%" }}>
                   <Form.Item
-                    name="period"
+                    name="email"
                     label="Email Id"
                     rules={[
                       { required: true, message: "Please enter email Id" },
@@ -152,7 +206,7 @@ export default function AddNew() {
                     <Input placeholder="Email Id" />
                   </Form.Item>
                   <Form.Item
-                    name="Office_Contact_No"
+                    name="office_contact_no"
                     label="Office Contact No"
                     rules={[
                       {
@@ -263,6 +317,27 @@ export default function AddNew() {
                       alignItems: "flex-end",
                     }}
                   >
+                    <Form.Item
+                      name="gsa_code"
+                      label="GSA Code"
+                      style={{ width: "100%" }}
+                    >
+                      <Input placeholder="GSA Code" />
+                    </Form.Item>
+
+                 
+                  </div>
+                </div>
+
+                <div style={{ gap: "60px" }} className="d-flex ">
+                  <div
+                    style={{
+                      width: "45%",
+                      display: "flex",
+                      alignItems: "flex-end",
+                    }}
+                  >
+
                     <Form.Item
                       name="country"
                       label="Country"

@@ -24,6 +24,7 @@ export const AppViews = () => {
         <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request/view_detail`} component={lazy(() => import(`./claim_management/claim_request/view_detail/index`))} />
         <Route exact path={`${APP_PREFIX_PATH}/travel_agency`} component={lazy(() => import(`./travel_agency`))} />
         <Route exact path={`${APP_PREFIX_PATH}/travel_agency/add_new`} component={lazy(() => import(`./travel_agency/add_new`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/travel_agency/edit/:id`} component={lazy(() => import(`./travel_agency/add_new`))} />
         <Route exact path={`${APP_PREFIX_PATH}/traveler/manifest_import`} component={lazy(() => import(`./Members`))} />
         <Route exact path={`${APP_PREFIX_PATH}/traveler/manifest_import/add_new`} component={lazy(() => import(`./Members/manifest_import`))} />
         <Route exact path={`${APP_PREFIX_PATH}/membership/members/membersdetails/:id`} component={lazy(() => import(`./Members/MembersDetails.js`))} />

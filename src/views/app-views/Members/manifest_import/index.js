@@ -2,6 +2,8 @@ import { CheckSuccess, ImpMani, UploadFileIcon } from "assets/svg/icon";
 import React, { useState } from "react";
 import { CloseCircleOutlined } from "@ant-design/icons";
 import { Button, Form, Input, Select, Modal } from "antd";
+import { GetAllTravelAgents, ManifestFileUpload } from "services/apiService";
+import { useEffect } from "react";
 const { Option } = Select;
 let styles = {
   files: {
@@ -45,6 +47,8 @@ const ManfestImp = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
+  const [agents, setAgents] = useState([]);
+
   const onTravelAgentChange = (value) => {
     switch (value) {
       case "male":
@@ -65,27 +69,50 @@ const ManfestImp = () => {
       default:
     }
   };
-  const onFinish = (values) => {
+
+  const onFinish = async (values) => {
     console.log(values);
+    console.log(selectedFiles);
+    if (selectedFiles.length === 0) {
+      alert("Please upload a file");
+    }
+
+    await ManifestFileUpload({
+      file: selectedFiles[0],
+      travelAgentId: values.travel_agent,
+      manifestType: values.manifest_type
+    });
+
+    console.log("Success:");
     setIsModalOpen(true);
   };
+
   function handleFileSelect(event) {
     const fileList = event.target.files;
+    console.log(fileList);
     const newSelectedFiles = [];
 
     for (let i = 0; i < fileList.length; i++) {
       newSelectedFiles.push(fileList[i]);
     }
-    //   console.log(selectedFiles)
 
+    console.log(selectedFiles)
     setSelectedFiles([...selectedFiles, newSelectedFiles[0]]);
   }
+
   const delUplFile = (i) => {
     let AfterDeleteFile = selectedFiles.filter((elem, index) => {
       return index !== i;
     });
     setSelectedFiles(AfterDeleteFile);
   };
+
+  useEffect(async () => {
+    const response = await GetAllTravelAgents({size : 10000, page: 1, search: ''});
+    console.log(response);
+    setAgents(response.data.data.rows);
+  }, []);
+
   return (
     <>
       <Form
@@ -109,7 +136,7 @@ const ManfestImp = () => {
             </div>
           </div>
           <div className="m-auto w-75 mt-5">
-            <div className="mt-4">
+            <div className="d-flex mt-4">
               <Form.Item
                 name="travel_agent"
                 label="Travel Agent"
@@ -118,16 +145,37 @@ const ManfestImp = () => {
                     required: true,
                   },
                 ]}
-                className="w-50"
+                className="w-50 p-1"
               >
                 <Select
                   placeholder="Select"
                   onChange={onTravelAgentChange}
                   allowClear
                 >
-                  <Option value="first">Abu Bakar Travel Services Pte Ltd</Option>
-                  <Option value="second">Afandi Travels & services Pte Ltd</Option>
-                  <Option value="other">Al-Fattah Travel & Tours Pte Ltd</Option>
+                  {agents.map((agent) => {
+                    return <Option value={agent.id}>{agent.agencyName}</Option>;
+                  })}
+                </Select>
+              </Form.Item>
+
+              <Form.Item
+                name="manifest_type"
+                label="Manifest Type"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                className="w-50 p-1"
+              >
+                <Select
+                  placeholder="Select"
+                  onChange={onTravelAgentChange}
+                  allowClear
+                >
+                  <Option value="hajj">Hajj</Option>
+                  <Option value="umrah">Umrah</Option>
+
                 </Select>
               </Form.Item>
             </div>
@@ -181,7 +229,6 @@ const ManfestImp = () => {
                   style={styles.uploadFile}
                   className="uploadFile"
                   type="file"
-                  multiple
                   onChange={handleFileSelect}
                 />
               </div>
