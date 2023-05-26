@@ -244,7 +244,7 @@ const ClaimSubmission = () => {
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: 'http://54.255.28.58:8000/api/website/claim-request',
+                url: 'https://54.255.28.58:8000/api/website/claim-request',
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },

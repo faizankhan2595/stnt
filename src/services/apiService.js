@@ -12,7 +12,7 @@ export const ManifestFileUpload = async ({ file, travelAgentId, manifestType }) 
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/manifests',
+        url: 'https://54.255.28.58:8000/api/manifests',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -91,7 +91,7 @@ export const GetAllTravelAgents = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: `https://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -108,7 +108,7 @@ export const GetTravelAgent = ({ id }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/travel-agencies/' + id,
+        url: 'https://54.255.28.58:8000/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -128,7 +128,7 @@ export const AddTravelAgent = async (data) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/travel-agencies',
+        url: 'https://54.255.28.58:8000/api/travel-agencies',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -151,7 +151,7 @@ export const GetTravelAgency = async ({ id }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/travel-agencies/' + id,
+        url: 'https://54.255.28.58:8000/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -174,7 +174,7 @@ export const UpdateTravelAgencyStatus = async (data) => {
 
     let config = {
         method: 'put',
-        url: 'http://54.255.28.58:8000/api/travel-agencies/change-status',
+        url: 'https://54.255.28.58:8000/api/travel-agencies/change-status',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -188,7 +188,7 @@ export const UpdateTravelAgency = async (data) => {
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/travel-agencies',
+        url: 'https://54.255.28.58:8000/api/travel-agencies',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -204,7 +204,7 @@ export const DeleteTravelAgency = async ({ id }) => {
     let config = {
         method: 'delete',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/travel-agencies/' + id,
+        url: 'https://54.255.28.58:8000/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -227,7 +227,7 @@ export const GetAllTravelAgency = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: `https://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -241,7 +241,7 @@ export const verifyDetailsHome = async ({ name, passportNo, uidNo }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
+        url: `https://54.255.28.58:8000/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -251,7 +251,7 @@ export const verifyDetailsHome = async ({ name, passportNo, uidNo }) => {
 }
 
 export const getCountryDropdown = async () => {
-    const url = 'http://54.255.28.58:8000/api/website/countries';
+    const url = 'https://54.255.28.58:8000/api/website/countries';
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token')
     return await axios.get(url);
 }
@@ -266,7 +266,7 @@ export const addAddress = async ({ address, phoneNumber, emailAddress }) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/address',
+        url: 'https://54.255.28.58:8000/api/website/address',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -295,7 +295,7 @@ export const updateAddress = async ({ address, phoneNumber, emailAddress }) => {
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/address',
+        url: 'https://54.255.28.58:8000/api/website/address',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -320,7 +320,7 @@ export const addClaim = async () => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/claim-request',
+        url: 'https://54.255.28.58:8000/api/website/claim-request',
         headers: {
             ...data.getHeaders()
         },
@@ -336,7 +336,7 @@ export const getClaimByUser = async () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/claim-request/user',
+        url: 'https://54.255.28.58:8000/api/website/claim-request/user',
         headers: {
 
             'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -354,7 +354,7 @@ export const getClaimCategoryAndDocs = async ({id}) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/claim-categories/documents/' + id,
+        url: 'https://54.255.28.58:8000/api/website/claim-categories/documents/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -371,7 +371,7 @@ export const getClaimCategories = async () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/claim-categories',
+        url: 'https://54.255.28.58:8000/api/website/claim-categories',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -388,7 +388,7 @@ export const paymentSave = async ({data}) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'http://54.255.28.58:8000/api/website/claim-request/payment',
+        url: 'https://54.255.28.58:8000/api/website/claim-request/payment',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
