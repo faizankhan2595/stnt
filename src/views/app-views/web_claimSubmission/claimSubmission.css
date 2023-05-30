@@ -480,3 +480,8 @@
 /* .edit-icon-container {
     width: 35%;
 } */
+
+.notice-text-decl {
+    text-align: left;
+    font-size: 14px;
+}

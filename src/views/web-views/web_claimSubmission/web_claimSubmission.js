@@ -1508,7 +1508,7 @@ const ClaimSubmission = () => {
                                 <Checkbox onChange={onChange}>I declare that all information's are true</Checkbox>
                             </div>
                             <div className="notice-container">
-                                <div className="notice-text my-3">
+                                <div className="notice-text-decl my-3">
                                     <b>Important Notice:</b> In accordance to the provisions of the Personal Data Protection Act 2012 (PDPA),the UOI's privacy notice shall form part of the terms and conditions of the policy. A copy of UOI's Privacy  Notice can be found at www.uoi.com.sg
                                 </div>
                             </div>
@@ -1525,7 +1525,7 @@ const ClaimSubmission = () => {
                         </div>
 
                         <div className="checkbox-text my-3">
-                            <Checkbox onChange={onChange}>By signing, I hereby acknowledged and agree to the terms & conditions of ST&T International</Checkbox>
+                            <Checkbox onChange={onChange}>I/We declare that the information given in this claim form is true and correct to the best of my knowledge and belief.I/We undertake to render every assistance on my/our power in dealing with the matter.I hereby authorize any hospital physician, other person who has attended or examined me, to furnish to the Company, or its authorized representative, any and all information with respect to any illness or injury, medical history, consultation, prescriptions or treatment and copies of all hospital or medical records. A digital copy of this authorization shall be considered as effective and valid as the original.</Checkbox>
                         </div>
 
                     </div>
