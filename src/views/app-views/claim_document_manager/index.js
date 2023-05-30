@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useEffect } from 'react';
 import { Button, DatePicker, Image, Input } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
@@ -10,35 +11,31 @@ import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { Edit, History, ResetPass, UpdateStatus } from "assets/svg/icon";
 import { ChangeAgStatus } from "assets/svg/icon";
 import { Radio, Modal } from "antd";
-const data = [
-  {
-    Sr_No: 1,
-    Claim_Category: "Medical",
-    Updated_By: "JohnDoe",
-    Last_Updated_On: "2021-01-05",
-    Status: "Active",
-  },
-  {
-    Sr_No: 2,
-    Claim_Category: "Travel",
-    Updated_By: "JaneSmith",
-    Last_Updated_On: "2021-01-06",
-    Status: "Active",
-  },
-  {
-    Sr_No: 3,
-    Claim_Category: "Entertainment",
-    Updated_By: "BobJohnson",
-    Last_Updated_On: "2021-01-07",
-    Status: "Pending",
-  },
-];
+import { getClaimCategories } from "services/apiService";
 
 const UserManage = () => {
-  const [claims, setClaims] = useState(data);
+  const [claims, setClaims] = useState([]);
   const [updateStatusVal, setUpdateStatusVal] = useState(null);
   const [value, setValue] = useState(1);
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
+
+  const [claimCategories, setClaimCategories] = useState([]);
+
+  useEffect(() => {
+    
+    getClaimCategories().then((data) => {
+        const claimCategories = data.data.claimCategories.map((claimCategory) => {
+            return {
+               claim_category: claimCategory.title,
+               status: claimCategory.status,
+               updated_by: claimCategory.updatedBY,
+               last_updated: claimCategory.updatedAt
+            };
+        });
+        setClaimCategories(claimCategories);
+    });
+  }, []);
+  
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
   const changeStudHandleOk = () => {
@@ -55,19 +52,19 @@ const UserManage = () => {
     },
     {
       title: "Claim Category",
-      dataIndex: "Claim_Category",
+      dataIndex: "claim_category",
     },
     {
       title: "Updated By",
-      dataIndex: "Updated_By",
+      dataIndex: "updated_by",
     },
     {
       title: "Last Updated On",
-      dataIndex: "Last_Updated_On",
+      dataIndex: "last_updated",
     },
     {
       title: "Status",
-      dataIndex: "Status",
+      dataIndex: "status",
       render: (text) => {
         return (
           <p
@@ -155,6 +152,9 @@ const UserManage = () => {
     setClaims(claimData);
     console.log(claimData);
   };
+
+
+
   return (
     <div>
       <div className="d-flex justify-content-between">
@@ -171,7 +171,7 @@ const UserManage = () => {
           <Link to={"claim_document_manager/add_new_category"}>Add New Category</Link>
         </Button>
       </div>
-      <Helper clients={claims} attribiue={columns} />
+      <Helper clients={claimCategories} attribiue={columns} />
       <Modal
         width={600}
         footer={null}

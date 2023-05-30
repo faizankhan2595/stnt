@@ -5,7 +5,7 @@ import {
   RejectedReq,
   TotatReq,
 } from "assets/svg/icon";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Input, Menu, Button,Radio,Modal } from "antd";
 import Icon from "@ant-design/icons";
 import { CsvIcon, FilterIcon } from "assets/svg/icon";
@@ -14,6 +14,7 @@ import Filter from "components/shared-components/Filter";
 import Helper from "../../Helper";
 import EllipsisDropdown from "components/shared-components/EllipsisDropdown";
 import TextArea from "antd/lib/input/TextArea";
+import { getClaimRequests } from "services/apiService";
 const dataArray = [
   {
     Sr_No: 1,
@@ -50,6 +51,7 @@ const dataArray = [
   },
 ];
 
+
 const ClaimReq = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [value, setValue] = useState(1);
@@ -66,6 +68,21 @@ const ClaimReq = () => {
       setIsModalOpen(false);
     }, 10000);
   };
+
+  const [claimRequests, setClaimRequests] = useState([]);
+
+useEffect(() => {
+  
+  getClaimRequests().then((data) => {
+      const claimRequests = data.data.claimRequests.map((claimRequest) => {
+          return {
+              value: claimRequest.id,
+              label: claimRequest.title,
+          };
+      });
+      setClaimRequests(claimRequests);
+  });
+}, []);
 
   const onSearch = (value) => console.log(value);
   const { Search } = Input;

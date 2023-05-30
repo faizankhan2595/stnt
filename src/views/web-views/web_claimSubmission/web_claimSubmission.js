@@ -6,7 +6,7 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave } from "services/apiService";
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave, getCliamMetadata, getCompleteCliamData } from "services/apiService";
 import axios from "axios";
 
 const description = 'This is a description.';
@@ -35,13 +35,13 @@ const columns = [
     },
     {
         title: 'Name',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'draftName',
+        key: 'draftName',
     },
     {
         title: 'Date of Draft',
-        dataIndex: 'date',
-        key: 'date',
+        dataIndex: 'dateOfDraft',
+        key: 'dateOfDraft',
     },
     {
         title: 'Action',
@@ -129,9 +129,6 @@ const props = {
     },
 };
 
-
-
-
 const ClaimSubmission = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -165,16 +162,16 @@ const ClaimSubmission = () => {
 
     //get countries list from api
     useEffect(() => {
-          getCountryDropdown().then((data) => {
-                const countries2 = data.data.countries.map((country) => {
-                    return {
-                        key: country,
-                        value: country,
-                        label: country,
-                    };
-                });
-                setCountries(countries2);
+        getCountryDropdown().then((data) => {
+            const countries2 = data.data.countries.map((country) => {
+                return {
+                    key: country,
+                    value: country,
+                    label: country,
+                };
             });
+            setCountries(countries2);
+        });
     }, []);
 
     const [country, setCountry] = useState();
@@ -191,6 +188,8 @@ const ClaimSubmission = () => {
     }]);
 
     const [claimCategories, setClaimCategories] = useState([]);
+    const [claimMetaData, setClaimMetaData] = useState({});
+    const [reviewDataNew, setReviewDataNew] = useState({});
 
     useEffect(() => {
         getClaimCategories().then((data) => {
@@ -204,34 +203,30 @@ const ClaimSubmission = () => {
         });
     }, []);
 
+
+    // const claimMetaDataNew = data.data;
+    // console.log("claimMetaDataNew", claimMetaDataNew);
+    // setClaimMetaData(claimMetaDataNew);
+
+    useEffect(() => {
+        getCliamMetadata().then((data) => {
+            const claimMetaDataNew = data.data.map(item => ({
+                // id: item.id,
+                name: item.draftName,
+                date: item.dateOfDraft,
+            }));
+            setClaimMetaData(claimMetaDataNew);
+        });
+    }, []);
+
     //claim category dropdown logic ends here
-
-    //dropdown logic starts here
-    const [selectedOption, setSelectedOption] = useState(null);
-
-    const handleOptionChange = (value) => {
-        setSelectedOption(value);
-    };
 
     const onSearch = (val) => {
     };
 
-    const handleDocumentUpload = (file) => {
-        if (selectedOption === 'medical_other_Expenses') {
-            // Handle document upload logic for the "Medical & Other Expenses" option
-        } else if (selectedOption === 'hospital_confinement_allowance') {
-            // Handle document upload logic for the "Hospital Confinement Allowance" option
-        }
-        // Add more conditional blocks for other options
-    };
-
-    //dropdown logic ends here
-
-    //add claim logic starts here
-
     const addAllClaims = async () => {
 
-        for(const claim of claims) {
+        for (const claim of claims) {
             const FormData = require('form-data');
             let data = new FormData();
             data.append('claimCategoryId', claim.claimCategoryId);
@@ -240,19 +235,19 @@ const ClaimSubmission = () => {
             for (const claimDoc of claim.claimDocs) {
                 data.append(claimDoc.title, claimDoc.file);
             }
-        
+
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: 'https://api.stntinternational.com/api/website/claim-request',
+                url: 'http://54.255.28.58:8000/api/website/claim-request',
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
                 data: data
             };
-        
+
             await axios.request(config)
-        }      
+        }
     }
 
     const handleOk = () => {
@@ -269,13 +264,34 @@ const ClaimSubmission = () => {
 
     const [activeStep, setActiveStep] = useState(0);
 
+    const reviewDataFn = () => {
+        getCompleteCliamData().then((data) => {
+            const reviewDataNew = data.data;
+            console.log("reviewDataNew", reviewDataNew)
+            setReviewDataNew(reviewDataNew);
+        });
+    }
+
     const handleStepChange = (step) => {
         setActiveStep(step);
+
+        if (step == 4) {
+            reviewDataFn();
+        }
     };
 
     const handleStepBack = () => {
         setActiveStep((prevStep) => prevStep - 1);
     };
+
+    //address modal logic starts here
+    const onChangeAddressType = (value) => {
+        console.log(`selected ${value}`);
+    };
+    const onSearchAddressType = (value) => {
+        console.log('search:', value);
+    };
+    //address modal logic ends here
 
 
     //payment logic starts here
@@ -305,7 +321,7 @@ const ClaimSubmission = () => {
     //              window.location.href = '/web/web_claimSubmission'
     //          }, 1000);
     //      })
- 
+
     //      message.success('Details verified successfully');
     //      localStorage.setItem('token', res.data.token);
     //      setTimeout(() => {
@@ -396,34 +412,145 @@ const ClaimSubmission = () => {
 
                 <div className="virtual-card-main-container py-3 px-5">
 
-                    {/* <Button type="primary" onClick={showModal}>
-                        Open Modal
-                    </Button> */}
-                    <Modal title="Fill in your personal details" visible={isModalOpen} onOk={handleOk} onCancel={handleCancel}>
-                        <div className="label-field-container">
-                            <div className="label">Address</div>
-                            <div className="input-field">
+                    <Modal
+                        title="Update contact details"
+                        visible={isModalOpen}
+                        onOk={handleOk}
+                        onCancel={handleCancel}
+                        width={800}
+                    >
+
+                        <div className="modal-label">Fill in the details</div>
+                        <div className="label-field-container" style={{ padding: '10px' }}>
+                            <div className="label">Residential Type</div>
+                            {/* <div className="input-field">
                                 <input type="text" className="input-field-main" placeholder="Enter Permanent Address" />
-                            </div>
+                            </div> */}
+                            <Select
+                                showSearch
+                                placeholder="Select a person"
+                                optionFilterProp="children"
+                                onChange={onChangeAddressType}
+                                onSearch={onSearchAddressType}
+                                filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                }
+                                options={[
+                                    {
+                                        value: 'hdb_condo',
+                                        label: 'HDB/Condo/Apartment',
+                                    },
+                                    {
+                                        value: 'landed_private',
+                                        label: 'Landed/private',
+                                    },
+                                ]}
+                            />
                         </div>
 
-                        <div className="label-field-container">
-                            <div className="label">Contact Number</div>
-                            <div className="input-field">
-                                <input type="text" className="input-field-main" placeholder="Enter contact number" />
-                            </div>
+                        <Row>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label" required>Block No</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Block number" />
+                                    </div>
+                                </div>
+
+                            </Col>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label">Street Name</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Street name" />
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <Row>
+                                    <Col span={12} style={{ paddingRight: '10px' }}>
+                                        <div className="label-field-container">
+                                            <div className="label" required>Unit Level</div>
+                                            <div className="input-field">
+                                                <input type="text" className="input-field-main" placeholder="Unit level" />
+                                            </div>
+                                        </div>
+                                    </Col >
+                                    <Col span={12}>
+                                        <div className="label-field-container">
+                                            <div className="label" required>Unit No</div>
+                                            <div className="input-field">
+                                                <input type="text" className="input-field-main" placeholder="Unit number" />
+                                            </div>
+                                        </div>
+                                    </Col>
+                                </Row>
+                            </Col>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label">Building Name</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Building Name" />
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label" required>Postal Code</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Postal code" />
+                                    </div>
+                                </div>
+
+                            </Col>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label">Country</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Country" />
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+                        <Row>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label" required>Email Address</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Email Address" />
+                                    </div>
+                                </div>
+
+                            </Col>
+                            <Col span={12} style={{ padding: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label">Phone Number</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Phone number" />
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+
+
+                        <div className="notice-text">
+                        Important Notice: In accordance to the provisions of the Personal Data Protection Act 2012 (PDPA),the UOI's privacy notice shall form part of the terms and conditions of the policy. A copy of UOI's Privacy  Notice can be found at
+                        </div>
+                        <div className="link-container">
+                        <a href="https://www.uoi.com.sg/uoi/index.html">www.uoi.com.sg</a>
                         </div>
 
-                        <div className="label-field-container">
-                            <div className="label">Email Address</div>
-                            <div className="input-field">
-                                <input type="text" className="input-field-main" placeholder="Enter email address" />
-                            </div>
-                        </div>
 
                         <div className="modal-btns-container">
                             <div className="secondary-btn mr-2" onClick={handleCancel}>Cancel</div>
-                            <div className="web-btn" onClick={handleOk}>OK</div>
+                            <div className="web-btn" onClick={handleOk}>Save</div>
                         </div>
 
                     </Modal>
@@ -457,9 +584,7 @@ const ClaimSubmission = () => {
                                 </Col>
                                 <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
                                     <div className="virtual-card-img-container">
-
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
-                                        {/* <img src="/img/sgp-card.jpg" alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} /> */}
 
                                         <button className="secondary-btn mt-2" onClick={handleImageToggle}>Flip Card</button>
                                     </div>
@@ -494,27 +619,27 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Effective Date:</div>
-                                        <div className="policy-detail">1 Apr 2023, 10:00:00 Am</div>
+                                        <div className="policy-detail">{claimMetaData.policyEffectiveDate}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Type::</div>
-                                        <div className="policy-detail">UMRAH EMA 1444H</div>
+                                        <div className="policy-detail">{claimMetaData.policyType}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">UID No:</div>
-                                        <div className="policy-detail">S-STT-S1004-5921</div>
+                                        <div className="policy-detail">{claimMetaData.uidNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Duration of Package:</div>
-                                        <div className="policy-detail">16 Days</div>
+                                        <div className="policy-detail">{claimMetaData.durationOfPackage}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Cost:</div>
-                                        <div className="policy-detail">S$175.00</div>
+                                        <div className="policy-detail">{claimMetaData.cost}</div>
                                     </div>
 
                                 </Col>
@@ -522,22 +647,22 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Expiration Date::</div>
-                                        <div className="policy-detail">20 Apr 2023, 10:00:00 Am</div>
+                                        <div className="policy-detail">{claimMetaData.policyExpirationDate}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy No:</div>
-                                        <div className="policy-detail">100025399969</div>
+                                        <div className="policy-detail">{claimMetaData.policyNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Date of Birth:</div>
-                                        <div className="policy-detail">10 Jan 1990</div>
+                                        <div className="policy-detail">{claimMetaData.dateOfBirth}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Geographical Limit:</div>
-                                        <div className="policy-detail">Saudi Arabia Only</div>
+                                        <div className="policy-detail">{claimMetaData.geographicalLimit}</div>
                                     </div>
 
                                 </Col>
@@ -573,27 +698,27 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Effective Date:</div>
-                                        <div className="policy-detail">1 Apr 2023, 10:00:00 Am</div>
+                                        <div className="policy-detail">{claimMetaData.policyEffectiveDate}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Type::</div>
-                                        <div className="policy-detail">UMRAH EMA 1444H</div>
+                                        <div className="policy-detail">{claimMetaData.policyType}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">UID No:</div>
-                                        <div className="policy-detail">S-STT-S1004-5921</div>
+                                        <div className="policy-detail">{claimMetaData.uidNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Duration of Package:</div>
-                                        <div className="policy-detail">16 Days</div>
+                                        <div className="policy-detail">{claimMetaData.durationOfPackage}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Cost:</div>
-                                        <div className="policy-detail">S$175.00</div>
+                                        <div className="policy-detail">{claimMetaData.cost}</div>
                                     </div>
 
                                 </Col>
@@ -601,22 +726,22 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Expiration Date::</div>
-                                        <div className="policy-detail">20 Apr 2023, 10:00:00 Am</div>
+                                        <div className="policy-detail">{claimMetaData.policyExpirationDate}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy No:</div>
-                                        <div className="policy-detail">100025399969</div>
+                                        <div className="policy-detail">{claimMetaData.policyNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Date of Birth:</div>
-                                        <div className="policy-detail">10 Jan 1990</div>
+                                        <div className="policy-detail">{claimMetaData.dateOfBirth}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Geographical Limit:</div>
-                                        <div className="policy-detail">Saudi Arabia Only</div>
+                                        <div className="policy-detail">{claimMetaData.geographicalLimit}</div>
                                     </div>
 
                                 </Col>
@@ -634,6 +759,7 @@ const ClaimSubmission = () => {
                                 <div className="virtual-card-heading-text">Drafts</div>
                             </div>
                         </div>
+
 
                         <Table dataSource={dataSource} columns={columns} style={{ marginTop: '15px' }} />
 
@@ -747,11 +873,11 @@ const ClaimSubmission = () => {
                     </div>
 
                     <div className="claim-details-title">
-                            <div className="claim-details-heading">
-                                Claim requests
-                            </div>
-                            <div className="claim-details-sub-text">claim request can be initiated by selecting category of claim and uploading documents & pictures. User can add multiple claims for different categories from list</div>
+                        <div className="claim-details-heading">
+                            Claim requests
                         </div>
+                        <div className="claim-details-sub-text">claim request can be initiated by selecting category of claim and uploading documents & pictures. User can add multiple claims for different categories from list</div>
+                    </div>
 
                     {claims.map((claim, index) => (<>
 
@@ -771,7 +897,7 @@ const ClaimSubmission = () => {
                                 showSearch
                                 onChange={async (value) => {
                                     const claimNew = [...claims];
-                                    const data = await getClaimCategoryAndDocs({id: value});
+                                    const data = await getClaimCategoryAndDocs({ id: value });
                                     const claimCategoryData = data.data?.claimCategoryData;
                                     claimNew[index].claimCategoryId = value;
                                     claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
@@ -792,29 +918,29 @@ const ClaimSubmission = () => {
 
                             <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
                                 {claim.claimDocs.map((claim_doc, claim_doc_index) => (<>
-                                        <Col lg={{ span: 24 }} xs={{ span: 24 }} className="document-upload-label mb-2 mt-2">
-                                            {claim_doc.title}
-                                            {claim_doc.isMandatory && <span className="mandatory-item">*</span>}
-                                        </Col>
-                                        <Col lg={{ span: 24 }} xs={{ span: 24 }} className="pl-4 mb-2">
-                                            <Upload 
-                                                name="file"
-                                                action={(file) => {
-                                                    const claimNew = [...claims];
-                                                    claimNew[index].claimDocs[claim_doc_index].file = file;
-                                                    setClaims(claimNew);
-                                                }}
-                                                customRequest={({ file, onSuccess }) => {
-                                                    setTimeout(() => {
-                                                        onSuccess("ok");
-                                                    }, 0);
-                                                }}
-                                            >
-                                                <Button icon={<UploadOutlined />}>Click to Upload</Button>
-                                            </Upload>
-                                        </Col>
+                                    <Col lg={{ span: 24 }} xs={{ span: 24 }} className="document-upload-label mb-2 mt-2">
+                                        {claim_doc.title}
+                                        {claim_doc.isMandatory && <span className="mandatory-item">*</span>}
+                                    </Col>
+                                    <Col lg={{ span: 24 }} xs={{ span: 24 }} className="pl-4 mb-2">
+                                        <Upload
+                                            name="file"
+                                            action={(file) => {
+                                                const claimNew = [...claims];
+                                                claimNew[index].claimDocs[claim_doc_index].file = file;
+                                                setClaims(claimNew);
+                                            }}
+                                            customRequest={({ file, onSuccess }) => {
+                                                setTimeout(() => {
+                                                    onSuccess("ok");
+                                                }, 0);
+                                            }}
+                                        >
+                                            <Button icon={<UploadOutlined />}>Click to Upload</Button>
+                                        </Upload>
+                                    </Col>
                                 </>))}
-                             </Row>
+                            </Row>
 
                         </div>
 
@@ -933,7 +1059,7 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee Name (as per bank account)*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Payee Name" 
+                                                    <Input placeholder="Payee Name"
                                                         value={payeeName}
                                                         onChange={(e) => {
                                                             setPayeeName(e.target.value);
@@ -947,7 +1073,7 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Payee NRIC*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Payee NRIC" 
+                                                    <Input placeholder="Payee NRIC"
                                                         value={PayeeNRIC}
                                                         onChange={(e) => {
                                                             setPayeeNRIC(e.target.value);
@@ -992,7 +1118,7 @@ const ClaimSubmission = () => {
                                             <div className="label-field-container">
                                                 <div className="label">Bank Account Number*</div>
                                                 <div style={{ marginTop: '15px' }}>
-                                                    <Input placeholder="Enter Bank Account Number" 
+                                                    <Input placeholder="Enter Bank Account Number"
                                                         value={bankAccountNumber}
                                                         onChange={(e) => {
                                                             setBankAccountNumber(e.target.value);
@@ -1011,8 +1137,8 @@ const ClaimSubmission = () => {
                                                 <div className="label">PayNow registered mobile number or NRIC/FIN*</div>
                                                 <div style={{ marginTop: '15px' }}>
                                                     <Input placeholder="Enter Mobile Number or NRIC/FIN"
-                                                    value={payNowMobileNumber} 
-                                                        onChange={(e) => { 
+                                                        value={payNowMobileNumber}
+                                                        onChange={(e) => {
                                                             setPayNowMobileNumber(e.target.value);
                                                         }}
                                                     />
@@ -1104,34 +1230,34 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Insurance Policy Package</div>
-                                        <div className="policy-detail">Hajj 1443H</div>
+                                        <div className="policy-detail">{reviewDataNew.insurancePolicyPackage}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Traveler Agent</div>
-                                        <div className="policy-detail">Mr. Rashid M</div>
+                                        <div className="policy-detail">{reviewDataNew.travelAgent}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Departure date from Singapore:</div>
-                                        <div className="policy-detail">15 Apr 2023</div>
+                                        <div className="policy-detail">{reviewDataNew.policyEffectiveData}</div>
                                     </div>
 
                                 </Col>
                                 <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
-                                        <div className="policy-details-label">Policy Number</div>
-                                        <div className="policy-detail">100256500266</div>
+                                        <div className="policy-details-label">UID Number</div>
+                                        <div className="policy-detail">{reviewDataNew.uidNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Country where Loss Occurred</div>
-                                        <div className="policy-detail">Saudi Arabia</div>
+                                        <div className="policy-detail">{reviewDataNew.lossCountry}</div>
                                     </div>
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Return date to Singapore</div>
-                                        <div className="policy-detail">22 Apr 2023</div>
+                                        <div className="policy-detail">{reviewDataNew.policyEffectiveData}</div>
                                     </div>
 
                                 </Col>
@@ -1293,13 +1419,13 @@ const ClaimSubmission = () => {
                                 </Col>
                                 <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                <div className="policy-details-container">
+                                    <div className="policy-details-container">
                                         <div className="policy-details-label">Documents Uploaded</div>
                                         <div className="policy-detail">Copy of Certificate of Insurance*</div>
                                     </div>
 
                                 </Col>
-                              
+
                             </Row>
 
                         </div>
@@ -1324,17 +1450,17 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payment Option</div>
-                                        <div className="policy-detail">DBS/POSB Account</div>
+                                        <div className="policy-detail">{reviewDataNew.paymentOptions}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payee NRIC</div>
-                                        <div className="policy-detail">S800256S</div>
+                                        <div className="policy-detail">{reviewDataNew.payeeNric}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Bank Account No</div>
-                                        <div className="policy-detail">1256645 6954669 66456</div>
+                                        <div className="policy-detail">{reviewDataNew.bankAccountNumber}</div>
                                     </div>
 
 
@@ -1343,12 +1469,12 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payee Name (as per bank acccount)</div>
-                                        <div className="policy-detail">100256500266</div>
+                                        <div className="policy-detail">{reviewDataNew.payeeName}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Bank Name</div>
-                                        <div className="policy-detail">DBS</div>
+                                        <div className="policy-detail">{reviewDataNew.bankName}</div>
                                     </div>
 
                                 </Col>
@@ -1428,6 +1554,17 @@ const ClaimSubmission = () => {
 
             {/* Review tab end */}
 
+            <div className="footer-container">
+                <div>Distributed By:</div>
+                <div style={{ margin: '0px 20px' }}>
+                    <img src="/img/stntlogo.svg" alt="stnt" style={{ width: '100%', height: 'auto', }} />
+
+                </div>
+                <div>Underwritten By:</div>
+                <div style={{ margin: '0px 20px' }}>
+                    <img src="/img/uoilogo.png" alt="stnt" style={{ width: '100%', height: 'auto', }} />
+                </div>
+            </div>
 
 
         </div>

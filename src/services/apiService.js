@@ -1,5 +1,7 @@
 const axios = require('axios');
 
+const BASE_URL = `https://api.stntinternational.com`;
+
 export const ManifestFileUpload = async ({ file, travelAgentId, manifestType }) => {
     console.log('file', file);
     const FormData = require('form-data');
@@ -12,7 +14,7 @@ export const ManifestFileUpload = async ({ file, travelAgentId, manifestType }) 
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/manifests',
+        url: BASE_URL + '/api/manifests',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -26,7 +28,7 @@ export const ManifestGetUmrahAll = () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'http://localhost:8000/api/manifests',
+        url: BASE_URL + '/api/manifests',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -91,7 +93,7 @@ export const GetAllTravelAgents = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://api.stntinternational.com/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -108,7 +110,7 @@ export const GetTravelAgent = ({ id }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/travel-agencies/' + id,
+        url: BASE_URL + '/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -128,7 +130,7 @@ export const AddTravelAgent = async (data) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/travel-agencies',
+        url: BASE_URL + '/api/travel-agencies',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -151,7 +153,7 @@ export const GetTravelAgency = async ({ id }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/travel-agencies/' + id,
+        url: BASE_URL + '/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -174,7 +176,7 @@ export const UpdateTravelAgencyStatus = async (data) => {
 
     let config = {
         method: 'put',
-        url: 'https://api.stntinternational.com/api/travel-agencies/change-status',
+        url: BASE_URL + '/api/travel-agencies/change-status',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -188,7 +190,7 @@ export const UpdateTravelAgency = async (data) => {
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/travel-agencies',
+        url: BASE_URL + '/api/travel-agencies',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -204,7 +206,7 @@ export const DeleteTravelAgency = async ({ id }) => {
     let config = {
         method: 'delete',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/travel-agencies/' + id,
+        url: BASE_URL + '/api/travel-agencies/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -227,7 +229,7 @@ export const GetAllTravelAgency = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://api.stntinternational.com/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -241,7 +243,7 @@ export const verifyDetailsHome = async ({ name, passportNo, uidNo }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `https://api.stntinternational.com/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
+        url: `http://54.255.28.58:8000/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -251,7 +253,7 @@ export const verifyDetailsHome = async ({ name, passportNo, uidNo }) => {
 }
 
 export const getCountryDropdown = async () => {
-    const url = 'https://api.stntinternational.com/api/website/countries';
+    const url = BASE_URL + '/api/website/countries';
     axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.getItem('token')
     return await axios.get(url);
 }
@@ -266,7 +268,7 @@ export const addAddress = async ({ address, phoneNumber, emailAddress }) => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/address',
+        url: BASE_URL + '/api/website/address',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -295,7 +297,7 @@ export const updateAddress = async ({ address, phoneNumber, emailAddress }) => {
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/address',
+        url: BASE_URL + '/api/website/address',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -320,7 +322,7 @@ export const addClaim = async () => {
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-request',
+        url: BASE_URL + '/api/website/claim-request',
         headers: {
             ...data.getHeaders()
         },
@@ -336,7 +338,7 @@ export const getClaimByUser = async () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-request/user',
+        url: BASE_URL + '/api/website/claim-request/user',
         headers: {
 
             'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -348,13 +350,13 @@ export const getClaimByUser = async () => {
     return await axios.request(config)
 }
 
-export const getClaimCategoryAndDocs = async ({id}) => {
+export const getClaimCategoryAndDocs = async ({ id }) => {
     let data = '';
 
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-categories/documents/' + id,
+        url: BASE_URL + '/api/website/claim-categories/documents/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -371,7 +373,7 @@ export const getClaimCategories = async () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-categories',
+        url: BASE_URL + '/api/website/claim-categories',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -382,13 +384,13 @@ export const getClaimCategories = async () => {
     return await axios.request(config)
 }
 
-export const paymentSave = async ({data}) => {
+export const paymentSave = async ({ data }) => {
     // let data = '{\n    "paymentOption": "DBS/POSB Account",\n    "claimRequestId": 4,\n    "payeeName": "Test name",\n    "payeeNric": null,\n    "bankName": "DBS",\n    "bankAccountNumber": "412563254",\n    "payNow": null\n}';
 
     let config = {
         method: 'post',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-request/payment',
+        url: BASE_URL + '/api/website/claim-request/payment',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -396,4 +398,67 @@ export const paymentSave = async ({data}) => {
     };
 
     return await axios.request(config)
+}
+
+export const getCliamMetadata = async () => {
+    let data = '';
+
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + '/api/website/claim-request/user/meta',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const getCompleteCliamData = async () => {
+    let data = '';
+
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + '/api/website/claim-request/review/6',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const getClaimRequests = async () => {
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + '/api/kpi/claim-requests',
+        headers: { 
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      };
+      
+      return await axios.request(config)
+}
+
+export const getAllClaimCategory = async (size, page, searchByTitle ) => {
+    let data = JSON.stringify({
+
+      });
+      
+      let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim-category?size=${size}&${page}&searchByTitle=${searchByTitle}`,
+        headers: { 
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJmaXJzdE5hbWUiOiJzdXBlciJ9LCJpYXQiOjE2ODMxOTI1MjB9.qmNlOHBFOUGMLmyyRpvgt6W3Rz5sOC23CUR0HFSx148'
+        },
+        data : data
+      };
+      
+      return await axios.request(config)
 }

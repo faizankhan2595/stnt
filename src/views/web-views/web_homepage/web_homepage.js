@@ -99,6 +99,18 @@ const Homepage = () => {
                 <Col span={8}></Col>
             </Row>
 
+            <div className="footer-container">
+                <div>Distributed By:</div>
+                <div style={{margin:'0px 20px'}}>
+                <img src="/img/stntlogo.svg" alt="stnt" style={{ width: '100%', height: 'auto',}} />
+
+                </div>
+                <div>Underwritten By:</div>
+                <div style={{margin:'0px 20px'}}>
+                <img src="/img/uoilogo.png" alt="stnt" style={{ width: '100%', height: 'auto',}} />
+                </div>
+            </div>
+
         </div>
     );
 };
