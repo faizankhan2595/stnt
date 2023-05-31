@@ -6,7 +6,7 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave, getCliamMetadata, getCompleteCliamData } from "services/apiService";
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave, getCliamMetadata, getCompleteCliamData, BASE_URL } from "services/apiService";
 import axios from "axios";
 
 const description = 'This is a description.';
@@ -239,7 +239,7 @@ const ClaimSubmission = () => {
             let config = {
                 method: 'post',
                 maxBodyLength: Infinity,
-                url: 'http://54.255.28.58:8000/api/website/claim-request',
+                url: BASE_URL + '/api/website/claim-request',
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },

@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const BASE_URL = `https://api.stntinternational.com`;
+export const BASE_URL = `https://api.stntinternational.com`;
 
 export const ManifestFileUpload = async ({ file, travelAgentId, manifestType }) => {
     console.log('file', file);
@@ -93,7 +93,7 @@ export const GetAllTravelAgents = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: BASE_URL + `/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -229,7 +229,7 @@ export const GetAllTravelAgency = async ({ size, page, search }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: BASE_URL + `/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -243,7 +243,7 @@ export const verifyDetailsHome = async ({ name, passportNo, uidNo }) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `http://54.255.28.58:8000/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
+        url: BASE_URL + `/api/website/verification?name=${name}&passportNo=${passportNo}&uidNo=${uidNo}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
