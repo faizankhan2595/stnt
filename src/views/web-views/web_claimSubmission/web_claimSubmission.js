@@ -6,26 +6,13 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom'
-import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSave, getCliamMetadata, getCompleteCliamData, BASE_URL } from "services/apiService";
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser } from "services/apiService";
 import axios from "axios";
+import { set } from "lodash";
 
 const description = 'This is a description.';
 const { Step } = Steps;
 
-const dataSource = [
-    {
-        key: '1',
-        sno: '1',
-        name: 'Draft1',
-        date: '24 Apr 2023, 10:00:00 Am',
-    },
-    {
-        key: '2',
-        sno: '2',
-        name: 'Draft2',
-        date: '24 Apr 2023, 10:00:00 Am',
-    },
-];
 
 const columns = [
     {
@@ -48,32 +35,13 @@ const columns = [
         render: (record) => {
             return (
                 <>
-                    <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>Resume editing</div>
+                    <div className="secondary-btn" style={{ maxWidth: "fit-content" }} >Resume editing</div>
 
                 </>
             );
         },
     },
 
-];
-
-const claimHistory = [
-    {
-        key: '1',
-        sno: '1',
-        name: 'Draft1',
-        date: '24 Apr 2023, 10:00:00 Am',
-        claim_id: 'S-STT-S-1004-5921-01',
-        status: 'WIP'
-    },
-    {
-        key: '2',
-        sno: '2',
-        name: 'Draft2',
-        date: '24 Apr 2023, 10:00:00 Am',
-        claim_id: 'S-STT-S-1004-5921-02',
-        status: 'Pending'
-    },
 ];
 
 const claimHistoryColumns = [
@@ -97,17 +65,17 @@ const claimHistoryColumns = [
         dataIndex: 'status',
         key: 'status',
     },
-    {
-        title: 'Action',
-        render: (record) => {
-            return (
-                <>
-                    <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>View Summary Claim</div>
+    // {
+    //     title: 'Action',
+    //     render: (record) => {
+    //         return (
+    //             <>
+    //                 <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>View Summary Claim</div>
 
-                </>
-            );
-        },
-    },
+    //             </>
+    //         );
+    //     },
+    // },
 
 ];
 
@@ -132,11 +100,40 @@ const props = {
 const ClaimSubmission = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isContactDetailModalOpen, setIsContactDetailModalOpen] = useState(false);
 
     //flip image logic starts here
 
     const [imageSrc, setImageSrc] = useState("/img/sgp-card.jpg");
     const [isAlternateImage, setIsAlternateImage] = useState(false);
+
+    const [residentType, setResidentType] = useState();
+    const [blockNo, setBlockNo] = useState();
+    const [buildingName, setBuildingName] = useState();
+    const [streetName, setStreetName] = useState();
+    const [unitLevel, setUnitLevel] = useState();
+    const [unitNo, setUnitNo] = useState();
+    const [postalCode, setPostalCode] = useState();
+    const [country2, setCountry2] = useState();
+    const [address, setAddress] = useState("");
+    const [phoneNumber, setPhoneNumber] = useState();
+    const [emailAddress, setEmailAddress] = useState();
+    const [addressExists, setAddressExists] = useState(false);
+    const [addressId, setAddressId] = useState();
+
+    const [claimCategories, setClaimCategories] = useState([]);
+    const [claimMetaData, setClaimMetaData] = useState({});
+    const [reviewDataNew, setReviewDataNew] = useState({});
+    const [claimByUserDetails, setClaimByUserDetails] = useState({});
+    const [claims, setClaims] = useState([{
+        claimCategoryId: null,
+        isDraft: true,
+        claimDocs: [],
+    }]);
+
+    const [draftData, setDraftData] = useState([]);
+    const [claimHistory, setClaimHistory] = useState([]);
+
 
     const handleImageToggle = () => {
         if (isAlternateImage) {
@@ -159,7 +156,8 @@ const ClaimSubmission = () => {
     }
 
     const [countries, setCountries] = useState([]);
-
+    const [userName, setUserName] = useState("");
+    const [ip, setIp] = useState("");
     //get countries list from api
     useEffect(() => {
         getCountryDropdown().then((data) => {
@@ -181,15 +179,44 @@ const ClaimSubmission = () => {
         setCountry(value);
     };
 
-    const [claims, setClaims] = useState([{
-        claimCategoryId: null,
-        isDraft: true,
-        claimDocs: [],
-    }]);
+    useEffect(() => {
+        getClaimByUser().then(async (data) => {
+            const claimByUserDetailsNew = data.data.data;
+            if (claimByUserDetailsNew.length > 0) {
+                const latestClaim = claimByUserDetailsNew[claimByUserDetailsNew.length - 1];
 
-    const [claimCategories, setClaimCategories] = useState([]);
-    const [claimMetaData, setClaimMetaData] = useState({});
-    const [reviewDataNew, setReviewDataNew] = useState({});
+                console.log("claimByUserDetailsNew", latestClaim);
+                setCountry(latestClaim.lossCountry);
+
+                let claimsNew = [];
+
+                for (const claimCategory of latestClaim.claimCategory) {
+                    console.log("claimCategory", claimCategory);
+                    console.log("claimCategory.claimCategory.id", claimCategory.claimCategory.id);
+                    const claimDocsData = await getClaimCategoryAndDocs({ id: claimCategory.claimCategory.id })
+                    const claimCategoryData = claimDocsData.data?.claimCategoryData;
+                    const files = claimCategory.files;
+
+                    let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument) => {
+                        return {
+                            ...claimDocument,
+                            url: files.find((file) => file.fieldname === claimDocument.title)?.path
+                        }
+                    });
+
+                    claimsNew.push({
+                        claimCategoryId: claimCategory.claimCategory.id,
+                        isDraft: true,
+                        claimDocs: claimDocuments,
+                        files: claimCategory.files
+                    });
+                }
+
+                setClaims(claimsNew);
+                setClaimByUserDetails(latestClaim);
+            }
+        });
+    }, []);
 
     useEffect(() => {
         getClaimCategories().then((data) => {
@@ -201,30 +228,143 @@ const ClaimSubmission = () => {
             });
             setClaimCategories(claimCategoriesNew);
         });
-    }, []);
 
 
-    // const claimMetaDataNew = data.data;
-    // console.log("claimMetaDataNew", claimMetaDataNew);
-    // setClaimMetaData(claimMetaDataNew);
-
-    useEffect(() => {
         getCliamMetadata().then((data) => {
-            const claimMetaDataNew = data.data.map(item => ({
-                // id: item.id,
-                name: item.draftName,
-                date: item.dateOfDraft,
-            }));
+            const claimMetaDataNew = data.data.data;
+            console.log("claimMetaDataNew", claimMetaDataNew);
+
+            let draftDataNew = [];
+            let claimHistoryNew = [];
+
+            const draftClaims = claimMetaDataNew.draftClaims;
+            if(draftClaims.length) {
+                const lastDraft = draftClaims[draftClaims.length - 1];
+                const draftName = lastDraft.draftName;
+
+                for(const draftN of draftName) {
+                    draftDataNew.push({
+                        key: draftN.id,
+                        sno: draftN.id,
+                        draftName: draftN.title,
+                        dateOfDraft: draftN.updatedAt,
+                    })
+                }
+            }
+
+            const claimHistory = claimMetaDataNew.claimHistory;
+
+            for(const claimH of claimHistory) {
+                claimHistoryNew.push({
+                    key: claimH.claimReqId,
+                    sno: claimH.claimReqId,
+                    claim_id: claimH.claimUidNo,
+                    date: claimH.submittedDate,
+                    status: "Submitted"
+                })
+
+            }
+            console.log("draftDataNew", draftDataNew);
+            setDraftData(draftDataNew);
+
+            console.log("claimHistoryNew", claimHistoryNew);
+            setClaimHistory(claimHistoryNew);
+
             setClaimMetaData(claimMetaDataNew);
+
         });
     }, []);
 
     //claim category dropdown logic ends here
 
+    //address details logic starts here
+
+    const onChangeAddressType = (value) => {
+        setResidentType(value);
+    };
+
+    const onSearchAddressType = (value) => {
+        console.log('search:', value);
+    };
+
+
+
+    const addAddressDetails = async () => {
+        const data = {
+            addressId: addressId,
+            residentType: residentType,
+            blockNo: blockNo,
+            streetName: streetName,
+            unitLevel: unitLevel,
+            unitNo: unitNo,
+            postalCode: postalCode,
+            buildingName: null,
+            country: country2,
+            address: address,
+            phoneNumber: phoneNumber,
+            emailAddress: emailAddress,
+        };
+
+        if (!addressExists) {
+            delete data.addressId;
+            await addAddress(data).then(res => {
+                message.success('Address added successfully');
+            }).catch(err => {
+                message.error('Error while adding address');
+            })
+        } else {
+            await updateAddress(data).then(res => {
+                message.success('Address updated successfully');
+            }).catch(err => {
+                message.error('Error while updating address');
+            })
+        }
+
+    }
+
+    useEffect(() => {
+        getAddressDetails().then((resp) => {
+            const data = resp.data;
+            console.log("data", data);
+
+            if (data.data) {
+                setResidentType(data.data.residentType);
+                setBlockNo(data.data.blockNo);
+                setBuildingName(data.data.buildingName);
+                setStreetName(data.data.streetName);
+                setUnitLevel(data.data.unitLevel);
+                setUnitNo(data.data.unitNo);
+                setPostalCode(data.data.postalCode);
+                setCountry2(data.data.country);
+                setAddress(data.data.address);
+                setPhoneNumber(data.data.phoneNumber);
+                setEmailAddress(data.data.emailAddress);
+                setAddressExists(true);
+                setAddressId(data.data.id);
+                if (!data.data.residentType) {
+                    setIsContactDetailModalOpen(true);
+                }
+            } else {
+                setIsContactDetailModalOpen(true);
+            }
+        }).catch(err => {
+            setIsContactDetailModalOpen(true);
+        })
+
+        const getData = async () => {
+            const res = await axios.get("https://api.ipify.org/?format=json");
+            setIp(res.data.ip);
+        };
+        getData();
+    }, [])
+
+    //address details logic ends here
+
     const onSearch = (val) => {
     };
 
     const addAllClaims = async () => {
+        const ids = [];
 
         for (const claim of claims) {
             const FormData = require('form-data');
@@ -246,8 +386,21 @@ const ClaimSubmission = () => {
                 data: data
             };
 
-            await axios.request(config)
+            const response = await axios.request(config);
+
+            ids.push(response.data.data.id);
         }
+
+        const body = {
+            claimReqId: ids,
+            lossCountry: country,
+        }
+
+        await axios.put(BASE_URL + '/api/website/claim-request/save-draft/', body, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('token')}`,
+            }
+        });
     }
 
     const handleOk = () => {
@@ -258,25 +411,54 @@ const ClaimSubmission = () => {
         setIsModalOpen(false);
     };
 
-    useEffect(() => {
-        setIsModalOpen(true); // Open the modal when the component mounts
-    }, []);
+    const handleOkContactModal = () => {
+        setIsContactDetailModalOpen(false);
+    };
+
+    const handleCancelContactModal = () => {
+        setIsContactDetailModalOpen(false);
+    };
 
     const [activeStep, setActiveStep] = useState(0);
 
     const reviewDataFn = () => {
-        getCompleteCliamData().then((data) => {
-            const reviewDataNew = data.data;
-            console.log("reviewDataNew", reviewDataNew)
-            setReviewDataNew(reviewDataNew);
+        getCompleteCliamData(claimByUserDetails.id).then((data) => {
+            const reviewDataNew2 = data.data;
+            console.log("reviewDataNew2", reviewDataNew2)
+            setReviewDataNew(reviewDataNew2.data);
         });
     }
 
-    const handleStepChange = (step) => {
+    const handleStepChange = async (step) => {
         setActiveStep(step);
 
         if (step == 4) {
-            reviewDataFn();
+            const paymentData = {};
+            if (selectedPaymentOption === 'dbs_posb') {
+                paymentData.payeeName = payeeName;
+                paymentData.PayeeNRIC = PayeeNRIC;
+                paymentData.bankName = bankName;
+                paymentData.bankAccountNumber = bankAccountNumber;
+                paymentData.paymentOption = "DBS/POSB Account";
+            }
+
+            else if (selectedPaymentOption === 'cheque') {
+                paymentData.payeeName = payeeName;
+                paymentData.paymentOption = "Cheque";
+            } else if (selectedPaymentOption === 'paynow_linked_account') {
+                paymentData.payNowMobileNumber = payNowMobileNumber;
+                paymentData.paymentOption = "Paynow Linked Account";
+            }
+
+            paymentData.claimRequestId = claimByUserDetails.id;
+
+            console.log("paymentDetails", paymentData);
+            try {
+                await paymentSaveAPI({ data: paymentData });
+            } catch (e) {
+
+            }
+            await reviewDataFn();
         }
     };
 
@@ -284,15 +466,35 @@ const ClaimSubmission = () => {
         setActiveStep((prevStep) => prevStep - 1);
     };
 
-    //address modal logic starts here
-    const onChangeAddressType = (value) => {
-        console.log(`selected ${value}`);
-    };
-    const onSearchAddressType = (value) => {
-        console.log('search:', value);
-    };
-    //address modal logic ends here
-
+    const columns = [
+        {
+            title: 'Sr. No',
+            dataIndex: 'sno',
+            key: 'sno',
+        },
+        {
+            title: 'Name',
+            dataIndex: 'draftName',
+            key: 'draftName',
+        },
+        {
+            title: 'Date of Draft',
+            dataIndex: 'dateOfDraft',
+            key: 'dateOfDraft',
+        },
+        {
+            title: 'Action',
+            render: (record) => {
+                return (
+                    <>
+                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => handleStepChange(1)}>Resume editing</div>
+    
+                    </>
+                );
+            },
+        },
+    
+    ];
 
     //payment logic starts here
 
@@ -310,24 +512,27 @@ const ClaimSubmission = () => {
         setSelectedPaymentOption(value);
     };
 
-    // const submit = async () => {
-    //     const res = await verifyDetailsHome({ 
-    //          name: lastName,
-    //          passportNo: passportNumber, 
-    //          uidNo: uid
-    //      }).catch(err => {
-    //          message.error('Verification failed. User not exists')
-    //          setTimeout(() => {
-    //              window.location.href = '/web/web_claimSubmission'
-    //          }, 1000);
-    //      })
+    const submitMain = async () => {
+        let config = {
+            method: 'post',
+            maxBodyLength: Infinity,
+            url: BASE_URL + '/api/website/claim-request/submit',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            data: {
+                claimRequestId: claimByUserDetails.id,
+                isDeclaration: true,
+                isConsent: true,
+                declarationUserName: userName,
+                declarationIpAddress: ip ? ip : 'IP',
+            }
+        };
 
-    //      message.success('Details verified successfully');
-    //      localStorage.setItem('token', res.data.token);
-    //      setTimeout(() => {
-    //          window.location.href = '/web/web_claimSubmission'
-    //      }, 1000);
-    //  }
+        return await axios.request(config)
+
+        setIsSubmitClaimModalOpen(true);
+    }
 
     const paymentSave = async () => {
         if (selectedPaymentOption === 'dbs_posb') {
@@ -346,14 +551,13 @@ const ClaimSubmission = () => {
         } else if (selectedPaymentOption === 'paynow_linked_account') {
             setPaymentDetails({
                 payNowMobileNumber: payNowMobileNumber,
-
             });
         }
     };
 
     //payment logic ends here
 
-    //submot clainm logic starts here
+    //submot claim logic starts here
 
     const [isSubmitClaimModalOpen, setIsSubmitClaimModalOpen] = useState(false);
 
@@ -369,14 +573,187 @@ const ClaimSubmission = () => {
 
             <div className="logout-btn-container">
                 <Link to={`/`}><div className="logout-btn">Logout</div></Link>
-                <div className="update-details-container" onClick={() => setIsModalOpen(true)}>
+                <div className="update-details-container" style={{ cursor: 'pointer' }} onClick={() => setIsContactDetailModalOpen(true)}>
                     <div className="update-icon-container">
                         <img src="/img/update-icon.svg" alt="update-icon" style={{ width: '20px', height: 'auto' }} />
                     </div>
-                    <div className="update-text-container ml-2">Update Personal Details</div>
+                    <div className="update-text-container ml-2"
+                    >Update Contact Details</div>
                 </div>
             </div>
 
+
+            <Modal
+                title="Update Contact Details"
+                visible={isContactDetailModalOpen}
+                onOk={handleOkContactModal}
+                onCancel={handleCancelContactModal}
+                width={800}
+            >
+
+                <div className="modal-label">Fill in the details</div>
+                <div className="label-field-container" style={{ padding: '10px' }}>
+                    <div className="label">Residential Type</div>
+                    {/* <div className="input-field">
+                                <input type="text" className="input-field-main" placeholder="Enter Permanent Address" />
+                            </div> */}
+                    <Select
+                        showSearch
+                        placeholder="Select residential type"
+                        optionFilterProp="children"
+                        onChange={onChangeAddressType}
+                        value={residentType}
+                        filterOption={(input, option) =>
+                            (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                        }
+                        options={[
+                            {
+                                value: 'hdb_condo',
+                                label: 'HDB/Condo/Apartment',
+                            },
+                            {
+                                value: 'landed_private',
+                                label: 'Landed/private',
+                            },
+                        ]}
+                    />
+                </div>
+
+                <Row>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div
+                                className="label"
+                                required
+                                name="blockNo">Block No</div>
+                            <div className="input-field">
+                                <input type="text" className="input-field-main" placeholder="Block No" value={blockNo} onChange={(e) =>
+                                    setBlockNo(e.target.value)
+                                } />
+                            </div>
+                        </div>
+
+                    </Col>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" name="streetName">Street Name</div>
+                            <div className="input-field">
+                                <input type="text" className="input-field-main" placeholder="Street name" value={streetName} onChange={(e) => setStreetName(e.target.value)} />
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <Row>
+                            <Col span={12} style={{ paddingRight: '10px' }}>
+                                <div className="label-field-container">
+                                    <div className="label" required name="unitLevel" >Unit Level</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Unit Level" value={unitLevel} onChange={(e) =>
+                                            setUnitLevel(e.target.value)} />
+                                    </div>
+                                </div>
+                            </Col >
+                            <Col span={12}>
+                                <div className="label-field-container">
+                                    <div className="label" required name="unitNo">Unit No</div>
+                                    <div className="input-field">
+                                        <input type="text" className="input-field-main" placeholder="Unit No" value={unitNo} onChange={(e) => setUnitNo(e.target.value)} />
+                                    </div>
+                                </div>
+                            </Col>
+                        </Row>
+                    </Col>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" name="buildingName" >Building Name</div>
+                            <div className="input-field">
+                                <input type="text"
+                                    className="input-field-main"
+                                    placeholder="Building Name"
+                                    value={buildingName} onChange={(e) => setBuildingName(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" required name="postalCode" >Postal Code</div>
+                            <div className="input-field">
+                                <input type="text"
+                                    className="input-field-main"
+                                    placeholder="Postal code"
+                                    value={postalCode}
+                                    onChange={(e) => setPostalCode(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                    </Col>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" name="country2">Country</div>
+                            <div className="input-field">
+                                <input type="text" className="input-field-main"
+                                    placeholder="Country"
+                                    value={country2}
+                                    onChange={(e) => setCountry2(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+
+                <Row>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" required name="emailAddress">Email Address</div>
+                            <div className="input-field">
+                                <input type="text"
+                                    className="input-field-main"
+                                    placeholder="Email Address"
+                                    value={emailAddress}
+                                    onChange={(e) => setEmailAddress(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                    </Col>
+                    <Col span={12} style={{ padding: '10px' }}>
+                        <div className="label-field-container">
+                            <div className="label" name="phoneNumber">Phone Number</div>
+                            <div className="input-field">
+                                <input type="text"
+                                    className="input-field-main"
+                                    placeholder="Phone number"
+                                    value={phoneNumber}
+                                    onChange={(e) => setPhoneNumber(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                    </Col>
+                </Row>
+
+
+                <div className="notice-text">
+                    Important Notice: In accordance to the provisions of the Personal Data Protection Act 2012 (PDPA),the UOI's privacy notice shall form part of the terms and conditions of the policy. A copy of UOI's Privacy  Notice can be found at
+                </div>
+                <div className="link-container">
+                    <a href="https://www.uoi.com.sg/uoi/index.html">www.uoi.com.sg</a>
+                </div>
+
+
+                <div className="modal-btns-container">
+                    <div className="secondary-btn mr-2" onClick={handleCancelContactModal}>Cancel</div>
+                    <div className="web-btn" onClick={addAddressDetails}>Save</div>
+                </div>
+
+            </Modal>
 
             <div className="claim-title-container">
                 <div className="claim-title-text">Claim Submission</div>
@@ -411,150 +788,6 @@ const ClaimSubmission = () => {
 
 
                 <div className="virtual-card-main-container py-3 px-5">
-
-                    <Modal
-                        title="Update contact details"
-                        visible={isModalOpen}
-                        onOk={handleOk}
-                        onCancel={handleCancel}
-                        width={800}
-                    >
-
-                        <div className="modal-label">Fill in the details</div>
-                        <div className="label-field-container" style={{ padding: '10px' }}>
-                            <div className="label">Residential Type</div>
-                            {/* <div className="input-field">
-                                <input type="text" className="input-field-main" placeholder="Enter Permanent Address" />
-                            </div> */}
-                            <Select
-                                showSearch
-                                placeholder="Select a person"
-                                optionFilterProp="children"
-                                onChange={onChangeAddressType}
-                                onSearch={onSearchAddressType}
-                                filterOption={(input, option) =>
-                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
-                                options={[
-                                    {
-                                        value: 'hdb_condo',
-                                        label: 'HDB/Condo/Apartment',
-                                    },
-                                    {
-                                        value: 'landed_private',
-                                        label: 'Landed/private',
-                                    },
-                                ]}
-                            />
-                        </div>
-
-                        <Row>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label" required>Block No</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Block number" />
-                                    </div>
-                                </div>
-
-                            </Col>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label">Street Name</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Street name" />
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <Row>
-                                    <Col span={12} style={{ paddingRight: '10px' }}>
-                                        <div className="label-field-container">
-                                            <div className="label" required>Unit Level</div>
-                                            <div className="input-field">
-                                                <input type="text" className="input-field-main" placeholder="Unit level" />
-                                            </div>
-                                        </div>
-                                    </Col >
-                                    <Col span={12}>
-                                        <div className="label-field-container">
-                                            <div className="label" required>Unit No</div>
-                                            <div className="input-field">
-                                                <input type="text" className="input-field-main" placeholder="Unit number" />
-                                            </div>
-                                        </div>
-                                    </Col>
-                                </Row>
-                            </Col>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label">Building Name</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Building Name" />
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label" required>Postal Code</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Postal code" />
-                                    </div>
-                                </div>
-
-                            </Col>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label">Country</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Country" />
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-                        <Row>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label" required>Email Address</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Email Address" />
-                                    </div>
-                                </div>
-
-                            </Col>
-                            <Col span={12} style={{ padding: '10px' }}>
-                                <div className="label-field-container">
-                                    <div className="label">Phone Number</div>
-                                    <div className="input-field">
-                                        <input type="text" className="input-field-main" placeholder="Phone number" />
-                                    </div>
-                                </div>
-                            </Col>
-                        </Row>
-
-
-                        <div className="notice-text">
-                        Important Notice: In accordance to the provisions of the Personal Data Protection Act 2012 (PDPA),the UOI's privacy notice shall form part of the terms and conditions of the policy. A copy of UOI's Privacy  Notice can be found at
-                        </div>
-                        <div className="link-container">
-                        <a href="https://www.uoi.com.sg/uoi/index.html">www.uoi.com.sg</a>
-                        </div>
-
-
-                        <div className="modal-btns-container">
-                            <div className="secondary-btn mr-2" onClick={handleCancel}>Cancel</div>
-                            <div className="web-btn" onClick={handleOk}>Save</div>
-                        </div>
-
-                    </Modal>
-
 
                     <div className="virtual-card-container-traveler">
                         <div className="virtual-card">
@@ -619,27 +852,27 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Effective Date:</div>
-                                        <div className="policy-detail">{claimMetaData.policyEffectiveDate}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyEffectiveData}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Type::</div>
-                                        <div className="policy-detail">{claimMetaData.policyType}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyType}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">UID No:</div>
-                                        <div className="policy-detail">{claimMetaData.uidNo}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.uidNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Duration of Package:</div>
-                                        <div className="policy-detail">{claimMetaData.durationOfPackage}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.durationOfPackage}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Cost:</div>
-                                        <div className="policy-detail">{claimMetaData.cost}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.cost}</div>
                                     </div>
 
                                 </Col>
@@ -647,22 +880,22 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Expiration Date::</div>
-                                        <div className="policy-detail">{claimMetaData.policyExpirationDate}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyExpirationData}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy No:</div>
-                                        <div className="policy-detail">{claimMetaData.policyNo}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Date of Birth:</div>
-                                        <div className="policy-detail">{claimMetaData.dateOfBirth}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.dob}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Geographical Limit:</div>
-                                        <div className="policy-detail">{claimMetaData.geographicalLimit}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.geographicalUnit}</div>
                                     </div>
 
                                 </Col>
@@ -761,8 +994,7 @@ const ClaimSubmission = () => {
                         </div>
 
 
-                        <Table dataSource={dataSource} columns={columns} style={{ marginTop: '15px' }} />
-
+                        <Table dataSource={draftData} columns={columns} style={{ marginTop: '15px' }} />
                     </div>
 
                     <div className="drafts-container">
@@ -938,6 +1170,11 @@ const ClaimSubmission = () => {
                                         >
                                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
                                         </Upload>
+                                        {claim_doc.url && <>
+                                            <div className="mt-2">
+                                                <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.url}</a>
+                                            </div>
+                                        </>}
                                     </Col>
                                 </>))}
                             </Row>
@@ -1230,17 +1467,17 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Insurance Policy Package</div>
-                                        <div className="policy-detail">{reviewDataNew.insurancePolicyPackage}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.insurancePolicyPackage}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Traveler Agent</div>
-                                        <div className="policy-detail">{reviewDataNew.travelAgent}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.travelAgent}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Departure date from Singapore:</div>
-                                        <div className="policy-detail">{reviewDataNew.policyEffectiveData}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.departureDate}</div>
                                     </div>
 
                                 </Col>
@@ -1248,20 +1485,20 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">UID Number</div>
-                                        <div className="policy-detail">{reviewDataNew.uidNo}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.uidNo}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Country where Loss Occurred</div>
-                                        <div className="policy-detail">{reviewDataNew.lossCountry}</div>
+                                        <div className="policy-detail">{reviewDataNew?.lossCountry}</div>
                                     </div>
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Return date to Singapore</div>
-                                        <div className="policy-detail">{reviewDataNew.policyEffectiveData}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.returnDate}</div>
                                     </div>
 
                                 </Col>
-                                <Col span={8} className="d-flex justify-content-end align-items-start">
+                                {/* <Col span={8} className="d-flex justify-content-end align-items-start">
                                     <div className="edit-icon-container" onClick={() => handleStepChange(1)}>
                                         <div className="edit-icon">
                                             <div className="icon">
@@ -1270,7 +1507,7 @@ const ClaimSubmission = () => {
                                             <span>Edit</span>
                                         </div>
                                     </div>
-                                </Col>
+                                </Col> */}
                             </Row>
                         </div>
 
@@ -1358,53 +1595,60 @@ const ClaimSubmission = () => {
                             </div>
                         </div>
 
-                        <div className="claim-header pl-2">
-                            <div className="icon">
-                                <img src="/img/policy-details-icon.svg" alt="claim-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
-                            </div>
-                            <div>Claim 1</div>
-                            <div></div>
-                        </div>
 
-                        <div className="review-details-container">
+                        {reviewDataNew?.claimRequestDocs?.map((claimRequestDoc, index) => (
 
-                            <Row className="w-100">
-                                <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+                            <div className="calim-doc-loop-container">
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Claim Category</div>
-                                        <div className="policy-detail">Medical and other expenses</div>
+                                <div className="claim-header pl-2">
+                                    <div className="icon">
+                                        <img src="/img/policy-details-icon.svg" alt="claim-icon" style={{ width: '30px', height: 'auto', marginRight: '10px' }} />
                                     </div>
+                                    <div>Claim {index + 1}</div>
+                                    <div></div>
+                                </div>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Documents Uploaded</div>
-                                        <div className="policy-detail">Copy of Certificate of Insurance*</div>
-                                    </div>
+                                <div className="review-details-container">
 
+                                    <Row className="w-100">
+                                        <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                </Col>
-                                <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
-
-                                    {/* <div className="policy-details-container">
-                                <div className="policy-details-label">Policy Number</div>
-                                <div className="policy-detail">100256500266</div>
-                            </div> */}
-
-
-                                </Col>
-                                <Col span={8} className="d-flex justify-content-end align-items-start">
-                                    <div className="edit-icon-container" onClick={() => handleStepChange(2)}>
-                                        <div className="edit-icon">
-                                            <div className="icon">
-                                                <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
+                                            <div className="policy-details-container">
+                                                <div className="policy-details-label">Claim Category</div>
+                                                <div className="policy-detail">{claimRequestDoc?.claimCategory?.title}</div>
+                                                {/* {JSON.stringify(claimRequestDoc?.claimCategory)}
+                                                {JSON.stringify(claimRequestDoc?.claimCategory?.title)} */}
                                             </div>
-                                            <span>Edit</span>
-                                        </div>
-                                    </div>
-                                </Col>
-                            </Row>
 
-                        </div>
+                                            <div className="policy-details-container">
+                                                <div className="policy-details-label">Documents Uploaded</div>
+                                                {claimRequestDoc?.files?.map((file, index) => (
+                                                    <div className="policy-detail">{file?.fieldname}</div>
+                                                ))}
+                                            </div>
+
+
+                                        </Col>
+                                        <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+
+                                        </Col>
+                                        <Col span={8} className="d-flex justify-content-end align-items-start">
+                                            <div className="edit-icon-container" onClick={() => handleStepChange(2)}>
+                                                <div className="edit-icon">
+                                                    <div className="icon">
+                                                        <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
+                                                    </div>
+                                                    <span>Edit</span>
+                                                </div>
+                                            </div>
+                                        </Col>
+                                    </Row>
+
+                                </div>
+                            </div>
+                        ))}
+
 
                         <div className="review-details-container-mobile">
 
@@ -1450,17 +1694,17 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payment Option</div>
-                                        <div className="policy-detail">{reviewDataNew.paymentOptions}</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.paymentOptions}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payee NRIC</div>
-                                        <div className="policy-detail">{reviewDataNew.payeeNric}</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeNric}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Bank Account No</div>
-                                        <div className="policy-detail">{reviewDataNew.bankAccountNumber}</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
                                     </div>
 
 
@@ -1469,12 +1713,12 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payee Name (as per bank acccount)</div>
-                                        <div className="policy-detail">{reviewDataNew.payeeName}</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Bank Name</div>
-                                        <div className="policy-detail">{reviewDataNew.bankName}</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
                                     </div>
 
                                 </Col>
@@ -1517,11 +1761,13 @@ const ClaimSubmission = () => {
                                 <div className="label-field-container">
                                     <div className="label">User Name*</div>
                                     <div style={{ marginTop: '15px' }}>
-                                        <Input placeholder="Payee Name" />
+                                        <Input placeholder="User Name" value={userName} onChange={(e) => {
+                                            setUserName(e.target.value)
+                                        }} />
                                     </div>
                                 </div>
                             </div>
-                            <div className="ip-address-holder mt-1">197.184.163.130</div>
+                            <div className="ip-address-holder mt-1">{ip}</div>
                         </div>
 
                         <div className="checkbox-text my-3">
@@ -1533,7 +1779,7 @@ const ClaimSubmission = () => {
                     <div >
                         <div className="btn-container">
                             <div className="web-btn mb-3" onClick={() => {
-                                setIsSubmitClaimModalOpen(true);
+                                submitMain()
                             }}>Submit</div>
                         </div>
                     </div>

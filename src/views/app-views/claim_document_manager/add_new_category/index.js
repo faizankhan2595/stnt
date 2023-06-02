@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Button, Form, Input, Checkbox, Modal, Result } from "antd";
+import { Button, Form, Input, Checkbox, Modal, Result, message } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { useHistory } from "react-router-dom";
+import { addClaimCategory } from "services/apiService";
 const AddNew = () => {
   const [form] = Form.useForm();
   const history = useHistory();
@@ -13,13 +14,42 @@ const AddNew = () => {
     setTimeout(() => {
       setSuccessModal(false);
       setTimeout(() => {
-          history.push('/app/claim_document_manager')
+        history.push('/app/claim_document_manager')
       }, 400);
     }, 900);
   };
   const onClaimCategoryChange = (checkedValues) => {
     console.log("checked = ", checkedValues);
   };
+
+  const [title, setTitle] = React.useState('');
+  const [description, setDescription] = React.useState('');
+
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === 'title') {
+      setTitle(value);
+    }
+    else if (name === 'description') {
+      setDescription(value);
+    }
+  }
+
+
+
+  const add = async () => {
+    console.log('title', title);
+    await addClaimCategory({
+      title: title,
+      description: description,
+    }).then(res => {
+
+    }).catch(err => {
+
+    })
+  }
+
   return (
     <div>
       <Form
@@ -33,8 +63,9 @@ const AddNew = () => {
           <h5 className="text-info m-0">Add New Claim Category</h5>
           <div style={{ width: "60%" }} className="mt-4">
             <Form.Item
-              name="Title"
+              name="title"
               label="Claim Category Title"
+              onChange={handleChange}
               rules={[
                 {
                   required: true,
@@ -46,7 +77,10 @@ const AddNew = () => {
             </Form.Item>
           </div>
           <div style={{ width: "60%" }}>
-            <Form.Item name="Description" label="Description (if any)">
+            <Form.Item 
+            name="description" 
+            label="Description (if any)"
+            onChange={handleChange}>
               <TextArea placeholder="Type here..." />
             </Form.Item>
           </div>
@@ -62,22 +96,23 @@ const AddNew = () => {
             </Form.Item>
           </div>
         </div>
-          <Form.Item>
-            <div
-              style={{ gap: "10px" }}
-              className="mt-5 d-flex justify-content-end"
+        <Form.Item>
+          <div
+            style={{ gap: "10px" }}
+            className="mt-5 d-flex justify-content-end"
+          >
+            <Button className="px-4 font-weight-semibold" htmlType="button">
+              Cancel
+            </Button>
+            <Button
+              className="px-4 font-weight-semibold text-white bg-info"
+              htmlType="submit"
+              onClick={add}
             >
-              <Button className="px-4 font-weight-semibold" htmlType="button">
-                Cancel
-              </Button>
-              <Button
-                className="px-4 font-weight-semibold text-white bg-info"
-                htmlType="submit"
-              >
-                Save
-              </Button>
-            </div>
-          </Form.Item>
+              Save
+            </Button>
+          </div>
+        </Form.Item>
       </Form>
       <Modal
         width={600}

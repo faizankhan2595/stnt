@@ -595,6 +595,7 @@ body {
     top: 80px;
     right: 50px;
     cursor: pointer;
+    z-index: 999999999;
 }
 
 .update-text-container {

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useEffect } from 'react';
-import { Button, DatePicker, Image, Input } from "antd";
+import { Button, DatePicker, Image, Input, message } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
 import Helper from "../Helper";
@@ -11,7 +11,7 @@ import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { Edit, History, ResetPass, UpdateStatus } from "assets/svg/icon";
 import { ChangeAgStatus } from "assets/svg/icon";
 import { Radio, Modal } from "antd";
-import { getClaimCategories } from "services/apiService";
+import { deleteClaimCategory, getClaimCategories } from "services/apiService";
 
 const UserManage = () => {
   const [claims, setClaims] = useState([]);
@@ -35,6 +35,21 @@ const UserManage = () => {
         setClaimCategories(claimCategories);
     });
   }, []);
+
+  const deleteClaimCategory = async (id) => {
+    await deleteClaimCategory(id).then(res => {
+      message.success('Claim category deleted successfully');
+      setTimeout(() => {
+        window.location.href = '/app/claim_document_manager'
+      }, 1000);
+    })
+      .catch(err => {
+        message.error('Claim category deletion failed')
+        // setTimeout(() => {
+        //     window.location.href = '/web/web_claimSubmission'
+        // }, 1000);
+      })
+  }
   
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
@@ -122,7 +137,7 @@ const UserManage = () => {
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => console.log("del")}>
+                    <span onClick={deleteClaimCategory}>
                       {" "}
                       <DeleteOutlined className="mr-2 " />
                       Delete

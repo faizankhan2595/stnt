@@ -83,6 +83,8 @@ const ManfestImp = () => {
       manifestType: values.manifest_type
     });
 
+    
+
     console.log("Success:");
     setIsModalOpen(true);
   };
@@ -111,6 +113,7 @@ const ManfestImp = () => {
     const response = await GetAllTravelAgents({size : 10000, page: 1, search: ''});
     console.log(response);
     setAgents(response.data.data.rows);
+
   }, []);
 
   return (
@@ -139,7 +142,7 @@ const ManfestImp = () => {
             <div className="d-flex mt-4">
               <Form.Item
                 name="travel_agent"
-                label="Travel Agent"
+                label="Travel Agency"
                 rules={[
                   {
                     required: true,

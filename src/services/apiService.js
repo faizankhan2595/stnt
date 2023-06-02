@@ -2,14 +2,15 @@ const axios = require('axios');
 
 export const BASE_URL = `https://api.stntinternational.com`;
 
-export const ManifestFileUpload = async ({ file, travelAgentId, manifestType }) => {
+export const ManifestFileUpload = async ({ file, travelAgentId, manifestType, }) => {
     console.log('file', file);
     const FormData = require('form-data');
     const fs = require('fs');
     let data = new FormData();
     data.append('file', file)
-    data.append('travelAgentId', '1');
+    data.append('travelAgentId', travelAgentId);
     data.append('manifestType', manifestType);
+    //data.append
 
     let config = {
         method: 'post',
@@ -258,55 +259,25 @@ export const getCountryDropdown = async () => {
     return await axios.get(url);
 }
 
-export const addAddress = async ({ address, phoneNumber, emailAddress }) => {
-    let data = JSON.stringify({
-        "address": address,
-        "phoneNumber": phoneNumber,
-        "emailAddress": emailAddress
-    });
+// export const addAddress = async ({ address, phoneNumber, emailAddress }) => {
+//     let data = JSON.stringify({
+//         "address": address,
+//         "phoneNumber": phoneNumber,
+//         "emailAddress": emailAddress
+//     });
 
-    let config = {
-        method: 'post',
-        maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/address',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
-        },
-        data: data
-    };
+//     let config = {
+//         method: 'post',
+//         maxBodyLength: Infinity,
+//         url: BASE_URL + '/api/website/address',
+//         headers: {
+//             'Authorization': 'Bearer ' + localStorage.getItem('token')
+//         },
+//         data: data
+//     };
 
-    return await axios.request(config)
-}
-
-export const updateAddress = async ({ address, phoneNumber, emailAddress }) => {
-    let data = JSON.stringify({
-        "addressId": "2",
-        "address": "Khatla Pura",
-        "phoneNumber": "45998632",
-        "emailAddress": "test@email.com",
-        "residentType": "HDB",
-        "blockNo": 5,
-        "streetName": "Test street",
-        "unitLevel": 41,
-        "unitNo": 452,
-        "buildingName": "Test building",
-        "postalCode": "636563",
-        "country": "Singapore"
-    });
-
-    let config = {
-        method: 'put',
-        maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/address',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
-
-        },
-        data: data
-    };
-
-    return await axios.request(config)
-}
+//     return await axios.request(config)
+// }
 
 export const addClaim = async () => {
     const FormData = require('form-data');
@@ -340,9 +311,7 @@ export const getClaimByUser = async () => {
         maxBodyLength: Infinity,
         url: BASE_URL + '/api/website/claim-request/user',
         headers: {
-
             'Authorization': 'Bearer ' + localStorage.getItem('token')
-
         },
         data: data
     };
@@ -384,8 +353,7 @@ export const getClaimCategories = async () => {
     return await axios.request(config)
 }
 
-export const paymentSave = async ({ data }) => {
-    // let data = '{\n    "paymentOption": "DBS/POSB Account",\n    "claimRequestId": 4,\n    "payeeName": "Test name",\n    "payeeNric": null,\n    "bankName": "DBS",\n    "bankAccountNumber": "412563254",\n    "payNow": null\n}';
+export const paymentSaveAPI = async ({ data }) => {
 
     let config = {
         method: 'post',
@@ -416,13 +384,13 @@ export const getCliamMetadata = async () => {
     return await axios.request(config)
 }
 
-export const getCompleteCliamData = async () => {
+export const getCompleteCliamData = async (id) => {
     let data = '';
 
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/claim-request/review/6',
+        url: BASE_URL + '/api/website/claim-request/review/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -437,28 +405,110 @@ export const getClaimRequests = async () => {
         method: 'get',
         maxBodyLength: Infinity,
         url: BASE_URL + '/api/kpi/claim-requests',
-        headers: { 
+        headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
-      };
-      
-      return await axios.request(config)
+    };
+
+    return await axios.request(config)
 }
 
-export const getAllClaimCategory = async (size, page, searchByTitle ) => {
+export const getAllClaimCategory = async (size, page, searchByTitle) => {
     let data = JSON.stringify({
 
-      });
-      
-      let config = {
+    });
+
+    let config = {
         method: 'get',
         maxBodyLength: Infinity,
         url: BASE_URL + `/api/claim-category?size=${size}&${page}&searchByTitle=${searchByTitle}`,
-        headers: { 
+        headers: {
             'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7Il9pZCI6MSwiZW1haWwiOiJhZG1pbkBnbWFpbC5jb20iLCJmaXJzdE5hbWUiOiJzdXBlciJ9LCJpYXQiOjE2ODMxOTI1MjB9.qmNlOHBFOUGMLmyyRpvgt6W3Rz5sOC23CUR0HFSx148'
         },
-        data : data
-      };
-      
-      return await axios.request(config)
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const addClaimCategory = async ({ title, description }) => {
+    let data = JSON.stringify({
+        "title": title,
+        "description": description,
+        "associateClaimType": "silver",
+    });
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim-category`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const deleteClaimCategory = async (id) => {
+    let data = JSON.stringify({
+        "id": "2",
+        "title": "Hello",
+        "description": "This is fastly new Test claim document for the data",
+        "isMandatory": false
+    });
+
+    let config = {
+        method: 'delete',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim-documents/${id}`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const addAddress = async (data) => {
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/website/address`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const updateAddress = async (data) => {
+    let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/website/address`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const getAddressDetails = async () => {
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/website/address`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+    };
+
+    return await axios.request(config)
 }
