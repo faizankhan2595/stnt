@@ -45,6 +45,8 @@ let styles = {
 };
 const ManfestImp = () => {
   const [selectedFiles, setSelectedFiles] = useState([]);
+  const [masterPolicyNumber, setMasterPolicyNumber] = useState("");
+  const [insurancePolicyPackage, setInsurancePolicyPackage] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form] = Form.useForm();
   const [agents, setAgents] = useState([]);
@@ -70,17 +72,23 @@ const ManfestImp = () => {
     }
   };
 
+
   const onFinish = async (values) => {
     console.log(values);
     console.log(selectedFiles);
     if (selectedFiles.length === 0) {
       alert("Please upload a file");
     }
+    
+    const masterPolicyNumber = values.master_policy_number;
+    const insurancePolicyPackage = values.insurance_policy_package;
 
     await ManifestFileUpload({
       file: selectedFiles[0],
       travelAgentId: values.travel_agent,
-      manifestType: values.manifest_type
+      manifestType: values.manifest_type,
+      masterPolicyNumber: masterPolicyNumber,
+      insurancePolicyPackage: insurancePolicyPackage,
     });
 
     
@@ -181,6 +189,39 @@ const ManfestImp = () => {
 
                 </Select>
               </Form.Item>
+            </div>
+            <div className="d-flex mt-2">
+            <Form.Item
+                name="master_policy_number"
+                value={masterPolicyNumber}
+                label="Master Policy Number"
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                onChange={(e) => setMasterPolicyNumber(e.target.value)}
+                className="w-50 p-1"
+              >
+                <Input placeholder="Enter Master Policy Number" />
+              </Form.Item>
+
+              <Form.Item
+                name="insurance_policy_package"
+                value={insurancePolicyPackage}
+                onChange={(e) => setInsurancePolicyPackage(e.target.value)}
+                label="Insurance Policy Package"
+                onClick
+                rules={[
+                  {
+                    required: true,
+                  },
+                ]}
+                className="w-50 p-1"
+              >
+                <Input placeholder="Enter Insurace Policy Package" />
+              </Form.Item>
+
             </div>
 
             <div className="border dashed bg-white rounded p-3 mt-4 p-5">

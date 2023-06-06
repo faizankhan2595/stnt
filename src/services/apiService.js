@@ -2,7 +2,7 @@ const axios = require('axios');
 
 export const BASE_URL = `https://api.stntinternational.com`;
 
-export const ManifestFileUpload = async ({ file, travelAgentId, manifestType, }) => {
+export const ManifestFileUpload = async ({ file, travelAgentId, manifestType,masterPolicyNumber,insurancePolicyPackage }) => {
     console.log('file', file);
     const FormData = require('form-data');
     const fs = require('fs');
@@ -10,6 +10,8 @@ export const ManifestFileUpload = async ({ file, travelAgentId, manifestType, })
     data.append('file', file)
     data.append('travelAgentId', travelAgentId);
     data.append('manifestType', manifestType);
+    data.append('masterPolicyNumber', masterPolicyNumber);
+    data.append('insurancePolicyPackage', insurancePolicyPackage);
     //data.append
 
     let config = {
@@ -85,11 +87,11 @@ export const ManifestDownloadErrorFile = () => {
 }
 
 export const GetAllTravelAgents = async ({ size, page, search }) => {
-    let data = JSON.stringify({
+    let data = {
         "confirmPassword": "123456",
         "password": "123456",
         "userId": "6"
-    });
+    }
 
     let config = {
         method: 'get',
@@ -165,16 +167,7 @@ export const GetTravelAgency = async ({ id }) => {
 }
 
 export const UpdateTravelAgencyStatus = async (data) => {
-
-
-    console.log(data);
-
-
-    let data2 = JSON.stringify(data);
-
-    console.log(data2);
-
-
+    let data2 = data
     let config = {
         method: 'put',
         url: BASE_URL + '/api/travel-agencies/change-status',
@@ -414,9 +407,9 @@ export const getClaimRequests = async () => {
 }
 
 export const getAllClaimCategory = async (size, page, searchByTitle) => {
-    let data = JSON.stringify({
+    let data = {
 
-    });
+    };
 
     let config = {
         method: 'get',
@@ -432,11 +425,11 @@ export const getAllClaimCategory = async (size, page, searchByTitle) => {
 }
 
 export const addClaimCategory = async ({ title, description }) => {
-    let data = JSON.stringify({
+    let data = {
         "title": title,
         "description": description,
         "associateClaimType": "silver",
-    });
+    };
 
     let config = {
         method: 'post',
@@ -452,12 +445,12 @@ export const addClaimCategory = async ({ title, description }) => {
 }
 
 export const deleteClaimCategory = async (id) => {
-    let data = JSON.stringify({
+    let data = {
         "id": "2",
         "title": "Hello",
         "description": "This is fastly new Test claim document for the data",
         "isMandatory": false
-    });
+    };
 
     let config = {
         method: 'delete',
@@ -511,4 +504,30 @@ export const getAddressDetails = async () => {
     };
 
     return await axios.request(config)
+}
+
+export const getTravlersList = async (size, page) => {
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `https://api.stntinternational.com/api/api/travellers/?size=${size}&page=${page}`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+         }
+      };
+      
+      return await axios.request(config)
+}
+
+export const getTraveler = async (id) => {
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `https://api.stntinternational.com/api/travellers/${id}?size=2&page=1`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+         }
+      };
+      
+      return await axios.request(config)
 }

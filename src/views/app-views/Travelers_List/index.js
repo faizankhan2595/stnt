@@ -12,14 +12,26 @@ import { Link } from 'react-router-dom'
 // import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
-
-
-
-
 export default function MembershipRequest() {
 
+  axios.defaults.headers.common["Authorization"] = 'Bearer ' + localStorage.getItem('token');
+
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
+  const [travelersList, setTravelersList] = useState([])
   const [visible, setVisible] = useState(false)
+
+
+  const getTravelersList = () => {
+    axios.get("https://api.stntinternational.com/api/travellers/?size=10&page=1").then((response) => {
+      setTravelersList(response.data.data);
+    });
+  };
+
+  useEffect(() => {
+    getTravelersList();
+  }, []);
+  
+
   const showDrawer = () => {
     setVisible(true);
   };
@@ -262,15 +274,15 @@ export default function MembershipRequest() {
           <CustomIcon svg={History} /> <input className='memberDetailSerachInput' placeholder='Search' type="text" name="search" id="" />
         </form>
         <div className='memberDetailFilter'>
-          <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filters</span>
+          <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filter2s</span>
         </div>
         <div className='memberDetailFilter'>
-          <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export</span>
+          <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export1</span>
         </div>
 
       </div>
       <div>
-        <Helper clients={travelersData} attribiue={travelersColumns} />
+        <Helper clients={travelersList} attribiue={travelersColumns} />
       </div>
 
     </div>

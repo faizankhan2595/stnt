@@ -1,6 +1,6 @@
 import { Button, Form, Input, Menu, Select, Switch } from 'antd'
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import './MembershipRequest.css'
 import { DeleteOutlined, CloseOutlined, EyeOutlined, HistoryOutlined } from '@ant-design/icons'
 import { membershipRequest } from '../data'
@@ -10,12 +10,29 @@ import Helper from '../Helper'
 import { Modal, Drawer } from 'antd';
 import { Link } from 'react-router-dom'
 // import Drawer from 'react-modern-drawer'
+import axios from 'axios';
 import 'react-modern-drawer/dist/index.css'
 
 export default function MembershipRequest() {
 
+  axios.defaults.headers.common["Authorization"] = 'Bearer ' + localStorage.getItem('token');
+
+
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
   const [visible, setVisible] = useState(false)
+  const [travelersList, setTravelersList] = useState([])
+
+  const getTravelersList = () => {
+    axios.get("https://api.stntinternational.com/api/travellers/?size=10&page=1").then((response) => {
+      setTravelersList(response.data.data);
+    });
+  };
+
+  useEffect(() => {
+    getTravelersList();
+  }, []);
+  
+
   const showDrawer = () => {
     setVisible(true);
   };
@@ -70,11 +87,11 @@ export default function MembershipRequest() {
   const travelersColumns = [
     {
       title: 'Sr No',
-      dataIndex: 'sr_no',
+      dataIndex: 'id',
     },
     {
       title: 'Insured Name',
-      dataIndex: 'insured_Name',
+      dataIndex: 'name',
     },
     {
       title: 'Gender',
@@ -82,32 +99,29 @@ export default function MembershipRequest() {
     },
     {
       title: 'Passport No',
-      dataIndex: 'passport_number',
+      dataIndex: 'passportNo',
     },
     {
       title: 'NRIC/FIn',
-      dataIndex: 'nric_fin',
-    },
-    {
-      title: 'Sr No',
-      dataIndex: 'sr_no',
+      dataIndex: 'nric',
     },
     {
       title: 'Active Policies',
-      dataIndex: 'active_policies',
+      dataIndex: 'policies',
+      render: (text, record) => record.policies.length
     },
     {
       title: 'No of Claims',
-      dataIndex: 'no_of_claims',
+      dataIndex: 'numberOfClaims',
     },
     {
       title: "Status",
-      dataIndex: "Status",
+      dataIndex: "status",
       render: (text) => {
         return (
           <p
             className={`${
-              text !== "Active" ? "text-danger" : "text-success"
+              text !== "Active" ? "text-success" : "text-danger"
             } font-weight-semibold`}
           >
             {text}
@@ -121,10 +135,11 @@ export default function MembershipRequest() {
       render: (record) => {
         return (
           <>
+          
             <EllipsisDropdown menu={
               <Menu>
                 <Menu.Item>
-                  <Link to={`/app/traveler/travelers_list/travel_list_details`} > <EyeOutlined className='mr-2 ' />View Policy & Claim Details</Link >
+                  <Link to={`/app/traveler/travelers_list/travel_list_details/${record.id}`}><span> <EyeOutlined className='mr-2 ' />View Policy & Claim Details</span></Link>
                 </Menu.Item>
                 <Menu.Item>
                   {/* <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span> */}
@@ -312,7 +327,7 @@ export default function MembershipRequest() {
 
       </div>
       <div>
-        <Helper clients={travelersData} attribiue={travelersColumns} />
+        <Helper clients={travelersList} attribiue={travelersColumns} />
       </div>
 
     </div>

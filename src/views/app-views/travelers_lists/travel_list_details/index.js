@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import CustomIcon from "components/util-components/CustomIcon";
 import "../../Members/Members.css";
 import { Button, Form, Input, Menu, Select, Switch, Radio } from 'antd'
@@ -9,7 +9,7 @@ import { membershipRequest } from '../../data'
 import { Account, Edit, Export, History, Verified } from 'assets/svg/icon'
 import Helper from '../../Helper'
 import { Modal, Drawer } from 'antd';
-import { Link } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom';
 // import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
@@ -27,8 +27,20 @@ import {
   UploadFileIcon,
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
+import { getTraveler } from "services/apiService";
 
 export default function MembershipRequest() {
+  const { id } = useParams();
+  const [traveler, setTraveler] = useState({});
+
+  useEffect(() => {
+    async function fetchTraveler() {
+      const response = await getTraveler(id);
+      setTraveler(response.data.data);
+    }
+
+    fetchTraveler();
+  }, [id]);
 
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
   const [insuranceClaimData, setInsuranceClaimData] = useState(membershipRequest)
@@ -501,8 +513,8 @@ export default function MembershipRequest() {
                   </Drawer>
                 </Menu.Item>
                 <Menu.Item>
-                    <span><HistoryOutlined className='mr-2'/> Update Status</span>
-                  </Menu.Item>
+                  <span><HistoryOutlined className='mr-2' /> Update Status</span>
+                </Menu.Item>
               </Menu>
             } />
 
@@ -791,7 +803,7 @@ export default function MembershipRequest() {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Insured Name
                 </p>
-                <h5>MR. Abdul Azeem</h5>
+                <h5>{traveler.name}</h5>
               </div>
             </Col>
             <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
@@ -799,7 +811,7 @@ export default function MembershipRequest() {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Passport No.
                 </p>
-                <h5>KXXXX956R</h5>
+                <h5>{traveler.passportNo}</h5>
               </div>
             </Col>
             <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
@@ -807,7 +819,7 @@ export default function MembershipRequest() {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   NRIC/FIN
                 </p>
-                <h5>S805675S</h5>
+                <h5>{traveler.nric}</h5>
               </div>
             </Col>
             <Col span={4} style={{ padding: '10px', borderRight: '1px solid #ccc' }}>
@@ -815,7 +827,7 @@ export default function MembershipRequest() {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Phone No
                 </p>
-                <h5>+65 1425 5698</h5>
+                <h5>{traveler?.address?.phoneNumber}</h5>
               </div>
             </Col>
             <Col span={4} style={{ padding: '10px' }}>
@@ -823,7 +835,7 @@ export default function MembershipRequest() {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Email ID
                 </p>
-                <h5>abdulazeem@gmail.com</h5>
+                <h5>{traveler?.address?.emailAddress}</h5>
               </div>
             </Col>
             <Col span={4}></Col>
@@ -846,12 +858,12 @@ export default function MembershipRequest() {
         width={600}
         footer={null}
         visible={isModalOpen}
-        onOk={handleOk} 
+        onOk={handleOk}
         onCancel={() => showModal(false)}
       >
         <div className="d-flex my-3 flex-column">
           <h3 className="mb-4 d-flex align-items-center">
-            
+
             <ChangeAgStatus />
             <span className="ml-2"> Change Policy Status</span>
           </h3>
@@ -861,7 +873,7 @@ export default function MembershipRequest() {
 
           </Radio.Group>
           <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
-          <TextArea className="ml-5 w-75"/>
+          <TextArea className="ml-5 w-75" />
         </div>
         <div
           style={{ gap: "10px" }}
@@ -875,9 +887,9 @@ export default function MembershipRequest() {
           </Button>
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
-            // onClick={() => {
-            //   setIsChangeStudModalOpen(false);
-            // }}
+          // onClick={() => {
+          //   setIsChangeStudModalOpen(false);
+          // }}
           >
             Save
           </Button>

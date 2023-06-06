@@ -10,41 +10,12 @@ import { Link } from "react-router-dom";
 import CustomIcon from "components/util-components/CustomIcon";
 import { Export, History } from "assets/svg/icon";
 import axios from "axios";
-const dataArray = [
-  {
-    Sr_No: 1,
-    Member_Name: "John Doe",
-    File_Name: "file1.pdf",
-    Travel_Agency: "Abu Bakar Travel Services Pte Ltd",
-    Date_of_Import: "2022-05-07",
-    No_Travelers_Imported: 10,
-    Imported_By: "ST&T Employee A",
-    Status: "Active",
-  },
-  {
-    Sr_No: 2,
-    Member_Name: "Alice Johnson",
-    File_Name: "file2.pdf",
-    Travel_Agency: "Afandi Travels & services Pte Ltd",
-    Date_of_Import: "2022-05-06",
-    No_Travelers_Imported: 5,
-    Imported_By: "ST&T Employee B",
-    Status: "Active",
-  },
-  {
-    Sr_No: 3,
-    Member_Name: "Michael Lee",
-    File_Name: "file3.pdf",
-    Travel_Agency: "Al-Fattah Travel & Tours Pte Ltd",
-    Date_of_Import: "2022-05-05",
-    No_Travelers_Imported: 8,
-    Imported_By: "ST&T Employee C",
-    Status: "Active",
-  },
-];
+
 
 export default function Members() {
   const [membersData, setMembersData] = useState([]);
+
+  axios.defaults.headers.common["Authorization"] = 'Bearer ' + localStorage.getItem('token');
 
   const onDeleteData = (record) => {
     console.log(record);
@@ -61,27 +32,37 @@ export default function Members() {
   const columns = [
     {
       title: "Sr No",
-      dataIndex: "Sr_No",
+      dataIndex: "id",
     },
     {
       title: "File Name",
-      dataIndex: "File_Name",
+      dataIndex: "fileName",
+      render: (text, record) => (
+        <a href={record.manifestUrl} target="_blank" rel="noopener noreferrer">
+          {record.fileName}
+        </a>
+      )
+      //manifestUrl
     },
     {
       title: "Travel Agency",
-      dataIndex: "Travel_Agency",
+      dataIndex: "importedBy",
+    },
+    {
+      title: "Manifest Type",
+      dataIndex: "manifestType",
     },
     {
       title: "Date of Import",
-      dataIndex: "Date_of_Import",
+      dataIndex: "dateOfImport",
     },
     {
       title: "No Travelers Imported",
-      dataIndex: "No_Travelers_Imported",
+      dataIndex: "noOfImportedTravellers",
     },
     {
       title: "Imported By",
-      dataIndex: "Imported_By",
+      dataIndex: "importedBy",
     },
     {
       title: "Status",
@@ -122,19 +103,14 @@ export default function Members() {
   ];
 
   const getMembers = () => {
-    axios.get("http://127.0.0.1:3333/members").then((response) => {
-      // console.log(response)
-      if (response.data.status) {
-        setMembersData(response.data.result);
-      } else {
-        console.log(response);
-      }
+    axios.get("https://api.stntinternational.com/api/manifests").then((response) => {
+      setMembersData(response.data.data);
     });
   };
 
   const deleteMember = (record) => {
     axios
-      .delete("http://127.0.0.1:3333/members/delete", {
+      .delete("https://api.stntinternational.com/api/manifests/delete", {
         data: { id: record.id },
       })
       .then((response) => {
@@ -183,7 +159,7 @@ export default function Members() {
         </Button>
       </div>
       <div>
-        <Helper clients={dataArray} attribiue={columns} />
+        <Helper clients={membersData} attribiue={columns} />
       </div>
     </div>
   );

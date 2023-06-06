@@ -8,23 +8,31 @@ const AddNew = () => {
   const history = useHistory();
   const [SuccessModal, setSuccessModal] = useState(false);
   const plainOptions = ["Regular", "Silver", "Deluxe"];
-  const onFinish = (values) => {
+
+  const onFinish = async (values) => {
     console.log("Success:", values);
-    setSuccessModal(true);
-    setTimeout(() => {
-      setSuccessModal(false);
+    await addClaimCategory({
+      title: values.title,
+      description: values.description,
+    }).then(res => {
+      setSuccessModal(true);
       setTimeout(() => {
-        history.push('/app/claim_document_manager')
-      }, 400);
-    }, 900);
+        setSuccessModal(false);
+        setTimeout(() => {
+          history.push('/app/claim_document_manager')
+        }, 400);
+      }, 900);
+    }).catch(err => {
+      message.error('Something went wrong. Please try again later')
+    })
   };
+
   const onClaimCategoryChange = (checkedValues) => {
     console.log("checked = ", checkedValues);
   };
 
   const [title, setTitle] = React.useState('');
   const [description, setDescription] = React.useState('');
-
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -34,20 +42,6 @@ const AddNew = () => {
     else if (name === 'description') {
       setDescription(value);
     }
-  }
-
-
-
-  const add = async () => {
-    console.log('title', title);
-    await addClaimCategory({
-      title: title,
-      description: description,
-    }).then(res => {
-
-    }).catch(err => {
-
-    })
   }
 
   return (
@@ -107,7 +101,6 @@ const AddNew = () => {
             <Button
               className="px-4 font-weight-semibold text-white bg-info"
               htmlType="submit"
-              onClick={add}
             >
               Save
             </Button>
