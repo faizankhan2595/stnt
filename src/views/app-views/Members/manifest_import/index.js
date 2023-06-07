@@ -79,7 +79,7 @@ const ManfestImp = () => {
     if (selectedFiles.length === 0) {
       alert("Please upload a file");
     }
-    
+
     const masterPolicyNumber = values.master_policy_number;
     const insurancePolicyPackage = values.insurance_policy_package;
 
@@ -139,11 +139,11 @@ const ManfestImp = () => {
             </div>
             <div className="ml-1">
               <h3 className="d-flex"> Importing Manifests</h3>
-              <p className="w-75" style={{ color: "black" }}>
+              {/* <p className="w-75" style={{ color: "black" }}>
                 Loreum ipsum is dummy text.Loreum ipsum is dummy text.Loreum
                 ipsum is dummy text.Loreum ipsum is dummy text.Loreum ipsum is
                 dummy text.Loreum ipsum is dummy text.
-              </p>
+              </p> */}
             </div>
           </div>
           <div className="m-auto w-75 mt-5">

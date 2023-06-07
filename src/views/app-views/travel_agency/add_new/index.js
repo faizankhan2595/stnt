@@ -180,13 +180,13 @@ export default function AddNew() {
                   >
                     <Input placeholder="Agency Name" />
                   </Form.Item>
-                  <Form.Item
+                  {/* <Form.Item
                     name="phone_code"
                     label="Phone Code"
                     rules={[{ required: true, message: "Phone Number" }]}
                   >
                     <Input placeholder="Phone number" />
-                  </Form.Item>
+                  </Form.Item> */}
                   <Form.Item
                     name="phone_number"
                     label="Phone Number"
@@ -245,16 +245,16 @@ export default function AddNew() {
                   >
                     <Form.Item
                       name="street_number"
-                      label="Street Number"
+                      label="Street"
                       rules={[
                         {
                           required: true,
-                          message: "Please input street number!",
+                          message: "Please input street!",
                         },
                       ]}
                       style={{ width: "100%" }}
                     >
-                      <Input placeholder="Street Number" />
+                      <Input placeholder="Street" />
                     </Form.Item>
                   </div>
                 </div>

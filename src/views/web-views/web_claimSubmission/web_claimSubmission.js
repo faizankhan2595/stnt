@@ -142,10 +142,10 @@ const ClaimSubmission = () => {
             setImageSrc("/img/sgp-card-rear.jpg");
         }
         setIsAlternateImage(!isAlternateImage);
-    };
+    }; 
 
 
-    const handleImageChange = () => {
+    const handleImageChange = () => { 
         setImageSrc("/img/sgp-card-rear.jpg");
     };
 
@@ -238,11 +238,11 @@ const ClaimSubmission = () => {
             let claimHistoryNew = [];
 
             const draftClaims = claimMetaDataNew.draftClaims;
-            if(draftClaims.length) {
+            if (draftClaims.length) {
                 const lastDraft = draftClaims[draftClaims.length - 1];
                 const draftName = lastDraft.draftName;
 
-                for(const draftN of draftName) {
+                for (const draftN of draftName) {
                     draftDataNew.push({
                         key: draftN.id,
                         sno: draftN.id,
@@ -254,7 +254,7 @@ const ClaimSubmission = () => {
 
             const claimHistory = claimMetaDataNew.claimHistory;
 
-            for(const claimH of claimHistory) {
+            for (const claimH of claimHistory) {
                 claimHistoryNew.push({
                     key: claimH.claimReqId,
                     sno: claimH.claimReqId,
@@ -290,6 +290,53 @@ const ClaimSubmission = () => {
 
 
     const addAddressDetails = async () => {
+
+        if (blockNo === '') {
+            alert('Please enter a street name');
+            return;
+        }
+
+        if (streetName === '') {
+            alert('Please enter a street name');
+            return;
+        }
+
+        if (unitLevel === '') {
+            alert('Please enter Unit Level');
+            return;
+        }
+
+        if (unitNo === '') {
+            alert('Please enter a Unit No');
+            return;
+        }
+
+        if (postalCode === '') {
+            alert('Please enter a postal code');
+            return;
+        }
+
+        if (country2 === '') {
+            alert('Please enter a country');
+            return;
+        }
+
+        if (address === '') {
+            alert('Please enter an address');
+            return;
+        }
+
+        if (phoneNumber === '') {
+            alert('Please enter a phone number');
+            return;
+        }
+
+        if (emailAddress === '') {
+            alert('Please enter an email address');
+            return;
+        }
+
+
         const data = {
             addressId: addressId,
             residentType: residentType,
@@ -488,12 +535,12 @@ const ClaimSubmission = () => {
                 return (
                     <>
                         <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => handleStepChange(1)}>Resume editing</div>
-    
+
                     </>
                 );
             },
         },
-    
+
     ];
 
     //payment logic starts here
@@ -571,6 +618,8 @@ const ClaimSubmission = () => {
                 <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: '375px', objectFit: 'cover' }} />
             </div>
 
+
+
             <div className="logout-btn-container">
                 <Link to={`/`}><div className="logout-btn">Logout</div></Link>
                 <div className="update-details-container" style={{ cursor: 'pointer' }} onClick={() => setIsContactDetailModalOpen(true)}>
@@ -581,6 +630,7 @@ const ClaimSubmission = () => {
                     >Update Contact Details</div>
                 </div>
             </div>
+
 
 
             <Modal
@@ -749,7 +799,7 @@ const ClaimSubmission = () => {
 
 
                 <div className="modal-btns-container">
-                    <div className="secondary-btn mr-2" onClick={handleCancelContactModal}>Cancel</div>
+                    {/* <div className="secondary-btn mr-2" onClick={handleCancelContactModal}>Cancel</div> */}
                     <div className="web-btn" onClick={addAddressDetails}>Save</div>
                 </div>
 
@@ -758,12 +808,45 @@ const ClaimSubmission = () => {
             <div className="claim-title-container">
                 <div className="claim-title-text">Claim Submission</div>
                 <div className="claim-title-sub-text">With a convenient insurance claim process, you can now register your claim, <br></br>upload the necessary documents and know the status instantly.</div>
+                <div className="logout-btn-container-mob">
+                    <div className="update-address-container-mob" onClick={() => setIsContactDetailModalOpen(true)}>
+                        <span>Update Contact Details</span>
+                    </div>
+                    <Link to={`/`}><div className="logout-btn-mob" >Logout</div></Link>
+
+                </div>
+
+
+
+
             </div>
 
             <div className="steps-container">
                 <div className="step-container">
 
-                    <Steps current={activeStep} labelPlacement="vertical">
+                    <Steps
+                        current={activeStep}
+                        labelPlacement="vertical">
+                        <Step
+                            title="Get started" onClick={() => handleStepChange(0)} />
+                        <Step
+                            title="Travel Details" onClick={() => handleStepChange(1)} disabled />
+                        <Step
+                            title="Claim Details" onClick={() => handleStepChange(2)} disabled />
+                        <Step
+                            title="Payment Details" onClick={() => handleStepChange(3)} disabled />
+                        <Step
+                            title="Review" onClick={() => handleStepChange(4)} disabled />
+
+                    </Steps>
+
+                </div>
+            </div>
+
+            <div className="steps-container-mob">
+                <div className="step-container">
+
+                    <Steps current={activeStep} labelPlacement="horizontal">
                         <Step
                             title="Get started" onClick={() => handleStepChange(0)} />
                         <Step
@@ -819,6 +902,23 @@ const ClaimSubmission = () => {
                                     <div className="virtual-card-img-container">
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
 
+                                        {!isAlternateImage ? (
+                                            <div className="virtual-card-dynamic-details">
+                                                <div>
+                                                    <b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
+                                                </div>
+                                                <div>DOB: {claimMetaData?.policyDetails?.dob}</div>
+                                            </div>
+                                        ) : null}
+
+                                        {/* <div className="virtual-card-dynamic-details">
+                                            <div><b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
+                                            
+                                            </div>
+                                            <div>DOB: {claimMetaData?.policyDetails?.dob}</div>
+                                           
+                                        </div> */}
+
                                         <button className="secondary-btn mt-2" onClick={handleImageToggle}>Flip Card</button>
                                     </div>
                                 </Col>
@@ -865,15 +965,8 @@ const ClaimSubmission = () => {
                                         <div className="policy-detail">{claimMetaData?.policyDetails?.uidNo}</div>
                                     </div>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Duration of Package:</div>
-                                        <div className="policy-detail">{claimMetaData?.policyDetails?.durationOfPackage}</div>
-                                    </div>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Cost:</div>
-                                        <div className="policy-detail">{claimMetaData?.policyDetails?.cost}</div>
-                                    </div>
+
 
                                 </Col>
                                 <Col span={6} className="virtual-card-desc" style={{ paddingRight: '20px' }}>
@@ -884,19 +977,16 @@ const ClaimSubmission = () => {
                                     </div>
 
                                     <div className="policy-details-container">
-                                        <div className="policy-details-label">Policy No:</div>
-                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyNo}</div>
-                                    </div>
-
-                                    <div className="policy-details-container">
                                         <div className="policy-details-label">Date of Birth:</div>
                                         <div className="policy-detail">{claimMetaData?.policyDetails?.dob}</div>
                                     </div>
 
                                     <div className="policy-details-container">
-                                        <div className="policy-details-label">Geographical Limit:</div>
-                                        <div className="policy-detail">{claimMetaData?.policyDetails?.geographicalUnit}</div>
+                                        <div className="policy-details-label">Duration of Package:</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.durationOfPackage}</div>
                                     </div>
+
+
 
                                 </Col>
                                 <Col span={12} className="virtual-card-img">
@@ -927,55 +1017,42 @@ const ClaimSubmission = () => {
                                         <img src="/img/policy-img.png" alt="virtual-card-img" style={{ width: '150px', height: 'auto' }} />
                                     </div>
                                 </Col>
-                                <Col lg={{ span: 6 }} xs={{ span: 12 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+                                <Col lg={{ span: 6 }} xs={{ span: 24 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Effective Date:</div>
-                                        <div className="policy-detail">{claimMetaData.policyEffectiveDate}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyEffectiveData}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Type::</div>
-                                        <div className="policy-detail">{claimMetaData.policyType}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyType}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">UID No:</div>
-                                        <div className="policy-detail">{claimMetaData.uidNo}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.uidNo}</div>
                                     </div>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Duration of Package:</div>
-                                        <div className="policy-detail">{claimMetaData.durationOfPackage}</div>
-                                    </div>
-
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Cost:</div>
-                                        <div className="policy-detail">{claimMetaData.cost}</div>
-                                    </div>
 
                                 </Col>
-                                <Col lg={{ span: 6 }} xs={{ span: 12 }} className="virtual-card-desc" style={{ paddingRight: '20px' }}>
+                                <Col lg={{ span: 6 }} xs={{ span: 24 }} className="virtual-card-desc" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Policy Expiration Date::</div>
-                                        <div className="policy-detail">{claimMetaData.policyExpirationDate}</div>
-                                    </div>
-
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Policy No:</div>
-                                        <div className="policy-detail">{claimMetaData.policyNo}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.policyExpirationData}</div>
                                     </div>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Date of Birth:</div>
-                                        <div className="policy-detail">{claimMetaData.dateOfBirth}</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.dob}</div>
                                     </div>
 
                                     <div className="policy-details-container">
-                                        <div className="policy-details-label">Geographical Limit:</div>
-                                        <div className="policy-detail">{claimMetaData.geographicalLimit}</div>
+                                        <div className="policy-details-label">Duration of Package:</div>
+                                        <div className="policy-detail">{claimMetaData?.policyDetails?.durationOfPackage}</div>
                                     </div>
+
 
                                 </Col>
 
@@ -1014,7 +1091,7 @@ const ClaimSubmission = () => {
                     <div className="initiate-claim-container">
                         <div className="initiate-claim-heading-container">
                             <div className="inititae-claim-heading">Want to initiate claim?</div>
-                            <div className="inititae-claim-sub-heading">Quick claim support for Umrah travel</div>
+                            <div className="inititae-claim-sub-heading">Quick claim support for Umrah and Hajj travel</div>
                         </div>
                         <div className="initiate-claim-btn-container">
                             <div className="web-btn" onClick={() => handleStepChange(1)}>GET STARTED</div>
@@ -1454,11 +1531,11 @@ const ClaimSubmission = () => {
                                     Travel Details
                                 </div>
                             </div>
-                            <div className="review-edit-icon-container d-flex">
+                            {/* <div className="review-edit-icon-container d-flex">
                                 <div className="review-edit-icon">
                                     <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
                         <div className="review-details-container">
@@ -1472,7 +1549,7 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Traveler Agent</div>
-                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.travelAgent}</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.travelAgency}</div>
                                     </div>
 
                                     <div className="policy-details-container">
@@ -1517,7 +1594,7 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Insurance Policy Package</div>
-                                        <div className="policy-detail">Hajj 1443H</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.insurancePolicyPackage}</div>
                                     </div>
 
                                 </Col>
@@ -1525,7 +1602,7 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Traveler Agent</div>
-                                        <div className="policy-detail">Mr. Rashid M</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.travelAgency}</div>
                                     </div>
 
                                 </Col>
@@ -1533,30 +1610,26 @@ const ClaimSubmission = () => {
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Departure date from Singapore:</div>
-                                        <div className="policy-detail">15 Apr 2023</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.departureDate}</div>
                                     </div>
                                 </Col>
 
 
                                 <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Policy Number</div>
-                                        <div className="policy-detail">100256500266</div>
-                                    </div>
                                 </Col>
                                 <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Country where Loss Occurred</div>
-                                        <div className="policy-detail">Saudi Arabia</div>
+                                        <div className="policy-detail">{reviewDataNew?.lossCountry}</div>
                                     </div>
                                 </Col>
                                 <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Return date to Singapore</div>
-                                        <div className="policy-detail">22 Apr 2023</div>
+                                        <div className="policy-detail">{reviewDataNew?.travelDetails?.returnDate}</div>
                                     </div>
 
                                 </Col>
@@ -1588,11 +1661,11 @@ const ClaimSubmission = () => {
                                     Claim Details
                                 </div>
                             </div>
-                            <div className="review-edit-icon-container d-flex">
+                            {/* <div className="review-edit-icon-container d-flex">
                                 <div className="review-edit-icon">
                                     <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
                                 </div>
-                            </div>
+                            </div> */}
                         </div>
 
 
@@ -1652,25 +1725,36 @@ const ClaimSubmission = () => {
 
                         <div className="review-details-container-mobile">
 
-                            <Row className="w-100">
-                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+                            {reviewDataNew?.claimRequestDocs?.map((claimRequestDoc, index) => (
+                                <Row className="w-100">
+                                    <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Claim Category</div>
-                                        <div className="policy-detail">Medical and other expenses</div>
-                                    </div>
 
-                                </Col>
-                                <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Documents Uploaded</div>
-                                        <div className="policy-detail">Copy of Certificate of Insurance*</div>
-                                    </div>
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Claim Category</div>
+                                            <div className="policy-detail">{claimRequestDoc?.claimCategory?.title}</div>
+                                        </div>
 
-                                </Col>
+                                    </Col>
+                                    <Col span={24} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                            </Row>
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Documents Uploaded</div>
+                                            <div className="policy-detail">
+                                                {claimRequestDoc?.files?.map((file, index) => (
+                                                    <div className="policy-detail">{file?.fieldname}</div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                    </Col>
+
+                                </Row>
+
+                            ))}
+
+
 
                         </div>
 
@@ -1690,7 +1774,55 @@ const ClaimSubmission = () => {
                         <div className="review-details-container">
 
                             <Row className="w-100">
+                                <Col lg={{ span: 8 }} xs={{ span: 24 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Payment Option</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.paymentOptions}</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Payee NRIC</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeNric}</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Bank Account No</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
+                                    </div>
+
+
+                                </Col>
                                 <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Payee Name (as per bank acccount)</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
+                                    </div>
+
+                                    <div className="policy-details-container">
+                                        <div className="policy-details-label">Bank Name</div>
+                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
+                                    </div>
+
+                                </Col>
+                                <Col span={8} className="d-flex justify-content-end align-items-start">
+                                    <div className="edit-icon-container" onClick={() => handleStepChange(3)}>
+                                        <div className="edit-icon">
+                                            <div className="icon">
+                                                <img src="/img/edit-icon.svg" alt="edit-icon" style={{ width: '12px', height: 'auto', marginRight: '5px' }} />
+                                            </div>
+                                            <span>Edit</span>
+                                        </div>
+                                    </div>
+                                </Col>
+                            </Row>
+                        </div>
+
+                        <div className="review-details-container-mob">
+
+                            <Row className="w-100">
+                                <Col lg={{ span: 8 }} xs={{ span: 24 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
                                     <div className="policy-details-container">
                                         <div className="policy-details-label">Payment Option</div>

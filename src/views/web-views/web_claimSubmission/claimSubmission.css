@@ -262,6 +262,13 @@ body {
 
 .virtual-card-img-container {
     padding-left: 45px;
+    position: relative;
+}
+
+.virtual-card-dynamic-details{
+    position: absolute;
+    top: 40%;
+    left: 20%;
 }
 
 .virtual-card-heading {
@@ -654,6 +661,10 @@ body {
     display: none;
 }
 
+.review-details-container-mob {
+    display: none;
+}
+
 .review-edit-icon-container {
     display: none !important;
 }
@@ -677,10 +688,26 @@ body {
     color: #050505;
 }
 
+button.ant-modal-close {
+    display: none;
+}
+
+.logout-btn-container-mobile {
+    display: none !important;
+}
+
+.logout-btn-container-mob {
+    display: none !important;
+}
+
+.steps-container-mob {
+    display: none !important;
+}
+
 
 /* Media queries for mobile view --------------------------- */
 
-@media only screen and (max-width: 768px) {
+@media only screen and (max-width: 600px) {
     .virtual-card-container-mobile {
         display: flex;
         margin-bottom: 25px;
@@ -692,6 +719,48 @@ body {
         font-size: 24px;
         line-height: 90%;
         margin-bottom: 15px;
+    }
+
+    .footer-container {
+      
+        padding: 25px 15px;
+
+    }
+
+    .steps-container-mob {
+        display: block;
+        /* justify-content: center;
+        align-items: center; */
+        min-width: 100%;
+        padding: 30px 20px;
+        /* position: absolute;
+        top: 200px; */
+    }
+
+    .logout-btn-container {
+        display: none !important;
+    }
+
+    .logout-btn-container-mob {
+        display: flex !important;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .logout-btn-mob {
+        background: #ED2939;
+        border-radius: 2px;
+        padding: 10px 20px;
+        color: white;
+    }
+
+    .update-address-container-mob {
+        padding: 10px 15px;
+        border-radius: 2px;
+        border: 1.5px solid #FFFFFF;
+        color: white;
+        font-size: 10px;
+        margin-right: 10px;
     }
 
     .claim-title-sub-text {
@@ -709,6 +778,10 @@ body {
     }
 
     .steps-container {
+        display: none;
+    }
+
+    button.ant-modal-close {
         display: none;
     }
 
@@ -782,8 +855,13 @@ body {
         display: flex;
     }
 
+    .review-details-container-mob {
+        display: flex;
+    }
+
     .policy-detail {
         display: flex;
+        flex-direction: column;
         justify-content: flex-end;
         width: 100%;
     }
