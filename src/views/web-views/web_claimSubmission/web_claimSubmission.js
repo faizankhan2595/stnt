@@ -901,7 +901,7 @@ const ClaimSubmission = () => {
                                 <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
                                     <div className="virtual-card-img-container">
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
-
+ 
                                         {!isAlternateImage ? (
                                             <div className="virtual-card-dynamic-details">
                                                 <div>
