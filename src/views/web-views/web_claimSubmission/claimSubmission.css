@@ -727,6 +727,13 @@ button.ant-modal-close {
 
     }
 
+    .virtual-card-dynamic-details{
+        position: absolute;
+        top: 40%;
+        left: 5%;
+        font-size: 11px;
+    }
+
     .steps-container-mob {
         display: block;
         /* justify-content: center;
