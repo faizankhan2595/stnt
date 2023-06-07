@@ -212,6 +212,14 @@ const ClaimSubmission = () => {
                     });
                 }
 
+                if(claimsNew.length === 0) {
+                    claimsNew.push({
+                        claimCategoryId: null,
+                        isDraft: true,
+                        claimDocs: [],
+                    });
+                }
+
                 setClaims(claimsNew);
                 setClaimByUserDetails(latestClaim);
             }
@@ -419,7 +427,7 @@ const ClaimSubmission = () => {
     const onSearch = (val) => {
     };
 
-    const addAllClaims = async () => {
+    const addAllClaims = async (changePage = false) => {
         const ids = [];
 
         for (const claim of claims) {
@@ -442,9 +450,20 @@ const ClaimSubmission = () => {
                 data: data
             };
 
-            const response = await axios.request(config);
-
-            ids.push(response.data.data.id);
+            try {
+                const response = await axios.request(config);
+                ids.push(response.data.data.id);
+              } catch (error) {
+                if (error.response && error.response.status === 404) {
+                  alert(error.response.data.message);
+                  console.log(error.response.data.message);
+                } else {
+                  alert('An error occurred. Please try again later.');
+                }
+                throw error;
+            }
+        
+            
         }
 
         const body = {
@@ -457,6 +476,10 @@ const ClaimSubmission = () => {
                 Authorization: `Bearer ${localStorage.getItem('token')}`,
             }
         });
+
+        if(changePage) {
+            handleStepChange(3);
+        }
     }
 
     const handleOk = () => {
@@ -832,7 +855,7 @@ const ClaimSubmission = () => {
 
             </div>
 
-            <div className="steps-container">
+            <div className="steps-container" style={{ pointerEvents: 'none' }}>
                 <div className="step-container">
 
                     <Steps
@@ -1305,8 +1328,7 @@ const ClaimSubmission = () => {
                                 Save as draft
                             </div>
                             <div className="web-btn" onClick={() => {
-                                addAllClaims();
-                                handleStepChange(3);
+                                addAllClaims(true);
                             }}>Next</div>
                         </div>
                     </div>
