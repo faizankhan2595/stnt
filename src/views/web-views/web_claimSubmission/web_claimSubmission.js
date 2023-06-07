@@ -292,7 +292,7 @@ const ClaimSubmission = () => {
     const addAddressDetails = async () => {
 
         if (blockNo === '') {
-            alert('Please enter a street name');
+            alert('Please enter a Block No');
             return;
         }
 
@@ -361,6 +361,7 @@ const ClaimSubmission = () => {
             delete data.addressId;
             await addAddress(data).then(res => {
                 message.success('Address added successfully');
+
             }).catch(err => {
                 message.error('Error while adding address');
             })
@@ -371,6 +372,9 @@ const ClaimSubmission = () => {
                 message.error('Error while updating address');
             })
         }
+        
+        setIsContactDetailModalOpen(false);
+
 
     }
 
@@ -807,7 +811,7 @@ const ClaimSubmission = () => {
 
                 <div className="modal-btns-container">
                     {/* <div className="secondary-btn mr-2" onClick={handleCancelContactModal}>Cancel</div> */}
-                    <div className="web-btn" onClick={addAddressDetails}>Save</div>
+                    <div className="web-btn" onClick={addAddressDetails} >Save</div>
                 </div>
 
             </Modal>
