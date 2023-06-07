@@ -311,6 +311,11 @@ const ClaimSubmission = () => {
             return;
         }
 
+        if (buildingName === '') {
+            alert('Please enter a building name');
+            return;
+        }
+
         if (postalCode === '') {
             alert('Please enter a postal code');
             return;
@@ -321,10 +326,10 @@ const ClaimSubmission = () => {
             return;
         }
 
-        if (address === '') {
-            alert('Please enter an address');
-            return;
-        }
+        // if (address === '') {
+        //     alert('Please enter an address');
+        //     return;
+        // }
 
         if (phoneNumber === '') {
             alert('Please enter a phone number');
@@ -639,6 +644,8 @@ const ClaimSubmission = () => {
                 onOk={handleOkContactModal}
                 onCancel={handleCancelContactModal}
                 width={800}
+                maskClosable={false}
+                keyboard={false}
             >
 
                 <div className="modal-label">Fill in the details</div>
