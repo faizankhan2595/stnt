@@ -101,6 +101,11 @@ const ClaimSubmission = () => {
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isContactDetailModalOpen, setIsContactDetailModalOpen] = useState(false);
+    // const [isChecked, setIsChecked] = useState(false);
+
+    // const onChange = (e) => {
+    //     setIsChecked(e.target.checked);
+    //   };
 
     //flip image logic starts here
 
@@ -142,10 +147,10 @@ const ClaimSubmission = () => {
             setImageSrc("/img/sgp-card-rear.jpg");
         }
         setIsAlternateImage(!isAlternateImage);
-    }; 
+    };
 
 
-    const handleImageChange = () => { 
+    const handleImageChange = () => {
         setImageSrc("/img/sgp-card-rear.jpg");
     };
 
@@ -154,6 +159,8 @@ const ClaimSubmission = () => {
     const onChange = () => {
 
     }
+
+
 
     const [countries, setCountries] = useState([]);
     const [userName, setUserName] = useState("");
@@ -171,6 +178,17 @@ const ClaimSubmission = () => {
             setCountries(countries2);
         });
     }, []);
+
+    const customOrder = ['USA', 'Canada', 'Mexico'];
+
+    const sortedOptions = [...countries].sort((a, b) => {
+        const aIndex = customOrder.indexOf(a.value);
+        const bIndex = customOrder.indexOf(b.value);
+        if (aIndex === -1 || bIndex === -1) {
+            return 0; // If either country is not in the custom order, maintain the original order
+        }
+        return aIndex - bIndex; // Sort based on the custom order
+    });
 
     const [country, setCountry] = useState();
 
@@ -212,7 +230,7 @@ const ClaimSubmission = () => {
                     });
                 }
 
-                if(claimsNew.length === 0) {
+                if (claimsNew.length === 0) {
                     claimsNew.push({
                         claimCategoryId: null,
                         isDraft: true,
@@ -380,7 +398,7 @@ const ClaimSubmission = () => {
                 message.error('Error while updating address');
             })
         }
-        
+
         setIsContactDetailModalOpen(false);
 
 
@@ -439,11 +457,22 @@ const ClaimSubmission = () => {
             for (const claimDoc of claim.claimDocs) {
                 data.append(claimDoc.title, claimDoc.file);
             }
+            const oldClaimCategories = claimByUserDetails.claimCategory;
+
+            const claimCategory = oldClaimCategories.find((claimCategory) => claimCategory.claimCategory.id === claim.claimCategoryId);
+
+            let url = BASE_URL + '/api/website/claim-request';
+            let method = 'post';
+
+            if (claimCategory) {
+                method = 'put';
+                data.append('claimRequestId', claimCategory.claimRequestId);
+            }
 
             let config = {
-                method: 'post',
+                method: method,
                 maxBodyLength: Infinity,
-                url: BASE_URL + '/api/website/claim-request',
+                url: url,
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
@@ -452,18 +481,21 @@ const ClaimSubmission = () => {
 
             try {
                 const response = await axios.request(config);
-                ids.push(response.data.data.id);
-              } catch (error) {
-                if (error.response && error.response.status === 404) {
-                  alert(error.response.data.message);
-                  console.log(error.response.data.message);
+                if (claimCategory) {
+                    ids.push(claimCategory.claimRequestId);
                 } else {
-                  alert('An error occurred. Please try again later.');
+                    ids.push(response.data.data.id);
+                }
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    alert(error.response.data.message);
+                    console.log(error.response.data.message);
+                } else {
+                    alert('An error occurred. Please try again later.');
                 }
                 throw error;
             }
-        
-            
+
         }
 
         const body = {
@@ -477,7 +509,10 @@ const ClaimSubmission = () => {
             }
         });
 
-        if(changePage) {
+        if (!changePage) {
+            // Reload the page if changePage is false
+            window.location.reload();
+        } else {
             handleStepChange(3);
         }
     }
@@ -592,6 +627,16 @@ const ClaimSubmission = () => {
     };
 
     const submitMain = async () => {
+
+        const isDeclaration = false;
+        const isConsent = false
+
+        if (!isDeclaration || !isConsent) {
+            alert("Please check the Declaration and/or Consent checkboxes");
+            return;
+        }
+
+
         let config = {
             method: 'post',
             maxBodyLength: Infinity,
@@ -606,6 +651,7 @@ const ClaimSubmission = () => {
                 declarationUserName: userName,
                 declarationIpAddress: ip ? ip : 'IP',
             }
+
         };
 
         return await axios.request(config)
@@ -704,7 +750,7 @@ const ClaimSubmission = () => {
                 </div>
 
                 <Row>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div
                                 className="label"
@@ -718,7 +764,8 @@ const ClaimSubmission = () => {
                         </div>
 
                     </Col>
-                    <Col span={12} style={{ padding: '10px' }}>
+
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" name="streetName">Street Name</div>
                             <div className="input-field">
@@ -729,9 +776,9 @@ const ClaimSubmission = () => {
                 </Row>
 
                 <Row>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <Row>
-                            <Col span={12} style={{ paddingRight: '10px' }}>
+                            <Col lg={{ span: 12 }} xs={{ span: 12 }} style={{ paddingRight: '10px' }}>
                                 <div className="label-field-container">
                                     <div className="label" required name="unitLevel" >Unit Level</div>
                                     <div className="input-field">
@@ -740,7 +787,7 @@ const ClaimSubmission = () => {
                                     </div>
                                 </div>
                             </Col >
-                            <Col span={12}>
+                            <Col lg={{ span: 12 }} xs={{ span: 12 }}>
                                 <div className="label-field-container">
                                     <div className="label" required name="unitNo">Unit No</div>
                                     <div className="input-field">
@@ -750,7 +797,7 @@ const ClaimSubmission = () => {
                             </Col>
                         </Row>
                     </Col>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" name="buildingName" >Building Name</div>
                             <div className="input-field">
@@ -765,7 +812,7 @@ const ClaimSubmission = () => {
                 </Row>
 
                 <Row>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" required name="postalCode" >Postal Code</div>
                             <div className="input-field">
@@ -779,7 +826,7 @@ const ClaimSubmission = () => {
                         </div>
 
                     </Col>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" name="country2">Country</div>
                             <div className="input-field">
@@ -794,7 +841,7 @@ const ClaimSubmission = () => {
                 </Row>
 
                 <Row>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" required name="emailAddress">Email Address</div>
                             <div className="input-field">
@@ -808,7 +855,7 @@ const ClaimSubmission = () => {
                         </div>
 
                     </Col>
-                    <Col span={12} style={{ padding: '10px' }}>
+                    <Col lg={{ span: 12 }} xs={{ span: 24 }} style={{ padding: '10px' }}>
                         <div className="label-field-container">
                             <div className="label" name="phoneNumber">Phone Number</div>
                             <div className="input-field">
@@ -849,10 +896,21 @@ const ClaimSubmission = () => {
                     <Link to={`/`}><div className="logout-btn-mob" >Logout</div></Link>
 
                 </div>
+            </div>
 
+            <div className="claim-title-container-mob">
+                <div className="stnt-logo-container">
+                    <img src="/img/stntlogo.svg" alt="stnt" style={{ width: '100%', height: 'auto', }} />
+                </div>
+                <div className="claim-title-text">Claim Submission</div>
+                <div className="claim-title-sub-text">With a convenient insurance claim process, you can now register your claim, <br></br>upload the necessary documents and know the status instantly.</div>
+                <div className="logout-btn-container-mob">
+                    <div className="update-address-container-mob" onClick={() => setIsContactDetailModalOpen(true)}>
+                        <span>Update Contact Details</span>
+                    </div>
+                    <Link to={`/`}><div className="logout-btn-mob" >Logout</div></Link>
 
-
-
+                </div>
             </div>
 
             <div className="steps-container" style={{ pointerEvents: 'none' }}>
@@ -935,7 +993,7 @@ const ClaimSubmission = () => {
                                 <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
                                     <div className="virtual-card-img-container">
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
- 
+
                                         {!isAlternateImage ? (
                                             <div className="virtual-card-dynamic-details">
                                                 <div>
@@ -1181,7 +1239,8 @@ const ClaimSubmission = () => {
                                         filterOption={(input, option) =>
                                             (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
                                         }
-                                        options={countries}
+                                        // options={countries}
+                                        options={sortedOptions}
                                     />
                                 </div>
 
@@ -1264,6 +1323,7 @@ const ClaimSubmission = () => {
                                     <Col lg={{ span: 24 }} xs={{ span: 24 }} className="document-upload-label mb-2 mt-2">
                                         {claim_doc.title}
                                         {claim_doc.isMandatory && <span className="mandatory-item">*</span>}
+
                                     </Col>
                                     <Col lg={{ span: 24 }} xs={{ span: 24 }} className="pl-4 mb-2">
                                         <Upload
@@ -1284,6 +1344,7 @@ const ClaimSubmission = () => {
                                         {claim_doc.url && <>
                                             <div className="mt-2">
                                                 <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.url}</a>
+                                                {/* <div className="delete-btn" >Delete</div> */}
                                             </div>
                                         </>}
                                     </Col>
@@ -1809,35 +1870,48 @@ const ClaimSubmission = () => {
                             <Row className="w-100">
                                 <Col lg={{ span: 8 }} xs={{ span: 24 }} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Payment Option</div>
-                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.paymentOptions}</div>
-                                    </div>
+                                    {reviewDataNew?.paymentDetails?.paymentOptions && (
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Payment Option</div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.paymentOptions}</div>
+                                        </div>
+                                    )}
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Payee NRIC</div>
-                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeNric}</div>
-                                    </div>
+                                    {reviewDataNew?.paymentDetails?.payeeNric && (
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Payee NRIC</div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeNric}</div>
+                                        </div>
 
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Bank Account No</div>
-                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
-                                    </div>
+                                    )}
+
+                                    {reviewDataNew?.paymentDetails?.bankAccountNumber && (
+                                         <div className="policy-details-container">
+                                         <div className="policy-details-label">Bank Account No</div>
+                                         <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
+                                     </div>
+
+                                    )}
+                                   
 
 
                                 </Col>
                                 <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
+                                {reviewDataNew?.paymentDetails?.payeeName && (
+                                     <div className="policy-details-container">
+                                     <div className="policy-details-label">Payee Name (as per bank acccount)</div>
+                                     <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
+                                 </div>
+                                )}
+                                   
+                                   {reviewDataNew?.paymentDetails?.bankName && (
                                     <div className="policy-details-container">
-                                        <div className="policy-details-label">Payee Name (as per bank acccount)</div>
-                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
+                                    <div className="policy-details-label">Bank Name</div>
+                                    <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
                                     </div>
-
-                                    <div className="policy-details-container">
-                                        <div className="policy-details-label">Bank Name</div>
-                                        <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
-                                    </div>
-
+                                   )}
+                                   
                                 </Col>
                                 <Col span={8} className="d-flex justify-content-end align-items-start">
                                     <div className="edit-icon-container" onClick={() => handleStepChange(3)}>
