@@ -26,6 +26,10 @@ body {
     top: 50px;
 }
 
+.claim-title-container-mob {
+    display: none;
+}
+
 .claim-title-text {
     /*font-family: 'Open Sans';*/
     font-style: normal;
@@ -121,6 +125,7 @@ body {
     padding: 10px 20px; */
     color: #72849A;
     border: none;
+    width: 100%;
 }
 
 .input-field-main:focus {
@@ -587,7 +592,7 @@ body {
 .logout-btn-container {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    justify-content: space-between;
     align-items: center;
     width: 100%;
     padding: 10px 25px;
@@ -669,6 +674,18 @@ body {
     display: none !important;
 }
 
+.mandatory-item {
+    color: #ED2939;
+    font-weight: 600;
+}
+
+.delete-btn {
+    text-transform: uppercase;
+    font-weight: 600;
+    color: #ED2939;
+    cursor: pointer;
+}
+
 .footer-container {
     display: flex;
     padding: 25px 0px;
@@ -690,10 +707,6 @@ body {
 
 button.ant-modal-close {
     display: none;
-}
-
-.logout-btn-container-mobile {
-    display: none !important;
 }
 
 .logout-btn-container-mob {
@@ -722,9 +735,21 @@ button.ant-modal-close {
     }
 
     .footer-container {
-      
         padding: 25px 15px;
+    }
 
+    .claim-title-container-mob {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        position: absolute;
+        top: 25px;
+    }
+
+    .claim-title-container {
+        display: none !important;
     }
 
     .virtual-card-dynamic-details{
@@ -775,7 +800,7 @@ button.ant-modal-close {
         font-style: normal;
         font-weight: 500;
         font-size: 14px;
-        line-height: 90%;
+        line-height: 100%;
         color: #FFFFFF;
         display: flex;
         justify-content: center;

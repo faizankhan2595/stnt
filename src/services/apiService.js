@@ -2,7 +2,7 @@ const axios = require('axios');
 
 export const BASE_URL = `https://api.stntinternational.com`;
 
-export const ManifestFileUpload = async ({ file, travelAgentId, manifestType,masterPolicyNumber,insurancePolicyPackage }) => {
+export const ManifestFileUpload = async ({ file, travelAgentId, manifestType, masterPolicyNumber, insurancePolicyPackage }) => {
     console.log('file', file);
     const FormData = require('form-data');
     const fs = require('fs');
@@ -513,10 +513,10 @@ export const getTravlersList = async (size, page) => {
         url: `https://api.stntinternational.com/api/api/travellers/?size=${size}&page=${page}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
-         }
-      };
-      
-      return await axios.request(config)
+        }
+    };
+
+    return await axios.request(config)
 }
 
 export const getTraveler = async (id) => {
@@ -526,8 +526,22 @@ export const getTraveler = async (id) => {
         url: `https://api.stntinternational.com/api/travellers/${id}?size=2&page=1`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
-         }
-      };
-      
-      return await axios.request(config)
+        }
+    };
+
+    return await axios.request(config)
+}
+
+export const deleteDoc = async (id) => {
+    let data = '{\n    "claimRequestId": 6,\n    "fieldName": "Another data This is a claim document 1",\n    "documentId": "0"\n}';
+
+    let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: 'https://api.stntinternational.com/api/website//claim-request/delete-doc',
+        headers: {},
+        data: data
+    };
+
+    return await axios.request(config)
 }
