@@ -544,11 +544,34 @@ const ClaimSubmission = () => {
     }
 
     const handleStepChange = async (step) => {
-        setActiveStep(step);
-
         if (step == 4) {
+            if (!selectedPaymentOption) {
+                // Show an error message or handle the validation error
+                console.log("Please select a payment option");
+                message.error('Please select a payment option');
+                // alert("Please select a payment option");
+                return;
+              }
+              
+
             const paymentData = {};
             if (selectedPaymentOption === 'dbs_posb') {
+                if (!payeeName) {
+                    message.error('Please enter Payee Name');
+                    return;
+                }
+                if (!PayeeNRIC) {
+                    message.error('Please enter Payee NRIC');
+                    return;
+                }
+                if (!bankName) {
+                    message.error('Please enter Bank Name');
+                    return;
+                }
+                if (!bankAccountNumber) {
+                    message.error('Please enter Bank Account Number');
+                    return;
+                }
                 paymentData.payeeName = payeeName;
                 paymentData.PayeeNRIC = PayeeNRIC;
                 paymentData.bankName = bankName;
@@ -557,13 +580,24 @@ const ClaimSubmission = () => {
             }
 
             else if (selectedPaymentOption === 'cheque') {
+                if (!payeeName) {
+                    // Show an error message or handle the validation error
+                    message.error('Please enter Payee Name');
+                    return;
+                  }
                 paymentData.payeeName = payeeName;
                 paymentData.paymentOption = "Cheque";
+
             } else if (selectedPaymentOption === 'paynow_linked_account') {
+                if(!payNowMobileNumber){
+                    message.error('Please enter PayNow Mobile Number');
+                    return;
+                }
                 paymentData.payNowMobileNumber = payNowMobileNumber;
                 paymentData.paymentOption = "Paynow Linked Account";
             }
 
+        
             paymentData.claimRequestId = claimByUserDetails.id;
 
             console.log("paymentDetails", paymentData);
@@ -574,6 +608,8 @@ const ClaimSubmission = () => {
             }
             await reviewDataFn();
         }
+
+        setActiveStep(step);
     };
 
     const handleStepBack = () => {
@@ -620,6 +656,9 @@ const ClaimSubmission = () => {
     const [payeeName, setPayeeName] = useState('');
     const [payNowMobileNumber, setPayNowMobileNumber] = useState('');
     const [PayeeNRIC, setPayeeNRIC] = useState('');
+    const [isDeclaration, setIsDeclaration] = useState(false);
+    const [isConsent, setIsConsent] = useState(false);
+    
 
 
     const handlePaymentOptionChange = (value) => {
@@ -627,12 +666,18 @@ const ClaimSubmission = () => {
     };
 
     const submitMain = async () => {
+        if (!isDeclaration) {
+            alert("Please check the Declaration checkbox to proceed");
+            return;
+        }
 
-        const isDeclaration = false;
-        const isConsent = false
+        if (!isConsent) {
+            alert("Please check the Consent checkbox to proceed");
+            return;
+        }
 
-        if (!isDeclaration || !isConsent) {
-            alert("Please check the Declaration and/or Consent checkboxes");
+        if (!userName) {
+            alert("Please enter User Name to proceed");
             return;
         }
 
@@ -654,9 +699,17 @@ const ClaimSubmission = () => {
 
         };
 
-        return await axios.request(config)
+        try {
+            await axios.request(config);
+            setIsSubmitClaimModalOpen(true);
+            window.location.reload(); // Reload the page
+          } catch (error) {
+            // Handle the error if necessary
+          }
 
-        setIsSubmitClaimModalOpen(true);
+        // return await axios.request(config)
+
+        // setIsSubmitClaimModalOpen(true);
     }
 
     const paymentSave = async () => {
@@ -1988,7 +2041,10 @@ const ClaimSubmission = () => {
 
                         <div className="declaration-container pl-2">
                             <div className="checkbox-text">
-                                <Checkbox onChange={onChange}>I declare that all information's are true</Checkbox>
+                                <Checkbox value={isDeclaration} onChange={(e) => {
+                                    setIsDeclaration(e.target.checked)
+                                } }>
+                                    I declare that all information's are true</Checkbox>
                             </div>
                             <div className="notice-container">
                                 <div className="notice-text-decl my-3">
@@ -2010,7 +2066,10 @@ const ClaimSubmission = () => {
                         </div>
 
                         <div className="checkbox-text my-3">
-                            <Checkbox onChange={onChange}>I/We declare that the information given in this claim form is true and correct to the best of my knowledge and belief.I/We undertake to render every assistance on my/our power in dealing with the matter.I hereby authorize any hospital physician, other person who has attended or examined me, to furnish to the Company, or its authorized representative, any and all information with respect to any illness or injury, medical history, consultation, prescriptions or treatment and copies of all hospital or medical records. A digital copy of this authorization shall be considered as effective and valid as the original.</Checkbox>
+                            <Checkbox value={isConsent} onChange={(e) => {
+                                setIsConsent(e.target.checked)
+                            }}>
+                                I/We declare that the information given in this claim form is true and correct to the best of my knowledge and belief.I/We undertake to render every assistance on my/our power in dealing with the matter.I hereby authorize any hospital physician, other person who has attended or examined me, to furnish to the Company, or its authorized representative, any and all information with respect to any illness or injury, medical history, consultation, prescriptions or treatment and copies of all hospital or medical records. A digital copy of this authorization shall be considered as effective and valid as the original.</Checkbox>
                         </div>
 
                     </div>
