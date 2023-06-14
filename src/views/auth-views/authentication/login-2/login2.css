@@ -1,0 +1,48 @@
+.bg-holder {
+    background-color: #41C1B2;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100vh;
+    position: relative;
+}
+
+.design-element-1 {
+    position: absolute;
+    top: -60px;
+    left: -60px;
+    width: 150px;
+    height: 150px;
+    border: 30px solid #ffffff63;
+    border-radius: 100px;
+    z-index: 1;
+}
+
+.design-element-2 {
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 150px;
+    height: 150px;
+    border: 30px solid #ffffff63;
+    border-radius: 100px;
+    z-index: 1;
+}
+
+.img-fluid {
+    width: 250px;
+    height: auto;
+}
+
+.welcome-note {
+    font-family: 'Open Sans';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 28px;
+    line-height: 38px;
+    text-align: center;
+    color: white;
+    margin-top: 15px;
+}

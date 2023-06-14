@@ -6,7 +6,7 @@ import {
   TotatReq,
 } from "assets/svg/icon";
 import React, { useState, useEffect } from "react";
-import { Input, Menu, Button,Radio,Modal } from "antd";
+import { Input, Menu, Button, Radio, Modal } from "antd";
 import Icon from "@ant-design/icons";
 import { CsvIcon, FilterIcon } from "assets/svg/icon";
 import { Link } from "react-router-dom";
@@ -15,41 +15,6 @@ import Helper from "../../Helper";
 import EllipsisDropdown from "components/shared-components/EllipsisDropdown";
 import TextArea from "antd/lib/input/TextArea";
 import { getClaimRequests } from "services/apiService";
-const dataArray = [
-  {
-    Sr_No: 1,
-    UID_NO: "ABC123",
-    Claim_ID: "C001",
-    Insured_Name: "John Doe",
-    Gender: "Male",
-    Travel_Agency: "ABC Travels",
-    Passport_No: "A1234567",
-    Claimed_Date: "2023-04-15",
-    Status: "Pending",
-  },
-  {
-    Sr_No: 2,
-    UID_NO: "DEF456",
-    Claim_ID: "C002",
-    Insured_Name: "Jane Smith",
-    Gender: "Female",
-    Travel_Agency: "XYZ Holidays",
-    Passport_No: "B9876543",
-    Claimed_Date: "2023-04-22",
-    Status: "Active",
-  },
-  {
-    Sr_No: 3,
-    UID_NO: "GHI789",
-    Claim_ID: "C003",
-    Insured_Name: "Bobs Johnson",
-    Gender: "Male",
-    Travel_Agency: "PQR Tours",
-    Passport_No: "C2468101",
-    Claimed_Date: "2023-05-01",
-    Status: "Rejected",
-  },
-];
 
 
 const ClaimReq = () => {
@@ -70,65 +35,81 @@ const ClaimReq = () => {
   };
 
   const [claimRequests, setClaimRequests] = useState([]);
+  const [consolidateClaimsData, setConsolidateClaimsData] = useState({});
 
-useEffect(() => {
-  
-  getClaimRequests().then((data) => {
-      const claimRequests = data.data.claimRequests.map((claimRequest) => {
+  useEffect(() => {
+
+    const size = 10;
+    const page = 1;
+    
+    getClaimRequests(size, page).then((response) => {
+      const claimRequests = response.data.claimData?.data?.map((claimData) => {
           return {
-              value: claimRequest.id,
-              label: claimRequest.title,
+              uidNo: claimData.userUidNo,
+              claimId: claimData.claimUidNo,
+              originalClaimId: claimData.claimId,
+              userId: claimData.userId,
+              insuredName: claimData.name,
+              gender: claimData.gender,
+              travelAgency: claimData.travelAgencyName,
+              passport: claimData.passport,
+              claimedDate: claimData.claimedDate,
+              status: claimData.status,
           };
-      });
+      })
+
       setClaimRequests(claimRequests);
-  });
-}, []);
+      setConsolidateClaimsData(response.data.claimData?.consolidateClaimsData);
+    });
+  }, []);
+
+
+
 
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
-  
-  const columns = [
+
+  const claimRequestsColumns = [
     {
       title: "Sr No",
-      dataIndex: "Sr_No",
+      dataIndex: "sr_no",
     },
     {
       title: "UID NO",
-      dataIndex: "UID_NO",
+      dataIndex: "uidNo",
     },
     {
       title: "Claim ID",
-      dataIndex: "Claim_ID",
+      dataIndex: "claimId"
     },
     {
       title: "Insured Name",
-      dataIndex: "Insured_Name",
+      dataIndex: "insuredName",
     },
     {
       title: "Gender",
-      dataIndex: "Gender",
+      dataIndex: "gender",
     },
     {
       title: "Travel Agency",
-      dataIndex: "Travel_Agency",
+      dataIndex: "travelAgency",
     },
     {
       title: "Passport No",
-      dataIndex: "Passport_No",
+      dataIndex: "passport",
     },
     {
       title: "Claimed Date",
-      dataIndex: "Claimed_Date",
+      dataIndex: "claimedDate",
     },
     {
       title: "Status",
-      dataIndex: "Status",
+      dataIndex: "status",
       render: (text) => {
         return (
           <p
-            className={`${
-              text !== "Active" ? "text-danger" : "text-success"
-            } font-weight-semibold`}
+            className={`${text !== "Active" ? "text-danger" : "text-success"
+              } font-weight-semibold`}
           >
             {text}
           </p>
@@ -145,9 +126,7 @@ useEffect(() => {
               menu={
                 <Menu>
                   <Menu.Item>
-                    <Link to={`claim_request/view_detail`}>
-                    {/* <Link to={`claim_request/view_detail/${record.id}`}> */}
-                      {" "}
+                    <Link to={`/app/claim_management/claim_request/view_detail/${record.originalClaimId}/${record.userId}`}>
                       View Details
                     </Link>
                   </Menu.Item>
@@ -162,6 +141,7 @@ useEffect(() => {
       },
     },
   ];
+
   return (
     <div>
       <div className="mb-4 bg-white d-flex justify-content-between">
@@ -172,7 +152,8 @@ useEffect(() => {
           >
             <div>
               <h5 className="m-0">Total Requests</h5>
-              <h4 className="m-0">0</h4>
+              <h4 className="m-0">{consolidateClaimsData?.totalRequests}</h4>
+              
             </div>
             <div>
               <TotatReq />
@@ -186,7 +167,7 @@ useEffect(() => {
           >
             <div>
               <h5 className="m-0">Pending</h5>
-              <h4 className="m-0">0</h4>
+              <h4 className="m-0">{consolidateClaimsData?.totalPendings}</h4>
             </div>
             <div>
               <PendingReq />
@@ -200,7 +181,7 @@ useEffect(() => {
           >
             <div>
               <h5 className="m-0">Rejected</h5>
-              <h4 className="m-0">0</h4>
+              <h4 className="m-0">{consolidateClaimsData?.totalRejected}</h4>
             </div>
             <div>
               <RejectedReq />
@@ -214,7 +195,8 @@ useEffect(() => {
           >
             <div>
               <h5 className="m-0">Closed</h5>
-              <h4 className="m-0">$0</h4>
+              <h4 className="m-0">0</h4>
+              {/* {consolidateClaimsData?.closed} */}
             </div>
             <div>
               <ClosedReq />
@@ -251,7 +233,7 @@ useEffect(() => {
           <Link to={"travel_agency/add_new"}> + Add New</Link>
         </Button> */}
         </div>
-        <Helper clients={dataArray} attribiue={columns} />
+        <Helper clients={claimRequests} attribiue={claimRequestsColumns} />
       </div>
       <Modal
         width={600}
@@ -262,7 +244,7 @@ useEffect(() => {
       >
         <div className="d-flex my-3 flex-column">
           <h3 className="mb-4 d-flex align-items-center">
-            
+
             <ChangeAgStatus />
             <span className="ml-2"> Change Agency Status</span>
           </h3>
@@ -273,7 +255,7 @@ useEffect(() => {
             <Radio className="ml-3" value={4}>New</Radio>
           </Radio.Group>
           <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
-          <TextArea className="ml-5 w-75"/>
+          <TextArea className="ml-5 w-75" />
         </div>
         <div
           style={{ gap: "10px" }}
@@ -281,15 +263,15 @@ useEffect(() => {
         >
           <Button
             className="px-4 font-weight-semibold"
-            // onClick={() => setIsChangeStudModalOpen(false)}
+          // onClick={() => setIsChangeStudModalOpen(false)}
           >
             Cancel
           </Button>
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
-            // onClick={() => {
-            //   setIsChangeStudModalOpen(false);
-            // }}
+          // onClick={() => {
+          //   setIsChangeStudModalOpen(false);
+          // }}
           >
             Save
           </Button>

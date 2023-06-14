@@ -274,7 +274,7 @@ export default function MembershipRequest() {
           <CustomIcon svg={History} /> <input className='memberDetailSerachInput' placeholder='Search' type="text" name="search" id="" />
         </form>
         <div className='memberDetailFilter'>
-          <CustomIcon svg={History} /> <span className='memberDetailFilterText'> Filter2s</span>
+          <CustomIcon svg={History} /> <span className='memberDetailFilterText'>Filters</span>
         </div>
         <div className='memberDetailFilter'>
           <CustomIcon svg={Export} /> <span className='memberDetailFilterText'> Export1</span>

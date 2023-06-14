@@ -646,7 +646,7 @@ const ClaimSubmission = () => {
                                 <div style={{ marginTop: '15px' }}>
                                     <Select className="w-100"
                                         showSearch
-                                        placeholder="Select a person"
+                                        placeholder="Select payment option"
                                         optionFilterProp="children"
                                         onChange={onChange}
                                         onSearch={onSearch}

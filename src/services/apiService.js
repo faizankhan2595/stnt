@@ -393,11 +393,11 @@ export const getCompleteCliamData = async (id) => {
     return await axios.request(config)
 }
 
-export const getClaimRequests = async () => {
+export const getClaimRequests = async (size, page) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + '/api/kpi/claim-requests',
+        url: BASE_URL + `/api/claim?size=${size}&page=${page}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
@@ -532,13 +532,56 @@ export const getTraveler = async (id) => {
     return await axios.request(config)
 }
 
+export const claimRequestTravelDetails = async (claimId, userId) => {
+
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: `https://api.stntinternational.com/api/claim/travel-details/${userId}/${claimId}`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+    };
+
+    return await axios.request(config)
+}
+
+export const claimRequestClaimDetails = async (claimId, userId) => {
+
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/claim/claim-details/${userId}/${claimId}`,
+        headers: {
+
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+    };
+
+   return await axios.request(config)
+}
+
+export const claimRequestTimeline = async (claimId) => {
+
+let config = {
+  method: 'get',
+  maxBodyLength: Infinity,
+  url: BASE_URL + `/claim/claim-timeline/${claimId}`,
+  headers: { 
+    'Authorization': 'Bearer ' + localStorage.getItem('token')
+  },
+};
+
+return await axios.request(config)
+}
+
 export const deleteDoc = async (id) => {
     let data = '{\n    "claimRequestId": 6,\n    "fieldName": "Another data This is a claim document 1",\n    "documentId": "0"\n}';
 
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website//claim-request/delete-doc',
+        url: 'https://api.stntinternational.com/api/website/claim-request/delete-doc',
         headers: {},
         data: data
     };

@@ -12,6 +12,8 @@ import {
   UploadFileIcon,
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
+import { useEffect } from "react";
+import { claimRequestClaimDetails, claimRequestTimeline, claimRequestTravelDetails } from "services/apiService";
 const arr = ["Medical & Other Expenses", "Emergency Medical Evacuation"];
 let styles = {
   files: {
@@ -59,19 +61,33 @@ const operations = (
     <p className="m-0">Since 16 Jan 2022, 10:02:36 AM</p>
   </div>
 );
-const ViewDet = () => {
+const ViewDet = (props) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const viewDocument = () => {
     setIsDocModalOpen(true);
   };
+
+  // const [personalDetails, setPersonalDetails] = useState({});
+  // const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
+  // const [insuranceClaimData, setInsuranceClaimData] = useState(membershipRequest)
+  // const [claimSettlementTransactionsData, setclaimSettlementTransactionsData] = useState(membershipRequest)
+  const [visible, setVisible] = useState(false)
+  const showDrawer = () => {
+    setVisible(true);
+  };
+  const [claimRequestData, setClaimRequestData] = useState([]);
+
+
+
   const delUplFile = (i) => {
     let AfterDeleteFile = selectedFiles.filter((elem, index) => {
       return index !== i;
     });
     setSelectedFiles(AfterDeleteFile);
   };
+
   function handleFileSelect(event) {
     const fileList = event.target.files;
     const newSelectedFiles = [];
@@ -83,6 +99,43 @@ const ViewDet = () => {
 
     setSelectedFiles([...selectedFiles, newSelectedFiles[0]]);
   }
+
+
+  const [travelDetails, setTravelDetails] = useState({});
+
+  useEffect(async () => {
+    const claimId = props.match?.params?.claimId;
+    const userId = props.match?.params?.userId;
+
+    const response = await claimRequestTravelDetails(claimId, userId);
+    console.log('TravelDetail', response);
+    setTravelDetails(response.data.data);
+
+  }, []);
+
+
+  useEffect(async () => {
+    const claimId = props.match?.params?.claimId;
+    const userId = props.match?.params?.userId;
+
+    const response = await claimRequestClaimDetails(claimId, userId);
+    console.log('ClaimRequestData', response);
+    setClaimRequestData(response.data.data);
+
+  }, []);
+
+  const [claimTimeline, setClaimTimeline] = useState({});
+  useEffect(async () => {
+    const claimId = props.match?.params?.claimId;
+
+    const response = await claimRequestTimeline(claimId);
+    console.log('ClaimTimeline', response);
+    setClaimTimeline(response.data);
+
+    
+
+  }, []);
+
   const items = [
     {
       label: (
@@ -108,7 +161,7 @@ const ViewDet = () => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Insured Name
                 </p>
-                <h5>MR. Abdul Azeem</h5>
+                <h5>Rashid Khan</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
@@ -241,43 +294,43 @@ const ViewDet = () => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Insurance Policy Package
                 </p>
-                <h5>Hajj 1443H</h5>
+                <h5>{travelDetails?.insurancePolicyPackage}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   UID
                 </p>
-                <h5>S-STT-S1004-5921</h5>
+                <h5>{travelDetails?.uidNo}</h5>
               </div>
             </div>
 
             <div className="d-flex mt-4">
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
-                  Traveler Agent
+                  Traveler Agency
                 </p>
-                <h5>Mr. Rashid M</h5>
+                <h5>{travelDetails?.travelAgency}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Country where Loss Occurred
                 </p>
-                <h5>Saudi Arabia</h5>
+                <h5>{travelDetails?.lossCountry}</h5>
               </div>
             </div>
 
             <div className="d-flex mt-4">
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
-                  Departure date from Singapore
+                  Departure date
                 </p>
-                <h5>15 Apr 2023</h5>
+                <h5>{travelDetails?.policyEffectiveData}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
-                  Return date to Singapore
+                  Return date
                 </p>
-                <h5>22 Apr 2023</h5>
+                <h5>{travelDetails?.policyExpirationData}</h5>
               </div>
             </div>
           </div>
@@ -312,22 +365,22 @@ const ViewDet = () => {
               style={{ flexWrap: "wrap", gap: "2rem" }}
               className="mt-3 d-flex justify-content-start"
             >
-              {arr.map((elem) => {
+              {claimRequestData.map((elem, index) => {
                 return (
                   <div style={{ width: "300px" }} className="my-2">
                     <div className="shadow rounded p-2">
-                      <img
+                      {/* <img
                         style={{ width: "100%", borderRadius: "5px" }}
                         src="https://images.unsplash.com/photo-1592805144716-feeccccef5ac?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
                         alt="test"
-                      />
+                      /> */}
                       <div className="my-2 d-flex justify-content-between">
-                        <p className="m-0">Claim Request #1</p>
+                        <p className="m-0">Claim Request #{index + 1}</p>
                         <p className="m-0" style={{ color: "black" }}>
                           22 Apr 2023
                         </p>
                       </div>
-                      <h5>{elem}</h5>
+                      <h5>{claimRequestData?.files.map((file) => (<p>{file.fieldname}</p>))}</h5>
 
                       <div className="d-flex justify-content-center my-3">
                         {" "}
@@ -349,7 +402,7 @@ const ViewDet = () => {
             style={{ width: "32%" }}
             className="p-3 bg-white border rounded ml-1"
           >
-             <CustTimeline />
+            <CustTimeline />
           </div>
         </div>
       ),
@@ -381,13 +434,13 @@ const ViewDet = () => {
                 <p className="w-50">
                   Payment Option:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                    DBS/POSB Account
+                  {travelDetails?.paymentDetails?.paymentOptions}
                   </span>
                 </p>
                 <p className="w-50">
                   Payee Name (as per bank account):{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                    Mr. Abdul Azeem
+                  {travelDetails?.paymentDetails?.payeeName}
                   </span>
                 </p>
               </div>
@@ -395,13 +448,13 @@ const ViewDet = () => {
                 <p className="w-50">
                   Payee NRIC/FIN:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                    FRB1235476
+                  {travelDetails?.paymentDetails?.payeeNRIC}
                   </span>
                 </p>
                 <p className="w-50">
                   Bank Name (DBS/POSB Only):{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                    DBS
+                  {travelDetails?.paymentDetails?.bankName}
                   </span>
                 </p>
               </div>
@@ -409,7 +462,7 @@ const ViewDet = () => {
                 <p className="w-50">
                   Bank Account Number:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                    1254 56985 696
+                  {travelDetails?.paymentDetails?.bankAccountNumber}
                   </span>
                 </p>
               </div>
@@ -419,7 +472,7 @@ const ViewDet = () => {
             style={{ width: "32%" }}
             className="p-3 bg-white border rounded ml-1"
           >
-             <CustTimeline />
+            <CustTimeline />
           </div>
         </div>
       ),
@@ -452,28 +505,28 @@ const ViewDet = () => {
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Insurance Policy Package
                   </p>
-                  <h5>Hajj 1443H</h5>
+                  <h5>{travelDetails?.insurancePolicyPackage}</h5>
                 </div>
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     UID
                   </p>
-                  <h5>S-STT-S1004-5921</h5>
+                  <h5>{travelDetails?.uidNo}</h5>
                 </div>
               </div>
 
               <div className="d-flex mt-4">
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
-                    Traveler Agent
+                    Traveler Agency
                   </p>
-                  <h5>Mr. Rashid M</h5>
+                  <h5>{travelDetails?.travelAgency}</h5>
                 </div>
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Country where Loss Occurred
                   </p>
-                  <h5>Saudi Arabia</h5>
+                  <h5>{travelDetails?.lossCountry}</h5>
                 </div>
               </div>
 
@@ -482,13 +535,13 @@ const ViewDet = () => {
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Departure date from Singapore
                   </p>
-                  <h5>15 Apr 2023</h5>
+                  <h5>{travelDetails?.policyEffectiveData}</h5>
                 </div>
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Return date to Singapore
                   </p>
-                  <h5>22 Apr 2023</h5>
+                  <h5>{travelDetails?.policyExpirationData}</h5>
                 </div>
               </div>
             </div>
@@ -543,13 +596,13 @@ const ViewDet = () => {
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Payment Option
                   </p>
-                  <h5>DBS/POSB Account</h5>
+                  <h5>{travelDetails?.paymentDetails?.paymentOptions}</h5>
                 </div>
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Payee Name (as per bank acccount)
                   </p>
-                  <h5>100256500266</h5>
+                  <h5>{travelDetails?.paymentDetails?.payeeName}</h5>
                 </div>
               </div>
 
@@ -558,13 +611,13 @@ const ViewDet = () => {
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Payee NRIC
                   </p>
-                  <h5>S800256S</h5>
+                  <h5>{travelDetails?.paymentDetails?.payeeNRIC}</h5>
                 </div>
                 <div className="w-50">
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Bank Name
                   </p>
-                  <h5>DBS</h5>
+                  <h5>{travelDetails?.paymentDetails?.bankName}</h5>
                 </div>
               </div>
 
@@ -573,7 +626,7 @@ const ViewDet = () => {
                   <p style={{ color: "black" }} className="m-0 mb-1">
                     Bank Account No
                   </p>
-                  <h5>1256645 6954669 66456</h5>
+                  <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
                 </div>
               </div>
             </div>
@@ -584,18 +637,13 @@ const ViewDet = () => {
                 <span className="ml-2">Declaration</span>
               </h4>
               <h5>Declaration</h5>
-              <Checkbox>
-                Loreum ipsum is dummy text.Loreum ipsum is dummy text.Loreum
-                ipsum is dummy text.Loreum ipsum is dummy text.Loreum ipsum is
-                dummy text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.Loreum ipsum is dummy
-                text.Loreum ipsum is dummy text.
+              <Checkbox checked={travelDetails?.isDeclaration}>
+              I declare that all information are true
               </Checkbox>
               <div className="mt-5 d-flex justify-content-between">
                 <div>
                   <h5>Date :</h5>
-                  <h5 className="font-weight-bold">24 Apr 2023</h5>
+                  <h5 className="font-weight-bold">{travelDetails?.createdAt}</h5>
                 </div>
                 <div style={{ minWidth: "100px" }}>
                   <h5>Signature :</h5>
@@ -721,12 +769,13 @@ const ViewDet = () => {
             style={{ width: "32%" }}
             className="p-3 bg-white border rounded ml-1"
           >
-             <CustTimeline />
+            <CustTimeline />
           </div>
         </div>
       ),
     },
   ];
+
   return (
     <div>
       <div className="p-3 bg-white">
@@ -735,6 +784,8 @@ const ViewDet = () => {
             {" "}
             <ClaimReqDet /> <span className="ml-2">Claim Request Details</span>
           </h4>
+          {/* {props.match?.params?.claimId}
+          {props.match?.params?.userId} */}
           <Button
             style={{ width: "125px" }}
             onClick={() => setIsModalOpen(true)}
@@ -848,7 +899,7 @@ const ViewDet = () => {
 
 export default ViewDet;
 
-function CustTimeline() {
+function CustTimeline({ claimTimeline }) {
   const items = [
     {
       color: "#0078FF",

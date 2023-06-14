@@ -510,7 +510,6 @@ const ClaimSubmission = () => {
         });
 
         if (!changePage) {
-            // Reload the page if changePage is false
             window.location.reload();
         } else {
             handleStepChange(3);
@@ -601,6 +600,7 @@ const ClaimSubmission = () => {
             paymentData.claimRequestId = claimByUserDetails.id;
 
             console.log("paymentDetails", paymentData);
+
             try {
                 await paymentSaveAPI({ data: paymentData });
             } catch (e) {

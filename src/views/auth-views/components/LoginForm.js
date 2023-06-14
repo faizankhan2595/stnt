@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { connect } from "react-redux";
 import { Button, Form, Input, Divider, Alert } from "antd";
 import { MailOutlined, LockOutlined } from '@ant-design/icons';
@@ -14,9 +14,38 @@ import {
 import JwtAuthService from 'services/JwtAuthService'
 import { useHistory } from "react-router-dom";
 import { motion } from "framer-motion"
+import axios from 'axios';
 
 export const LoginForm = (props) => {
 	let history = useHistory();
+
+	const [username, setUsername] = useState('')
+	const [password, setPassword] = useState('')
+
+	const handleSubmit = async (event) => {
+		event.preventDefault();
+	  
+		// const response = await axios('https://api.stntinternational.com/api/auth/login', {
+		//   method: 'POST',
+		//   headers: {
+		// 	'Content-Type': 'application/json'
+		//   },
+		//   body: JSON.stringify({
+		// 	username: username,
+		// 	password: password
+		//   })
+		// });
+
+		const response = await axios.post('https://api.stntinternational.com/api/auth/login', {
+			username: username,
+			password: password
+		});
+
+		const data = await response.data;
+		localStorage.setItem('token', data.token);
+		window.location.href = "/app/dashboard";
+	}
+	
 
 	const { 
 		otherSignIn, 
@@ -66,7 +95,7 @@ export const LoginForm = (props) => {
 	
 	const renderOtherSignIn = (
 		<div>
-			<Divider>
+			{/* <Divider>
 				<span className="text-muted font-size-base font-weight-normal">or connect with</span>
 			</Divider>
 			<div className="d-flex justify-content-center">
@@ -85,7 +114,7 @@ export const LoginForm = (props) => {
 				>
 					Facebook
 				</Button>
-			</div>
+			</div> */}
 		</div>
 	)
 
@@ -106,7 +135,7 @@ export const LoginForm = (props) => {
 			>
 				<Form.Item 
 					name="email" 
-					label="Email" 
+					label="Email" 					
 					rules={[
 						{ 
 							required: true,
@@ -117,7 +146,10 @@ export const LoginForm = (props) => {
 							message: 'Please enter a validate email!'
 						}
 					]}>
-					<Input prefix={<MailOutlined className="text-primary" />}/>
+					<Input 
+					value="username"
+					onChange={e => setUsername(e.target.value)} 
+					prefix={<MailOutlined className="text-primary" />}/>
 				</Form.Item>
 				<Form.Item 
 					name="password" 
@@ -142,12 +174,22 @@ export const LoginForm = (props) => {
 						}
 					]}
 				>
-					<Input.Password prefix={<LockOutlined className="text-primary" />}/>
+					<Input.Password 
+					value="password"
+					onChange={e => setPassword(e.target.value)}
+					prefix={<LockOutlined className="text-primary" />}/>
 				</Form.Item>
 				<Form.Item>
-					<Button type="primary" htmlType="submit" block loading={loading}>
-						Sign In
+					<Button 
+					type="primary" 
+					htmlType="submit" 
+					block loading={loading} 
+					style={{backgroundColor:'#41C1B2',border:'none'}}
+					onClick={handleSubmit}
+					>
+						Log In
 					</Button>
+
 				</Form.Item>
 				{
 					otherSignIn ? renderOtherSignIn : null
