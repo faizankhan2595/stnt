@@ -1049,6 +1049,7 @@ const ClaimSubmission = () => {
 
                                         {!isAlternateImage ? (
                                             <div className="virtual-card-dynamic-details">
+                                                <div>Name: {claimMetaData?.policyDetails?.name}</div>
                                                 <div>
                                                     <b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
                                                 </div>

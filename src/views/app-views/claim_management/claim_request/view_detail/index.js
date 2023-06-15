@@ -380,7 +380,7 @@ const ViewDet = (props) => {
                           22 Apr 2023
                         </p>
                       </div>
-                      <h5>{claimRequestData?.files.map((file) => (<p>{file.fieldname}</p>))}</h5>
+                      {/* <h5>{claimRequestData?.files.map((file) => (<p>{file.fieldname}</p>))}</h5> */}
 
                       <div className="d-flex justify-content-center my-3">
                         {" "}

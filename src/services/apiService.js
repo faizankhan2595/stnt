@@ -551,7 +551,7 @@ export const claimRequestClaimDetails = async (claimId, userId) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + `/claim/claim-details/${userId}/${claimId}`,
+        url: BASE_URL + `/api/claim/claim-details/${userId}/${claimId}`,
         headers: {
 
             'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -566,7 +566,7 @@ export const claimRequestTimeline = async (claimId) => {
 let config = {
   method: 'get',
   maxBodyLength: Infinity,
-  url: BASE_URL + `/claim/claim-timeline/${claimId}`,
+  url: BASE_URL + `/api/claim/claim-timeline/${claimId}`,
   headers: { 
     'Authorization': 'Bearer ' + localStorage.getItem('token')
   },
