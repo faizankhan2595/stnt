@@ -558,21 +558,77 @@ export const claimRequestClaimDetails = async (claimId, userId) => {
         },
     };
 
-   return await axios.request(config)
+    return await axios.request(config)
 }
 
 export const claimRequestTimeline = async (claimId) => {
 
-let config = {
-  method: 'get',
-  maxBodyLength: Infinity,
-  url: BASE_URL + `/api/claim/claim-timeline/${claimId}`,
-  headers: { 
-    'Authorization': 'Bearer ' + localStorage.getItem('token')
-  },
-};
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim/claim-timeline/${claimId}`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+    };
 
-return await axios.request(config)
+    return await axios.request(config)
+}
+
+export const claimRequestAddRemarks = async (userId, remarks, claimReqId) => {
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim/remarks`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: {
+            "userId": userId,
+            "remarks": remarks,
+            "claimReqId": claimReqId
+        }
+    };
+
+    return await axios.request(config)
+}
+
+export const claimRequestGetremarks = async (userId, claimReqId) => {
+
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim/remarks/1/1`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+
+        data: {
+            "userId": userId,
+            "claimReqId": claimReqId
+        }
+    };
+
+    return await axios.request(config)
+}
+
+export const claimRequestStatus = async (claimId, status) => {
+
+    let config = {
+        method: 'put',
+        maxBodyLength: Infinity,
+        url: 'https://api.stntinternational.com/api/claim',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+
+        data: {
+            "claimId": claimId,
+            "status": status
+        }
+    };
+
+   return await axios.request(config)
 }
 
 export const deleteDoc = async (id) => {

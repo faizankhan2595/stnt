@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Checkbox, Divider, Tabs, Modal, Timeline } from "antd";
+import { Button, Checkbox, Divider, Tabs, Modal, Timeline, message, Tag } from "antd";
 import {
   ClaimReqDet,
   ClaimdetHead,
@@ -13,7 +13,10 @@ import {
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
 import { useEffect } from "react";
-import { claimRequestClaimDetails, claimRequestTimeline, claimRequestTravelDetails } from "services/apiService";
+import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, getTraveler } from "services/apiService";
+
+import { Link, useParams } from 'react-router-dom';
+
 const arr = ["Medical & Other Expenses", "Emergency Medical Evacuation"];
 let styles = {
   files: {
@@ -55,9 +58,10 @@ let styles = {
 };
 const operations = (
   <div className="ml-3 d-flex flex-column align-items-end">
-    <Button style={{ width: "125px" }} className="bg-warning text-white">
+    {/* <Button style={{ width: "125px" }} className="bg-warning text-white">
       Pending
-    </Button>
+    </Button> */}
+    <Tag color="gold">Pending</Tag>
     <p className="m-0">Since 16 Jan 2022, 10:02:36 AM</p>
   </div>
 );
@@ -65,7 +69,10 @@ const ViewDet = (props) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
-  const viewDocument = () => {
+  const [currentFiles, setCurrentFiles] = useState([]);
+
+  const viewDocument = (currentFiles) => {
+    setCurrentFiles(currentFiles);
     setIsDocModalOpen(true);
   };
 
@@ -78,7 +85,45 @@ const ViewDet = (props) => {
     setVisible(true);
   };
   const [claimRequestData, setClaimRequestData] = useState([]);
+  const [personalDetails, setPersonalDetails] = useState({});
+  const [claimTimeline, setClaimTimeline] = useState({});
+  const [remarks, setRemarks] = useState("");
+  const [remarksList, setRemarksList] = useState([]);
 
+
+
+  const { claimId, userId} = useParams();
+
+
+  //get remarks
+  useEffect(async () => {
+    const response = await claimRequestGetremarks(claimId, userId);
+    setRemarksList(response.data.data);
+    console.log('Remarks', response);
+  }, []);
+
+
+  //get personal details
+  useEffect(async () => {
+    const response = await getTraveler(claimId);
+    setPersonalDetails(response.data.data);
+  }, []);
+
+  const handleRemarksChange = (event) => {
+    setRemarks(event.target.value);
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    try {
+
+      await claimRequestAddRemarks(userId, remarks, claimId);
+
+      message.success('Remark added successfully');
+    } catch (error) {
+      message.error('Something went wrong');
+    }
+  };
 
 
   const delUplFile = (i) => {
@@ -104,13 +149,9 @@ const ViewDet = (props) => {
   const [travelDetails, setTravelDetails] = useState({});
 
   useEffect(async () => {
-    const claimId = props.match?.params?.claimId;
-    const userId = props.match?.params?.userId;
-
     const response = await claimRequestTravelDetails(claimId, userId);
     console.log('TravelDetail', response);
     setTravelDetails(response.data.data);
-
   }, []);
 
 
@@ -124,23 +165,92 @@ const ViewDet = (props) => {
 
   }, []);
 
-  const [claimTimeline, setClaimTimeline] = useState({});
+
   useEffect(async () => {
     const claimId = props.match?.params?.claimId;
 
     const response = await claimRequestTimeline(claimId);
     console.log('ClaimTimeline', response);
-    setClaimTimeline(response.data);
-
-    
+    setClaimTimeline(response.data.data);
 
   }, []);
+
+  const CustTimeline = () => {
+    const items = [
+      {
+        color: "#0078FF",
+        children: (
+          <>
+            <h5 className="m-0">Insurance Claim Initiated</h5>
+            <p className="m-0">
+
+              {claimTimeline?.reviewedDate
+                ? new Date(claimTimeline?.reviewedDate).toLocaleDateString()
+                : "Not yet initiated"}
+            </p>
+          </>
+        ),
+      },
+      {
+        color: "#C05DEF",
+        children: (
+          <>
+            <h5 className="m-0">Insurance Claim Submitted</h5>
+            <p className="m-0"> {claimTimeline?.submittedDate
+              ? new Date(claimTimeline?.submittedDate).toLocaleDateString()
+              : "Not yet submitted"}</p>
+          </>
+        ),
+      },
+      {
+        color: "#05ADA3",
+        children: (
+          <>
+            <h5 className="m-0">Admin reviewed claim </h5>
+            <p className="m-0">{claimTimeline?.reviewedDate
+              ? new Date(claimTimeline?.reviewedDate).toLocaleDateString()
+              : "Not yet reviewed"}</p>
+          </>
+        ),
+      },
+      {
+        color: "#EDD500",
+        children: (
+          <>
+            <h5 className="m-0">Claims document sent to UOI underwriter</h5>
+            <p className="m-0">{claimTimeline?.sendToUoiDate
+              ? new Date(claimTimeline?.sendToUoiDate).toLocaleDateString()
+              : "Not yet sent"}</p>
+          </>
+        ),
+      },
+    ];
+
+    return (
+      <>
+        <h4 className="d-flex m-0">
+          {" "}
+          <InsuranceClaimTimeline />
+          <span className="ml-2">Insurance Claim Timeline</span>
+        </h4>
+        <div className="my-4">
+          <Timeline>
+            {items.map((item, index) => (
+              <Timeline.Item key={index} color={item.color} dot={item.dot}>
+                {item.children}
+              </Timeline.Item>
+            ))}
+          </Timeline>
+        </div>
+      </>
+    );
+  }
 
   const items = [
     {
       label: (
         <div className="d-flex align-items-center">
-          <span className="ml-2">Personnel Details</span>
+          <span className="ml-2">Personal Details</span>
         </div>
       ),
       key: 1,
@@ -161,13 +271,13 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Insured Name
                 </p>
-                <h5>Rashid Khan</h5>
+                <h5>{personalDetails?.name}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Passport No
                 </p>
-                <h5>KXXXX956R</h5>
+                <h5>{personalDetails?.passportNo}</h5>
               </div>
             </div>
 
@@ -176,7 +286,7 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   NRIC/FIN
                 </p>
-                <h5>S508699S</h5>
+                <h5>{personalDetails?.nric}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
@@ -198,7 +308,7 @@ const ViewDet = (props) => {
                   Gender
                 </p>
                 <h5>
-                  <img src="/img/male.png" alt="img" />
+                  {personalDetails?.gender}
                 </h5>
               </div>
             </div>
@@ -208,7 +318,7 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Date of Birth
                 </p>
-                <h5>1 Jan 1997</h5>
+                <h5>{personalDetails?.dob}</h5>
               </div>
             </div>
 
@@ -365,7 +475,7 @@ const ViewDet = (props) => {
               style={{ flexWrap: "wrap", gap: "2rem" }}
               className="mt-3 d-flex justify-content-start"
             >
-              {claimRequestData.map((elem, index) => {
+              {claimRequestData.map((claimRequest, index) => {
                 return (
                   <div style={{ width: "300px" }} className="my-2">
                     <div className="shadow rounded p-2">
@@ -377,8 +487,11 @@ const ViewDet = (props) => {
                       <div className="my-2 d-flex justify-content-between">
                         <p className="m-0">Claim Request #{index + 1}</p>
                         <p className="m-0" style={{ color: "black" }}>
-                          22 Apr 2023
+                          {new Date(claimRequest?.claimCategory?.updatedAt).toLocaleDateString()}
                         </p>
+                      </div>
+                      <div>
+                        <p className="m-0">{claimRequest.claimCategory.title}</p>
                       </div>
                       {/* <h5>{claimRequestData?.files.map((file) => (<p>{file.fieldname}</p>))}</h5> */}
 
@@ -387,7 +500,7 @@ const ViewDet = (props) => {
                         <Button
                           style={{ border: "1.5px solid rgb(62, 121, 247)" }}
                           className="text-info m-auto"
-                          onClick={() => viewDocument()}
+                          onClick={() => viewDocument(claimRequest.files)}
                         >
                           View Documents
                         </Button>{" "}
@@ -434,13 +547,13 @@ const ViewDet = (props) => {
                 <p className="w-50">
                   Payment Option:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                  {travelDetails?.paymentDetails?.paymentOptions}
+                    {travelDetails?.paymentDetails?.paymentOptions}
                   </span>
                 </p>
                 <p className="w-50">
                   Payee Name (as per bank account):{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                  {travelDetails?.paymentDetails?.payeeName}
+                    {travelDetails?.paymentDetails?.payeeName}
                   </span>
                 </p>
               </div>
@@ -448,13 +561,13 @@ const ViewDet = (props) => {
                 <p className="w-50">
                   Payee NRIC/FIN:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                  {travelDetails?.paymentDetails?.payeeNRIC}
+                    {travelDetails?.paymentDetails?.payeeNRIC}
                   </span>
                 </p>
                 <p className="w-50">
                   Bank Name (DBS/POSB Only):{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                  {travelDetails?.paymentDetails?.bankName}
+                    {travelDetails?.paymentDetails?.bankName}
                   </span>
                 </p>
               </div>
@@ -462,7 +575,7 @@ const ViewDet = (props) => {
                 <p className="w-50">
                   Bank Account Number:{" "}
                   <span style={{ color: "black" }} className="font-weight-bold">
-                  {travelDetails?.paymentDetails?.bankAccountNumber}
+                    {travelDetails?.paymentDetails?.bankAccountNumber}
                   </span>
                 </p>
               </div>
@@ -551,39 +664,37 @@ const ViewDet = (props) => {
                 <img src="/img/male.png" alt="img" />
                 <span className="ml-2">Claim Details</span>
               </h4>
-              <h4 className="d-flex align-items-center my-3">
-                <ClaimReqDet />
-                <span className="ml-2">Claim Details</span>
-              </h4>
 
-              <h5>Claim Category</h5>
-              <h5 className="font-weight-bold">I had a medical situation</h5>
 
-              <h5 className="mt-4">Documents Uploaded</h5>
-              <ul className="p-0" style={{ width: "40%" }}>
-                <li className="my-3" style={styles.files}>
-                  {" "}
-                  <div className="d-flex align-items-center">
-                    <UploadFileIcon color={"#0E7CEB"} />{" "}
-                    <span className="ml-2">
-                      {" "}
-                      File_name.pdf <br />{" "}
-                      <p className="m-0"> Uploaded 1min ago</p>{" "}
-                    </span>
+              {claimRequestData.map((claimRequest, index) => {
+                return (
+                  <div>
+                    <h5>Claim Category</h5>
+                    <h5 className="font-weight-bold">{claimRequest.claimCategory.title}</h5>
+
+                    <h5 className="mt-4">Documents Uploaded</h5>
+                    <ul className="p-0" style={{ width: "100%" }}>
+                      {currentFiles.map((file) => (<li className="my-3" style={styles.files}>
+                        <a href={file.path} target="_blank" rel="noreferrer">
+                          {" "}
+                          <div className="d-flex align-items-center">
+                          {" "}
+                            <span className="ml-2">
+                              {file.fieldname} <br />{" "}
+                            </span>
+                          </div>
+                        </a></li>))}
+                    </ul>
+
                   </div>
-                </li>
-                <li className="my-3" style={styles.files}>
-                  {" "}
-                  <div className="d-flex align-items-center">
-                    <UploadFileIcon color={"#0E7CEB"} />{" "}
-                    <span className="ml-2">
-                      {" "}
-                      File_name.pdf <br />{" "}
-                      <p className="m-0"> Uploaded 1min ago</p>{" "}
-                    </span>
-                  </div>
-                </li>
-              </ul>
+
+
+
+                );
+              })}
+
+
+
             </div>
             <Divider />
             <div className="mt-5">
@@ -638,7 +749,7 @@ const ViewDet = (props) => {
               </h4>
               <h5>Declaration</h5>
               <Checkbox checked={travelDetails?.isDeclaration}>
-              I declare that all information are true
+                I declare that all information are true
               </Checkbox>
               <div className="mt-5 d-flex justify-content-between">
                 <div>
@@ -813,25 +924,39 @@ const ViewDet = (props) => {
         <h4>Claim Status Update</h4>
         <Divider className="m-0 mb-4" />
         <h5>Add Remarks</h5>
-        <TextArea placeholder="Type here..." />
+
+        <TextArea
+          value={remarks}
+          onChange={handleRemarksChange}
+          placeholder="Type here..." />
+
         <div className="d-flex justify-content-end mt-3">
-          <Button className="px-4 font-weight-semibold text-white bg-info">
+          <Button
+            onClick={handleSubmit}
+            className="px-4 font-weight-semibold text-white bg-info">
             Save
           </Button>
         </div>
         <Divider />
-        <div>
-          <h5 className="d-flex align-items-center">
-            <img src="/img/avatars/thumb-1.jpg" alt="." />
-            Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
-          </h5>
-          <p style={{ color: "black" }}>
-            Loreum ipsum is dummy text,Loreum ipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dumipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dummy{" "}
-          </p>
-        </div>
-        <Divider />
+
+        {remarksList.map((remark) => {
+          return (
+            <>
+              <div>
+                <h5 className="d-flex align-items-center">
+                  <img src="/img/avatars/thumb-1.jpg" alt="." />
+                  Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
+                </h5>
+                <p style={{ color: "black" }}>
+                  {remark?.remarks}{" "}
+                </p>
+              </div>
+              <Divider />
+            </>
+          );
+        })}
+
+
         <div>
           <h5 className="d-flex align-items-center">
             <img src="/img/avatars/thumb-1.jpg" alt="." />
@@ -855,42 +980,21 @@ const ViewDet = (props) => {
           <GreenExportFile /> <span> View documents and pictures of claim</span>
         </h4>
         <ul className="p-0" style={{ width: "100%" }}>
-          <li className="my-3" style={styles.files}>
-            {" "}
-            <div className="d-flex align-items-center">
-              <UploadFileIcon color={"#0E7CEB"} />{" "}
-              <span className="ml-2">
-                {" "}
-                File_name.pdf <br /> <p className="m-0">
-                  {" "}
-                  Uploaded 1min ago
-                </p>{" "}
-              </span>
-            </div>
-            <span>
-              <span style={{ cursor: "pointer" }} className="mr-2">
+          {currentFiles.map((file) => (<li className="my-3" style={styles.files}>
+            <a href={file.path} target="_blank" rel="noreferrer">
+              {" "}
+              <div className="d-flex align-items-center">
+                <UploadFileIcon color={"#0E7CEB"} />{" "}
+                <span className="ml-2">
+                  {file.fieldname} <br />{" "}
+                </span>
+              </div>
+              <span>
+                {/* <span style={{ cursor: "pointer" }} className="mr-2">
                 <DownloadSvg />
+              </span> */}
               </span>
-            </span>
-          </li>
-          <li className="my-3" style={styles.files}>
-            {" "}
-            <div className="d-flex align-items-center">
-              <UploadFileIcon color={"#0E7CEB"} />{" "}
-              <span className="ml-2">
-                {" "}
-                File_name.pdf <br /> <p className="m-0">
-                  {" "}
-                  Uploaded 1min ago
-                </p>{" "}
-              </span>
-            </div>
-            <span>
-              <span style={{ cursor: "pointer" }} className="mr-2">
-                <DownloadSvg />
-              </span>
-            </span>
-          </li>
+            </a></li>))}
         </ul>
       </Modal>
     </div>
@@ -898,63 +1002,3 @@ const ViewDet = (props) => {
 };
 
 export default ViewDet;
-
-function CustTimeline({ claimTimeline }) {
-  const items = [
-    {
-      color: "#0078FF",
-      children: (
-        <>
-          <h5 className="m-0">Insurance Claim Initiated</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#C05DEF",
-      children: (
-        <>
-          <h5 className="m-0">Insurance Claim Submitted</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#05ADA3",
-      children: (
-        <>
-          <h5 className="m-0">Admin reviewed claim </h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-    {
-      color: "#EDD500",
-      children: (
-        <>
-          <h5 className="m-0">Claims document sent to UOI underwriter</h5>
-          <p className="m-0">16 Jan 2022, 10:02:36 AM</p>
-        </>
-      ),
-    },
-  ];
-
-  return (
-    <>
-      <h4 className="d-flex m-0">
-        {" "}
-        <InsuranceClaimTimeline />
-        <span className="ml-2">Insurance Claim Timeline</span>
-      </h4>
-      <div className="my-4">
-        <Timeline>
-          {items.map((item, index) => (
-            <Timeline.Item key={index} color={item.color} dot={item.dot}>
-              {item.children}
-            </Timeline.Item>
-          ))}
-        </Timeline>
-      </div>
-    </>
-  );
-}
