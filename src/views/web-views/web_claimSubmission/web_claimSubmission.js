@@ -266,6 +266,7 @@ const ClaimSubmission = () => {
             const draftClaims = claimMetaDataNew.draftClaims;
             if (draftClaims.length) {
                 const lastDraft = draftClaims[draftClaims.length - 1];
+                const dateOfDraft = lastDraft.dateOfDraft;
                 const draftName = lastDraft.draftName;
 
                 for (const draftN of draftName) {
@@ -273,7 +274,7 @@ const ClaimSubmission = () => {
                         key: draftN.id,
                         sno: draftN.id,
                         draftName: draftN.title,
-                        dateOfDraft: draftN.updatedAt,
+                        dateOfDraft: dateOfDraft,
                     })
                 }
             }
@@ -1049,11 +1050,13 @@ const ClaimSubmission = () => {
 
                                         {!isAlternateImage ? (
                                             <div className="virtual-card-dynamic-details">
-                                                <div>Name: {claimMetaData?.policyDetails?.name}</div>
-                                                <div>
+                                                 <div>
                                                     <b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
                                                 </div>
-                                                <div>DOB: {claimMetaData?.policyDetails?.dob}</div>
+
+                                                <div>Name: {claimMetaData?.policyDetails?.name}</div>
+                                               
+                                                <div>XX-XX-{claimMetaData?.policyDetails?.dob?.substring(6)}</div>
                                             </div>
                                         ) : null}
 

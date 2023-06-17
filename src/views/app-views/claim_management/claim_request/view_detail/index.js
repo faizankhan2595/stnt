@@ -13,7 +13,7 @@ import {
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
 import { useEffect } from "react";
-import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, getTraveler } from "services/apiService";
+import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestSettlementDocs, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, getTraveler } from "services/apiService";
 
 import { Link, useParams } from 'react-router-dom';
 
@@ -68,6 +68,7 @@ const operations = (
 const ViewDet = (props) => {
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [currentID, setCurrentId] = useState(0);
   const [isDocModalOpen, setIsDocModalOpen] = useState(false);
   const [currentFiles, setCurrentFiles] = useState([]);
 
@@ -89,17 +90,27 @@ const ViewDet = (props) => {
   const [claimTimeline, setClaimTimeline] = useState({});
   const [remarks, setRemarks] = useState("");
   const [remarksList, setRemarksList] = useState([]);
+  // const [claimSettlementDocs, setClaimSettlementDocs] = useState([]);
+
+
+  const submitSettlementDocs = async () => {
+
+    console.log(selectedFiles);
+
+    const response = await claimRequestSettlementDocs(userId, claimId, selectedFiles);
+    console.log('Response:', response);
+    // Handle response and any further actions here
+  };
 
 
 
-  const { claimId, userId} = useParams();
+  const { claimId, userId, files } = useParams();
 
 
   //get remarks
   useEffect(async () => {
     const response = await claimRequestGetremarks(claimId, userId);
     setRemarksList(response.data.data);
-    console.log('Remarks', response);
   }, []);
 
 
@@ -120,6 +131,8 @@ const ViewDet = (props) => {
       await claimRequestAddRemarks(userId, remarks, claimId);
 
       message.success('Remark added successfully');
+      const response = await claimRequestGetremarks(claimId, userId);
+      setRemarksList(response.data.data);
     } catch (error) {
       message.error('Something went wrong');
     }
@@ -678,7 +691,7 @@ const ViewDet = (props) => {
                         <a href={file.path} target="_blank" rel="noreferrer">
                           {" "}
                           <div className="d-flex align-items-center">
-                          {" "}
+                            {" "}
                             <span className="ml-2">
                               {file.fieldname} <br />{" "}
                             </span>
@@ -875,6 +888,11 @@ const ViewDet = (props) => {
                 </ul>
               )}
             </div>
+            <div className="d-flex flex-end">
+            <Button className="px-4 font-weight-semibold text-white bg-info" onClick={submitSettlementDocs}>submit</Button>
+            </div>
+           
+
           </div>
           <div
             style={{ width: "32%" }}
@@ -944,9 +962,13 @@ const ViewDet = (props) => {
             <>
               <div>
                 <h5 className="d-flex align-items-center">
-                  <img src="/img/avatars/thumb-1.jpg" alt="." />
-                  Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
+                  {remark?.adminData?.fullName}
                 </h5>
+                <p>
+                  {new Date(remark?.adminData?.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+              <div>
                 <p style={{ color: "black" }}>
                   {remark?.remarks}{" "}
                 </p>
@@ -955,19 +977,7 @@ const ViewDet = (props) => {
             </>
           );
         })}
-
-
-        <div>
-          <h5 className="d-flex align-items-center">
-            <img src="/img/avatars/thumb-1.jpg" alt="." />
-            Sara M <p className="m-0">1 May 2023, 10:00:23 Am</p>
-          </h5>
-          <p style={{ color: "black" }}>
-            Loreum ipsum is dummy text,Loreum ipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dumipsum is dummy textLoreum ipsum is
-            dummy textLoreum ipsum is dummy{" "}
-          </p>
-        </div>
+     
       </Modal>
       <Modal
         width={600}

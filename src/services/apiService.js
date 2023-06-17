@@ -598,21 +598,16 @@ export const claimRequestGetremarks = async (userId, claimReqId) => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + `/api/claim/remarks/1/1`,
+        url: BASE_URL + `/api/claim/remarks/${claimReqId}/${userId}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
-
-        data: {
-            "userId": userId,
-            "claimReqId": claimReqId
-        }
     };
 
     return await axios.request(config)
 }
 
-export const claimRequestStatus = async (claimId, status) => {
+export const claimRequestStatus = async (id, status, comment) => {
 
     let config = {
         method: 'put',
@@ -623,9 +618,32 @@ export const claimRequestStatus = async (claimId, status) => {
         },
 
         data: {
-            "claimId": claimId,
-            "status": status
+            "userId": id,
+            "status": status,
+            "comment": comment
         }
+    };
+
+    return await axios.request(config)
+}
+
+export const claimRequestSettlementDocs = async (userId, claimId, files) => {
+    let data = new FormData();
+    data.append('userId', userId);
+    data.append('claimReqId', claimId);
+
+    for(let i = 0; i < files.length; i++) {
+        data.append('file', files[i]);
+    }
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/claim/claim-settlements`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
     };
 
    return await axios.request(config)

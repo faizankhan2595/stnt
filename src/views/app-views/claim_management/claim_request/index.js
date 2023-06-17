@@ -5,7 +5,7 @@ import {
   RejectedReq,
   TotatReq,
 } from "assets/svg/icon";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useParams } from "react";
 import { Input, Menu, Button, Radio, Modal } from "antd";
 import Icon from "@ant-design/icons";
 import { CsvIcon, FilterIcon } from "assets/svg/icon";
@@ -14,24 +14,37 @@ import Filter from "components/shared-components/Filter";
 import Helper from "../../Helper";
 import EllipsisDropdown from "components/shared-components/EllipsisDropdown";
 import TextArea from "antd/lib/input/TextArea";
-import { getClaimRequests } from "services/apiService";
+import { claimRequestStatus, getClaimRequests } from "services/apiService";
 
 
 const ClaimReq = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [value, setValue] = useState(1);
-  const showModal = () => {
+
+  const [value, setValue] = useState('wip');
+  const [comment, setComment] = useState("");
+  const [claimId, setClaimId] = useState("");
+
+
+  const showModal = (userId) => {
     setIsModalOpen(true);
-    // handleOk()
+    setClaimId(userId);
+    console.log('userId', userId);
   };
+
   const onRadChange = (e) => {
     console.log('radio checked', e.target.value);
     setValue(e.target.value);
   };
   const handleOk = () => {
-    setTimeout(() => {
-      setIsModalOpen(false);
-    }, 10000);
+
+    claimRequestStatus(claimId, value, comment).then((response) => {
+      console.log(response);
+
+    });
+
+    // setTimeout(() => {
+    //   setIsModalOpen(false);
+    // }, 10000);
   };
 
   const [claimRequests, setClaimRequests] = useState([]);
@@ -39,7 +52,7 @@ const ClaimReq = () => {
 
   useEffect(() => {
 
-    const size = 10;
+    const size = 100000;
     const page = 1;
     
     getClaimRequests(size, page).then((response) => {
@@ -131,7 +144,7 @@ const ClaimReq = () => {
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => showModal()}> Update Status</span>
+                    <span onClick={() => showModal(record?.userId)}> Update Status</span>
                   </Menu.Item>
                 </Menu>
               }
@@ -246,16 +259,18 @@ const ClaimReq = () => {
           <h3 className="mb-4 d-flex align-items-center">
 
             <ChangeAgStatus />
-            <span className="ml-2"> Change Agency Status</span>
+            <span className="ml-2"> Change Claim Status</span>
           </h3>
           <Radio.Group className="ml-5" onChange={onRadChange} value={value}>
-            <Radio value={1}>WIP</Radio>
-            <Radio className="ml-3" value={2}>Completed</Radio>
-            <Radio className="ml-3" value={3}>Rejected</Radio>
-            <Radio className="ml-3" value={4}>New</Radio>
+            <Radio value={'wip'}>WIP</Radio>
+            <Radio className="ml-3" value={'completed'}>Completed</Radio>
+            <Radio className="ml-3" value={'rejected'}>Rejected</Radio>
+            <Radio className="ml-3" value={'new'}>New</Radio>
           </Radio.Group>
           <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
-          <TextArea className="ml-5 w-75" />
+          <TextArea className="ml-5 w-75" value={comment} onChange={(e) => {
+            setComment(e.target.value)
+          }}  />
         </div>
         <div
           style={{ gap: "10px" }}
@@ -264,15 +279,13 @@ const ClaimReq = () => {
           <Button
             className="px-4 font-weight-semibold"
           // onClick={() => setIsChangeStudModalOpen(false)}
+          onClick={() => setIsModalOpen(false)}
           >
             Cancel
           </Button>
           <Button
-            className="px-4 font-weight-semibold text-white bg-info"
-          // onClick={() => {
-          //   setIsChangeStudModalOpen(false);
-          // }}
-          >
+            onClick={handleOk}
+            className="px-4 font-weight-semibold text-white bg-info">
             Save
           </Button>
         </div>

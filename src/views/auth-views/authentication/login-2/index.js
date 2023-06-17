@@ -17,7 +17,7 @@ const LoginTwo = props => {
 	return (
 		<div className={`h-100 ${theme === 'light' ? 'bg-white' : ''}`}>
 			<Row justify="center" className="align-items-stretch h-100">
-			<Col xs={0} sm={0} md={0} lg={10}>
+				<Col xs={0} sm={0} md={0} lg={10}>
 					<div className="bg-holder">
 						<div className="vector-holder">
 							<img src="/img/others/login-vector.png" alt="vector" className="img-fluid" />
@@ -29,12 +29,18 @@ const LoginTwo = props => {
 				</Col>
 				<Col xs={20} sm={20} md={24} lg={14}>
 					<div className="container d-flex flex-column justify-content-center h-100">
+						<div className="d-flex justify-content-center mb-3">
+							<img src="/img/stntlogo.svg" alt="logo" className="logo" />
+						</div>
 						<Row justify="center">
 							<Col xs={24} sm={24} md={20} lg={12} xl={8}>
-								<h1>Sign In</h1>
-								<p>Don't have an account yet? <a href="/auth/register-2">Sign Up</a></p>
+								<div style={{textAlign:'center'}}>
+								<h1>Login</h1>
+								</div>
+								{/* <p>Don't have an account yet? <a href="/auth/register-2">Sign Up</a></p> */}
+								<p style={{textAlign:'center'}}>Please enter username & password below to get started.</p>
 								<div className="mt-4">
-									<LoginForm {...props}/>
+									<LoginForm {...props} />
 								</div>
 							</Col>
 						</Row>
