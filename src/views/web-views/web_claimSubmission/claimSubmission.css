@@ -266,14 +266,16 @@ body {
 }
 
 .virtual-card-img-container {
-    padding-left: 45px;
+    /* padding-left: 45px; */
+    margin-left: 45px;
     position: relative;
 }
 
 .virtual-card-dynamic-details{
     position: absolute;
     top: 40%;
-    left: 20%;
+    left: 5%;
+    max-width: 65%;
 }
 
 .virtual-card-heading {
