@@ -4,15 +4,16 @@ import "../fonts.css";
 import { UploadOutlined } from '@ant-design/icons';
 import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom'
 import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser } from "services/apiService";
+// import * as htmlToImage from 'html-to-image';
 import axios from "axios";
+import html2canvas from "html2canvas";
 import { set } from "lodash";
 
 const description = 'This is a description.';
 const { Step } = Steps;
-
 
 const columns = [
     {
@@ -160,6 +161,32 @@ const ClaimSubmission = () => {
 
     }
 
+    //donwload virtual card img
+    const domEl = useRef(null);
+
+    const exportAsImage = async (el, imageFileName) => {
+        console.log(el);
+        const canvas = await html2canvas(el);
+        const image = canvas.toDataURL("image/png", 1.0);
+        console.log(image);
+        // download the image
+        downloadImage(image, imageFileName);
+        };
+    
+        const downloadImage = (blob, fileName) => {
+            const fakeLink = window.document.createElement("a");
+            fakeLink.style = "display:none;";
+            fakeLink.download = fileName;
+            
+            fakeLink.href = blob;
+            
+            document.body.appendChild(fakeLink);
+            fakeLink.click();
+            document.body.removeChild(fakeLink);
+            
+            fakeLink.remove();
+            };
+
 
 
     const [countries, setCountries] = useState([]);
@@ -216,11 +243,21 @@ const ClaimSubmission = () => {
                     const files = claimCategory.files;
 
                     let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument) => {
+
+                        const file = files.find((file) => file.fieldname === claimDocument.title);
+                        console.log("file", file);
+                        console.log("file.fieldname", file.fieldname);
+                        console.log("claimDocument.title", claimDocument.title);
+                        console.log("claimDocument", claimDocument);
+
                         return {
                             ...claimDocument,
-                            url: files.find((file) => file.fieldname === claimDocument.title)?.path
+                            url: file?.path,
+                            name: file?.originalname,
                         }
                     });
+
+                    console.log("claimDocuments", claimDocuments);
 
                     claimsNew.push({
                         claimCategoryId: claimCategory.claimCategory.id,
@@ -551,8 +588,8 @@ const ClaimSubmission = () => {
                 message.error('Please select a payment option');
                 // alert("Please select a payment option");
                 return;
-              }
-              
+            }
+
 
             const paymentData = {};
             if (selectedPaymentOption === 'dbs_posb') {
@@ -584,12 +621,12 @@ const ClaimSubmission = () => {
                     // Show an error message or handle the validation error
                     message.error('Please enter Payee Name');
                     return;
-                  }
+                }
                 paymentData.payeeName = payeeName;
                 paymentData.paymentOption = "Cheque";
 
             } else if (selectedPaymentOption === 'paynow_linked_account') {
-                if(!payNowMobileNumber){
+                if (!payNowMobileNumber) {
                     message.error('Please enter PayNow Mobile Number');
                     return;
                 }
@@ -597,7 +634,7 @@ const ClaimSubmission = () => {
                 paymentData.paymentOption = "Paynow Linked Account";
             }
 
-        
+
             paymentData.claimRequestId = claimByUserDetails.id;
 
             console.log("paymentDetails", paymentData);
@@ -659,7 +696,7 @@ const ClaimSubmission = () => {
     const [PayeeNRIC, setPayeeNRIC] = useState('');
     const [isDeclaration, setIsDeclaration] = useState(false);
     const [isConsent, setIsConsent] = useState(false);
-    
+
 
 
     const handlePaymentOptionChange = (value) => {
@@ -704,9 +741,9 @@ const ClaimSubmission = () => {
             await axios.request(config);
             setIsSubmitClaimModalOpen(true);
             window.location.reload(); // Reload the page
-          } catch (error) {
+        } catch (error) {
             // Handle the error if necessary
-          }
+        }
 
         // return await axios.request(config)
 
@@ -1030,10 +1067,10 @@ const ClaimSubmission = () => {
                                     </div>
                                 </div>
                                 <div className="share-download-icon" style={{ display: 'flex' }}>
-                                    <div className="share-icon" style={{ marginRight: '10px' }}>
+                                    {/* <div className="share-icon" style={{ marginRight: '10px' }}>
                                         <img src="/img/share.png" alt="share-icon" style={{ width: '28px', height: 'auto', cursor: 'pointer' }} />
-                                    </div>
-                                    <div className="download-icon">
+                                    </div> */}
+                                    <div className="download-icon" onClick={() => exportAsImage(domEl.current, "virtual-card")}>
                                         <img src="/img/download.png" alt="download-icon" style={{ width: '28px', height: 'auto', cursor: 'pointer' }} />
                                     </div>
                                 </div>
@@ -1045,18 +1082,20 @@ const ClaimSubmission = () => {
                                     We will provide a Claim Assistance Card for your to ensure that you have handy policy details as well as direct claims assistance number always with you.
                                 </Col>
                                 <Col lg={{ span: 12 }} xs={{ span: 24 }} className="virtual-card-img">
-                                    <div className="virtual-card-img-container">
+                                    <div className="virtual-card-img-container" id="domEl" ref={domEl}>
                                         <img src={imageSrc} alt="virtual-card-img" style={{ width: '100%', height: 'auto' }} />
 
                                         {!isAlternateImage ? (
-                                            <div className="virtual-card-dynamic-details">
-                                                 <div>
-                                                    <b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
-                                                </div>
+                                            <div >
+                                                <div className="virtual-card-dynamic-details">
+                                                    <div>
+                                                        <b className="mr-1">UID: {claimMetaData?.policyDetails?.uidNo}</b>
+                                                    </div>
 
-                                                <div>Name: {claimMetaData?.policyDetails?.name}</div>
-                                               
-                                                <div>XX-XX-{claimMetaData?.policyDetails?.dob?.substring(6)}</div>
+                                                    <div>Name: {claimMetaData?.policyDetails?.name}</div>
+
+                                                    <div>DOB: XX-XX-{claimMetaData?.policyDetails?.dob?.substring(6)}</div>
+                                                </div>
                                             </div>
                                         ) : null}
 
@@ -1067,9 +1106,8 @@ const ClaimSubmission = () => {
                                             <div>DOB: {claimMetaData?.policyDetails?.dob}</div>
                                            
                                         </div> */}
-
-                                        <button className="secondary-btn mt-2" onClick={handleImageToggle}>Flip Card</button>
                                     </div>
+                                    <div className="d-flex justify-content-center"><button className="secondary-btn mt-2" onClick={handleImageToggle}>Flip Card</button></div>
                                 </Col>
                             </Row>
                         </div>
@@ -1400,8 +1438,8 @@ const ClaimSubmission = () => {
                                         </Upload>
                                         {claim_doc.url && <>
                                             <div className="mt-2">
-                                                <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.url}</a>
-                                                {/* <div className="delete-btn" >Delete</div> */}
+                                                <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.name}</a>
+                                                {/* <div className="delete-btn">Delete</div> */}
                                             </div>
                                         </>}
                                     </Col>
@@ -1943,32 +1981,32 @@ const ClaimSubmission = () => {
                                     )}
 
                                     {reviewDataNew?.paymentDetails?.bankAccountNumber && (
-                                         <div className="policy-details-container">
-                                         <div className="policy-details-label">Bank Account No</div>
-                                         <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
-                                     </div>
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Bank Account No</div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankAccountNumber}</div>
+                                        </div>
 
                                     )}
-                                   
+
 
 
                                 </Col>
                                 <Col span={8} className="virtual-card-desc-policy" style={{ paddingRight: '20px' }}>
 
-                                {reviewDataNew?.paymentDetails?.payeeName && (
-                                     <div className="policy-details-container">
-                                     <div className="policy-details-label">Payee Name (as per bank acccount)</div>
-                                     <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
-                                 </div>
-                                )}
-                                   
-                                   {reviewDataNew?.paymentDetails?.bankName && (
-                                    <div className="policy-details-container">
-                                    <div className="policy-details-label">Bank Name</div>
-                                    <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
-                                    </div>
-                                   )}
-                                   
+                                    {reviewDataNew?.paymentDetails?.payeeName && (
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Payee Name (as per bank acccount)</div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
+                                        </div>
+                                    )}
+
+                                    {reviewDataNew?.paymentDetails?.bankName && (
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">Bank Name</div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.bankName}</div>
+                                        </div>
+                                    )}
+
                                 </Col>
                                 <Col span={8} className="d-flex justify-content-end align-items-start">
                                     <div className="edit-icon-container" onClick={() => handleStepChange(3)}>
@@ -2047,7 +2085,7 @@ const ClaimSubmission = () => {
                             <div className="checkbox-text">
                                 <Checkbox value={isDeclaration} onChange={(e) => {
                                     setIsDeclaration(e.target.checked)
-                                } }>
+                                }}>
                                     I declare that all information's are true</Checkbox>
                             </div>
                             <div className="notice-container">
