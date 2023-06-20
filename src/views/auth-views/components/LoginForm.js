@@ -5,9 +5,9 @@ import { MailOutlined, LockOutlined } from '@ant-design/icons';
 import PropTypes from 'prop-types';
 import { GoogleSVG, FacebookSVG } from 'assets/svg/icon';
 import CustomIcon from 'components/util-components/CustomIcon'
-import {  
-	showLoading, 
-	showAuthMessage, 
+import {
+	showLoading,
+	showAuthMessage,
 	hideAuthMessage,
 	authenticated
 } from 'redux/actions/Auth';
@@ -21,35 +21,28 @@ export const LoginForm = (props) => {
 
 	const [username, setUsername] = useState('')
 	const [password, setPassword] = useState('')
+	const [error, setError] = useState(null);
 
 	const handleSubmit = async (event) => {
 		event.preventDefault();
-	  
-		// const response = await axios('https://api.stntinternational.com/api/auth/login', {
-		//   method: 'POST',
-		//   headers: {
-		// 	'Content-Type': 'application/json'
-		//   },
-		//   body: JSON.stringify({
-		// 	username: username,
-		// 	password: password
-		//   })
-		// });
 
-		const response = await axios.post('https://api.stntinternational.com/api/auth/login', {
-			username: username,
-			password: password
-		});
+		try {
+			const response = await axios.post('https://api.stntinternational.com/api/auth/login', {
+				username: username,
+				password: password
+			});
 
-		const data = await response.data;
-		localStorage.setItem('token', data.token);
-		window.location.href = "/app/dashboard";
-	}
-	
+			const data = response.data;
+			localStorage.setItem('token', data.token);
+			window.location.href = "/app/dashboard";
+		} catch (error) {
+			setError("Invalid username or password");
+		}
+	};
 
-	const { 
-		otherSignIn, 
-		showForgetPassword, 
+	const {
+		otherSignIn,
+		showForgetPassword,
 		hideAuthMessage,
 		onForgetPasswordClick,
 		showLoading,
@@ -86,13 +79,13 @@ export const LoginForm = (props) => {
 		if (token !== null && allowRedirect) {
 			history.push(redirect)
 		}
-		if(showMessage) {
+		if (showMessage) {
 			setTimeout(() => {
-			hideAuthMessage();
-		}, 3000);
+				hideAuthMessage();
+			}, 3000);
 		}
 	});
-	
+
 	const renderOtherSignIn = (
 		<div>
 			{/* <Divider>
@@ -120,72 +113,75 @@ export const LoginForm = (props) => {
 
 	return (
 		<>
-			<motion.div 
-				initial={{ opacity: 0, marginBottom: 0 }} 
-				animate={{ 
+			<motion.div
+				initial={{ opacity: 0, marginBottom: 0 }}
+				animate={{
 					opacity: showMessage ? 1 : 0,
-					marginBottom: showMessage ? 20 : 0 
-				}}> 
+					marginBottom: showMessage ? 20 : 0
+				}}>
 				<Alert type="error" showIcon message={message}></Alert>
 			</motion.div>
-			<Form 
-				layout="vertical" 
+			<Form
+				layout="vertical"
 				name="login-form"
 				onFinish={onLogin}
 			>
-				<Form.Item 
-					name="email" 
-					label="Email" 					
+				<Form.Item
+					name="email"
+					label="Email"
 					rules={[
-						{ 
+						{
 							required: true,
 							message: 'Please input your email',
 						},
-						{ 
+						{
 							type: 'email',
-							message: 'Please enter a validate email!'
+							message: 'Please enter a valid email!'
 						}
 					]}>
-					<Input 
-					value="username"
-					onChange={e => setUsername(e.target.value)} 
-					prefix={<MailOutlined className="text-primary" />}/>
+					<Input
+						value="username"
+						onChange={e => setUsername(e.target.value)}
+						prefix={<MailOutlined className="text-primary" />} />
 				</Form.Item>
-				<Form.Item 
-					name="password" 
+				<Form.Item
+					name="password"
 					label={
-						<div className={`${showForgetPassword? 'd-flex justify-content-between w-100 align-items-center' : ''}`}>
+						<div className={`${showForgetPassword ? 'd-flex justify-content-between w-100 align-items-center' : ''}`}>
 							<span>Password</span>
 							{
-								showForgetPassword && 
-								<span 
-									onClick={() => onForgetPasswordClick} 
+								showForgetPassword &&
+								<span
+									onClick={() => onForgetPasswordClick}
 									className="cursor-pointer font-size-sm font-weight-normal text-muted"
 								>
 									Forget Password?
 								</span>
-							} 
+							}
 						</div>
-					} 
+					}
 					rules={[
-						{ 
+						{
 							required: true,
 							message: 'Please input your password',
 						}
 					]}
 				>
-					<Input.Password 
-					value="password"
-					onChange={e => setPassword(e.target.value)}
-					prefix={<LockOutlined className="text-primary" />}/>
+					<Input.Password
+						value="password"
+						onChange={e => setPassword(e.target.value)}
+						prefix={<LockOutlined className="text-primary" />}
+					/>
+					
 				</Form.Item>
+				{error && <p style={{ color: 'red' }}>{error}</p>}
 				<Form.Item>
-					<Button 
-					type="primary" 
-					htmlType="submit" 
-					block loading={loading} 
-					style={{backgroundColor:'#41C1B2',border:'none'}}
-					onClick={handleSubmit}
+					<Button
+						type="primary"
+						htmlType="submit"
+						block loading={loading}
+						style={{ backgroundColor: '#41C1B2', border: 'none' }}
+						onClick={handleSubmit}
 					>
 						Log In
 					</Button>
@@ -194,7 +190,7 @@ export const LoginForm = (props) => {
 				{
 					otherSignIn ? renderOtherSignIn : null
 				}
-				{ extra }
+				{extra}
 			</Form>
 		</>
 	)
@@ -214,9 +210,9 @@ LoginForm.defaultProps = {
 	showForgetPassword: false
 };
 
-const mapStateToProps = ({auth}) => {
-	const {loading, message, showMessage, token, redirect} = auth;
-  	return {loading, message, showMessage, token, redirect}
+const mapStateToProps = ({ auth }) => {
+	const { loading, message, showMessage, token, redirect } = auth;
+	return { loading, message, showMessage, token, redirect }
 }
 
 const mapDispatchToProps = {

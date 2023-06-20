@@ -649,13 +649,11 @@ export const claimRequestSettlementDocs = async (userId, claimId, files) => {
    return await axios.request(config)
 }
 
-export const deleteDoc = async (id) => {
-    let data = '{\n    "claimRequestId": 6,\n    "fieldName": "Another data This is a claim document 1",\n    "documentId": "0"\n}';
-
+export const deleteDoc = async (data) => {
     let config = {
         method: 'put',
         maxBodyLength: Infinity,
-        url: 'https://api.stntinternational.com/api/website/claim-request/delete-doc',
+        url: 'https://api.stntinternational.com/api/website//claim-request/delete-doc',
         headers: {},
         data: data
     };

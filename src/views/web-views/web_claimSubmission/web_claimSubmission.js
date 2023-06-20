@@ -6,7 +6,7 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom'
-import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser } from "services/apiService";
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser, deleteClaimCategory, deleteDoc } from "services/apiService";
 // import * as htmlToImage from 'html-to-image';
 import axios from "axios";
 import html2canvas from "html2canvas";
@@ -140,7 +140,6 @@ const ClaimSubmission = () => {
     const [draftData, setDraftData] = useState([]);
     const [claimHistory, setClaimHistory] = useState([]);
 
-
     const handleImageToggle = () => {
         if (isAlternateImage) {
             setImageSrc("/img/sgp-card.jpg");
@@ -171,21 +170,21 @@ const ClaimSubmission = () => {
         console.log(image);
         // download the image
         downloadImage(image, imageFileName);
-        };
-    
-        const downloadImage = (blob, fileName) => {
-            const fakeLink = window.document.createElement("a");
-            fakeLink.style = "display:none;";
-            fakeLink.download = fileName;
-            
-            fakeLink.href = blob;
-            
-            document.body.appendChild(fakeLink);
-            fakeLink.click();
-            document.body.removeChild(fakeLink);
-            
-            fakeLink.remove();
-            };
+    };
+
+    const downloadImage = (blob, fileName) => {
+        const fakeLink = window.document.createElement("a");
+        fakeLink.style = "display:none;";
+        fakeLink.download = fileName;
+
+        fakeLink.href = blob;
+
+        document.body.appendChild(fakeLink);
+        fakeLink.click();
+        document.body.removeChild(fakeLink);
+
+        fakeLink.remove();
+    };
 
 
 
@@ -242,7 +241,7 @@ const ClaimSubmission = () => {
                     const claimCategoryData = claimDocsData.data?.claimCategoryData;
                     const files = claimCategory.files;
 
-                    let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument) => {
+                    let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument, index) => {
 
                         const file = files.find((file) => file.fieldname === claimDocument.title);
                         console.log("file", file);
@@ -254,6 +253,8 @@ const ClaimSubmission = () => {
                             ...claimDocument,
                             url: file?.path,
                             name: file?.originalname,
+                            claimRequestId: claimCategory.claimRequestId,
+                            documentId: index,
                         }
                     });
 
@@ -1281,7 +1282,15 @@ const ClaimSubmission = () => {
                             <div className="inititae-claim-sub-heading">Quick claim support for Umrah and Hajj travel</div>
                         </div>
                         <div className="initiate-claim-btn-container">
-                            <div className="web-btn" onClick={() => handleStepChange(1)}>GET STARTED</div>
+                            <div className="web-btn" onClick={() => {
+                                handleStepChange(1);
+                                setClaims([{
+                                    claimCategoryId: null,
+                                    isDraft: true,
+                                    claimDocs: [],
+                                }]);
+                                setCountry(null);
+                            }}>GET STARTED</div>
                         </div>
                     </div>
 
@@ -1436,10 +1445,22 @@ const ClaimSubmission = () => {
                                         >
                                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
                                         </Upload>
+                                        {(claim_doc, index)}
                                         {claim_doc.url && <>
                                             <div className="mt-2">
                                                 <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.name}</a>
-                                                {/* <div className="delete-btn">Delete</div> */}
+                                                <div className="delete-btn"
+                                                    onClick={async () => {
+                                                        const data = {
+                                                            "claimRequestId": claim_doc.claimRequestId,
+                                                            "fieldName": claim_doc.title,
+                                                            "documentId": index,
+                                                            "id": claim.claimCategoryId
+                                                        };
+
+                                                        const response = await deleteDoc(data);
+                                                    }}
+                                                >Delete</div>
                                             </div>
                                         </>}
                                     </Col>

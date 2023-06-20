@@ -47,9 +47,9 @@ const Homepage = () => {
     return (
         <div className="main-container">
             <div className="banner-container">
-                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: 'auto' }} />
+                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: 'auto', marginTop:'130px'}} />
                 <div className="stnt-logo-container">
-                    <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '250px', height: 'auto' }} />
+                    <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '150px', height: 'auto'}} />
                 </div>
             </div>
 
@@ -84,9 +84,9 @@ const Homepage = () => {
                         </div>
 
                         <div className="label-field-container">
-                            <div className="label">Passport Number</div>
+                            <div className="label">Passport Number<span  className="mandatory-item">*</span></div>
                             <div className="input-field">
-                                <input type="text" className="input-field-main" placeholder="Passport number"
+                                <input type="text" className="input-field-main" placeholder="Enter Passport Number"
                                     name="passportNumber"
                                     value={passportNumber}
                                     onChange={handleChange}
@@ -95,9 +95,9 @@ const Homepage = () => {
                         </div>
 
                         <div className="label-field-container">
-                            <div className="label">UID</div>
+                            <div className="label">UID<span className="mandatory-item">*</span></div>
                             <div className="input-field">
-                                <input type="text" className="input-field-main" placeholder="UID"
+                                <input type="text" className="input-field-main" placeholder="Enter UID"
                                     name="uid"
                                     value={uid}
                                     onChange={handleChange}
