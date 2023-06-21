@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Checkbox, Divider, Tabs, Modal, Timeline, message, Tag } from "antd";
+import { Button, Checkbox, Divider, Tabs, Modal, Timeline, message, Tag, Input } from "antd";
 import {
   ClaimReqDet,
   ClaimdetHead,
@@ -16,6 +16,10 @@ import { useEffect } from "react";
 import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestSettlementDocs, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, getTraveler } from "services/apiService";
 
 import { Link, useParams } from 'react-router-dom';
+//import style
+import "./claim.css";
+
+
 
 const arr = ["Medical & Other Expenses", "Emergency Medical Evacuation"];
 let styles = {
@@ -888,6 +892,15 @@ const ViewDet = (props) => {
                 </ul>
               )}
             </div>
+            <div className="mb-3">
+            <h5>Settlement Amount<span class="mandatory-item">*</span></h5>
+            <Input placeholder="Enter settlement amount" className="w-50"/>
+            </div>
+            <div className="mb-3">
+            <h5>No. of Categories Approved<span class="mandatory-item">*</span></h5>
+            <Input placeholder="Enter no. of categories approved" className="w-50"/>
+            </div>
+            
             <div className="d-flex flex-end">
             <Button className="px-4 font-weight-semibold text-white bg-info" onClick={submitSettlementDocs}>submit</Button>
             </div>
