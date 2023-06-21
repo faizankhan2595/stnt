@@ -242,8 +242,19 @@ const ClaimSubmission = () => {
                     const files = claimCategory.files;
 
                     let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument, index) => {
+                        
+                        const file = files.find((file) => file?.fieldname === claimDocument.title)   
 
-                        const file = files.find((file) => file.fieldname === claimDocument.title);
+                        if(!file) {
+                            return {
+                                ...claimDocument,
+                                url: null,
+                                name: null,
+                                claimRequestId: claimCategory.claimRequestId,
+                                documentId: index,
+                            }
+                        }
+                       
                         console.log("file", file);
                         console.log("file.fieldname", file.fieldname);
                         console.log("claimDocument.title", claimDocument.title);
@@ -1414,6 +1425,7 @@ const ClaimSubmission = () => {
                                 name="categories"
                                 value={claim.claimCategoryId}
                                 options={claimCategories}
+                                className="claim-category-select-input"
                             />
                         </div>
 
@@ -1455,7 +1467,7 @@ const ClaimSubmission = () => {
                                                             "claimRequestId": claim_doc.claimRequestId,
                                                             "fieldName": claim_doc.title,
                                                             "documentId": index,
-                                                            "id": claim.claimCategoryId
+                                                            // "id": claim.claimCategoryId
                                                         };
 
                                                         const response = await deleteDoc(data);

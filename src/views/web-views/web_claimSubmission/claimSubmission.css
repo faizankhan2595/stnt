@@ -271,7 +271,7 @@ body {
     position: relative;
 }
 
-.virtual-card-dynamic-details{
+.virtual-card-dynamic-details {
     position: absolute;
     top: 40%;
     left: 5%;
@@ -754,7 +754,7 @@ button.ant-modal-close {
         display: none !important;
     }
 
-    .virtual-card-dynamic-details{
+    .virtual-card-dynamic-details {
         position: absolute;
         top: 40%;
         left: 5%;
@@ -912,6 +912,7 @@ button.ant-modal-close {
         display: none;
     }
 
-
-
+    .claim-category-select-input {
+        width: 290px;
+    }
 }
