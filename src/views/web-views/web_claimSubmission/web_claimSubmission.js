@@ -223,7 +223,7 @@ const ClaimSubmission = () => {
         setCountry(value);
     };
 
-    useEffect(() => {
+    const getClaimsByUserFn = () => {
         getClaimByUser().then(async (data) => {
             const claimByUserDetailsNew = data.data.data;
             if (claimByUserDetailsNew.length > 0) {
@@ -291,6 +291,10 @@ const ClaimSubmission = () => {
                 setClaimByUserDetails(latestClaim);
             }
         });
+    }
+
+    useEffect(() => {
+        getClaimsByUserFn();
     }, []);
 
     useEffect(() => {
@@ -303,7 +307,6 @@ const ClaimSubmission = () => {
             });
             setClaimCategories(claimCategoriesNew);
         });
-
 
         getCliamMetadata().then((data) => {
             const claimMetaDataNew = data.data.data;
@@ -559,11 +562,13 @@ const ClaimSubmission = () => {
             }
         });
 
-        if (!changePage) {
+        
+        console.log("Change Page", changePage);
+        if(!changePage) {
             window.location.reload();
-        } else {
-            handleStepChange(3);
         }
+        getClaimsByUserFn();
+        handleStepChange(3);
     }
 
     const handleOk = () => {
@@ -752,7 +757,7 @@ const ClaimSubmission = () => {
         try {
             await axios.request(config);
             setIsSubmitClaimModalOpen(true);
-            window.location.reload(); // Reload the page
+            // window.location.reload(); // Reload the page
         } catch (error) {
             // Handle the error if necessary
         }
@@ -1457,7 +1462,6 @@ const ClaimSubmission = () => {
                                         >
                                             <Button icon={<UploadOutlined />}>Click to Upload</Button>
                                         </Upload>
-                                        {(claim_doc, index)}
                                         {claim_doc.url && <>
                                             <div className="mt-2">
                                                 <a href={claim_doc.url} target="_blank" rel="noreferrer">{claim_doc.name}</a>
@@ -1513,7 +1517,9 @@ const ClaimSubmission = () => {
                     <div className="btns-container">
                         <div className="web-btn" onClick={() => setIsModalOpen(true)}>Add more claims</div>
                         <div className="save-draft-next-btn-container d-flex align-items-center">
-                            <div className="secondary-btn mr-2" onClick={addAllClaims}>
+                            <div className="secondary-btn mr-2" onClick={()=> {
+                                addAllClaims();
+                            }}>
                                 Save as draft
                             </div>
                             <div className="web-btn" onClick={() => {
@@ -2165,6 +2171,7 @@ const ClaimSubmission = () => {
                             <div className="web-btn" onClick={() => {
                                 handleStepChange(0);
                                 setIsSubmitClaimModalOpen(false);
+                                window.location.reload();
                             }}>OK</div>
                         </div>
                     </Modal>

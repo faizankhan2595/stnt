@@ -627,10 +627,12 @@ export const claimRequestStatus = async (id, status, comment) => {
     return await axios.request(config)
 }
 
-export const claimRequestSettlementDocs = async (userId, claimId, files) => {
+export const claimRequestSettlementDocs = async (userId, claimId, files, settledAmount,approvedCategoryNumber ) => {
     let data = new FormData();
     data.append('userId', userId);
     data.append('claimReqId', claimId);
+    data.append('settledAmount', settledAmount);
+    data.append('approvedCategoryNumber', approvedCategoryNumber);
 
     for(let i = 0; i < files.length; i++) {
         data.append('file', files[i]);

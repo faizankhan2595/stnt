@@ -23,7 +23,7 @@ export default function MembershipRequest() {
   const [travelersList, setTravelersList] = useState([])
 
   const getTravelersList = () => {
-    axios.get("https://api.stntinternational.com/api/travellers/?size=10&page=1").then((response) => {
+    axios.get("https://api.stntinternational.com/api/travellers/?size=10000&page=1").then((response) => {
       setTravelersList(response.data.data);
     });
   };

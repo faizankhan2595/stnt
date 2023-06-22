@@ -94,6 +94,9 @@ const ViewDet = (props) => {
   const [claimTimeline, setClaimTimeline] = useState({});
   const [remarks, setRemarks] = useState("");
   const [remarksList, setRemarksList] = useState([]);
+  const [settledAmount, setsettledAmount] = useState("");
+  const [approvedCategoryNumber, setApprovedCategoryNumber] = useState("");
+
   // const [claimSettlementDocs, setClaimSettlementDocs] = useState([]);
 
 
@@ -101,7 +104,7 @@ const ViewDet = (props) => {
 
     console.log(selectedFiles);
 
-    const response = await claimRequestSettlementDocs(userId, claimId, selectedFiles);
+    const response = await claimRequestSettlementDocs(userId, claimId, selectedFiles, settledAmount, approvedCategoryNumber);
     console.log('Response:', response);
     // Handle response and any further actions here
   };
@@ -894,11 +897,18 @@ const ViewDet = (props) => {
             </div>
             <div className="mb-3">
             <h5>Settlement Amount<span class="mandatory-item">*</span></h5>
-            <Input placeholder="Enter settlement amount" className="w-50"/>
+            <Input 
+            value={settledAmount}
+            onChange={(e) => setsettledAmount(e.target.value)}
+            placeholder="Enter settlement amount" className="w-50"/>
             </div>
             <div className="mb-3">
             <h5>No. of Categories Approved<span class="mandatory-item">*</span></h5>
-            <Input placeholder="Enter no. of categories approved" className="w-50"/>
+            <Input 
+            value={approvedCategoryNumber}
+            type="number"
+            onChange={(e) => setApprovedCategoryNumber(e.target.value)}
+            placeholder="Only digits allowed" className="w-50"/>
             </div>
             
             <div className="d-flex flex-end">
