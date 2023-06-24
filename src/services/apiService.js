@@ -321,7 +321,6 @@ export const getClaimCategoryAndDocs = async ({ id }) => {
         url: BASE_URL + '/api/website/claim-categories/documents/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
-
         },
         data: data
     };
@@ -352,6 +351,21 @@ export const paymentSaveAPI = async ({ data }) => {
         method: 'post',
         maxBodyLength: Infinity,
         url: BASE_URL + '/api/website/claim-request/payment',
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
+        data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const paymentUpdateAPI = async ({ data, paymentId }) => {
+
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + '/api/website/claim-request/update/payment/' + paymentId,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -465,6 +479,20 @@ export const deleteClaimCategory = async (id) => {
     return await axios.request(config)
 }
 
+export const addUser = async (data) => {
+    let config = {
+        method: 'post',
+        maxBodyLength: Infinity,
+        url: BASE_URL + `/api/users`,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+         },
+        data : data
+      };
+      
+      return await axios.request(config)
+}
+
 export const addAddress = async (data) => {
     let config = {
         method: 'post',
@@ -478,6 +506,8 @@ export const addAddress = async (data) => {
 
     return await axios.request(config)
 }
+
+
 
 export const updateAddress = async (data) => {
     let config = {

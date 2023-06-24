@@ -1,14 +1,27 @@
-import { Button, Form, Input, Modal,Result  } from "antd";
+import { Button, Form, Input, Modal, Result } from "antd";
 import axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { ResetPassColor } from "assets/svg/icon";
+import { addUser } from "services/apiService";
+
 export default function AddNew() {
   const param = useParams();
   const location = useLocation();
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
   const [SuccessModal, setSuccessModal] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [phoneCode, setPhoneCode] = useState("+65");
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [emailId, setEmailId] = useState("");
+  const [jobTitle, setJobTitle] = useState("");
+  const [password, setPassword] = useState("");
+  const [jobRole, setJobRole] = useState("");
+  const [allUsers, setAllUsers] = useState([]);
+
+
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
   };
@@ -21,26 +34,40 @@ export default function AddNew() {
   };
 
   const handleOk = () => {
-    setTimeout(() => {}, 10000);
+    setTimeout(() => { }, 10000);
   };
 
   const [form] = Form.useForm();
 
-  const onFinish = (values) => {
-    console.log("Success:", values);
-    if (
-      location.pathname ===
-      `/app/membership/membership_plans/update/${param.id}`
-    ) {
-      // let newVal =
-      createMembership(
-        { ...values, id: param.id },
-        `http://127.0.0.1:3333/membership/update`
-      );
-    } else {
-      createMembership(values, "http://127.0.0.1:3333/membership/new");
+  // const onFinish = (values) => {
+  //   console.log("Success:", values);
+  //   if (
+  //     location.pathname ===
+  //     `/app/membership/membership_plans/update/${param.id}`
+  //   ) {
+  //     // let newVal =
+  //     createMembership(
+  //       { ...values, id: param.id },
+  //       `http://127.0.0.1:3333/membership/update`
+  //     );
+  //   } else {
+  //     createMembership(values, "http://127.0.0.1:3333/membership/new");
+  //   }
+  // };
+
+  const addUserFn = async () => {
+    const data = {
+      firstName: firstName,
+      lastName: lastName,
+      mobileNumber: mobileNumber,
+      emailId: emailId,
+      jobTitle: jobTitle,
+      password: password,
+      jobRole: jobRole,
     }
-  };
+
+    const response = await addUser(data);
+  }
 
   const createMembership = (values, url) => {
     const formData = new FormData();
@@ -70,10 +97,10 @@ export default function AddNew() {
     <div className="">
       <Form
         layout="vertical"
-        onFinish={onFinish}
         // onFinishFailed={onFinishFailed}
         form={form}
         name="control-hooks"
+        onFinish={addUserFn}
       >
         <div className="border rounded p-3 bg-white">
           {" "}
@@ -82,6 +109,17 @@ export default function AddNew() {
               <Form.Item
                 name="first_name"
                 label="First Name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+                rules={[{ required: true, message: "Please enter First Name" }]}
+              >
+                <Input placeholder="First Name" />
+              </Form.Item>
+              <Form.Item
+                name="phone_code"
+                label="Phone code"
+                value={phoneCode}
+                onChange={(e) => setPhoneCode(e.target.value)}
                 rules={[{ required: true, message: "Please enter First Name" }]}
               >
                 <Input placeholder="First Name" />
@@ -89,6 +127,8 @@ export default function AddNew() {
               <Form.Item
                 name="mobile_number"
                 label="Mobile Number"
+                value={mobileNumber}
+                onChange={(e) => setMobileNumber(e.target.value)}
                 rules={[{ required: true, message: "Mobile Number" }]}
               >
                 <Input placeholder="Mobile number" />
@@ -96,6 +136,8 @@ export default function AddNew() {
             </div>
             <div style={{ width: "45%" }}>
               <Form.Item
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
                 name="last_name"
                 label="Last Name"
                 rules={[
@@ -108,6 +150,8 @@ export default function AddNew() {
                 <Input placeholder="Last Name" />
               </Form.Item>
               <Form.Item
+                value={emailId}
+                onChange={(e) => setEmailId(e.target.value)}
                 name="email_id"
                 label="Email Id"
                 rules={[{ required: true, message: "Please enter email Id" }]}
@@ -120,6 +164,8 @@ export default function AddNew() {
             <div style={{ gap: "60px" }} className="d-flex ">
               <div style={{ width: "45%" }}>
                 <Form.Item
+                  value={jobTitle}
+                  onChange={(e) => setJobTitle(e.target.value)}
                   name="job_title"
                   label="Job Title"
                   rules={[
@@ -130,6 +176,40 @@ export default function AddNew() {
                   ]}
                 >
                   <Input placeholder="Job Title" />
+                </Form.Item>
+              </div>
+              <div style={{ width: "45%" }}>
+                <Form.Item
+                  value={jobRole}
+                  onChange={(e) => setJobRole(e.target.value)}
+                  name="job_role"
+                  label="Job Role"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input Job Role!",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Job Role" />
+                </Form.Item>
+              </div>
+            </div>
+            <div style={{ gap: "60px" }} className="d-flex ">
+              <div style={{ width: "45%" }}>
+                <Form.Item
+                  name="password"
+                  label="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Please input Password!",
+                    },
+                  ]}
+                >
+                  <Input placeholder="Password" />
                 </Form.Item>
               </div>
             </div>
@@ -156,6 +236,7 @@ export default function AddNew() {
             <Button
               className="px-4 font-weight-semibold text-white bg-info"
               htmlType="submit"
+              // onClick={addUserFn}
             >
               Save
             </Button>

@@ -16,6 +16,18 @@ body {
     position: relative;
 }
 
+.stnt-logo-container {
+    position: absolute;
+    z-index: 999;
+    top: 25px;
+    left: 25px;
+    /* left: 50%; */
+}
+
+.stnt-logo-container-mobile {
+    display: none;
+}
+
 .claim-title-container {
     display: flex;
     flex-direction: column;
@@ -719,6 +731,9 @@ button.ant-modal-close {
     display: none !important;
 }
 
+/* .back-icon-container-mob {
+    display: none !important;
+} */
 
 /* Media queries for mobile view --------------------------- */
 
@@ -747,7 +762,18 @@ button.ant-modal-close {
         align-items: center;
         width: 100%;
         position: absolute;
-        top: 25px;
+        top: 105px;
+    }
+
+    .stnt-logo-container {
+        display: none !important;
+    }
+
+    .stnt-logo-container-mobile {
+        display: flex;
+        position: absolute;
+        top: 20px;
+        left: calc(50% - 60px);
     }
 
     .claim-title-container {
@@ -762,14 +788,29 @@ button.ant-modal-close {
     }
 
     .steps-container-mob {
-        display: block;
-        /* justify-content: center;
-        align-items: center; */
-        min-width: 100%;
-        padding: 30px 20px;
+        display: flex !important;
+        flex-direction: row;
+        align-items: center; 
+        padding: 40px 20px;
+        position: relative;
+        margin-top: -145px;
         /* position: absolute;
         top: 200px; */
     }
+
+    .step-heading {
+        display: flex;
+        position: absolute;
+        top: 95px;
+        left: 45px;
+        text-align: center;
+        line-height: 15px;
+    }
+
+    .steps-container .ant-steps-item {
+        flex-grow: 1;
+        flex-basis: 0;
+      }
 
     .logout-btn-container {
         display: none !important;
@@ -801,8 +842,8 @@ button.ant-modal-close {
         /*font-family: 'Open Sans';*/
         font-style: normal;
         font-weight: 500;
-        font-size: 14px;
-        line-height: 100%;
+        font-size: 12px;
+        line-height: 20px;
         color: #FFFFFF;
         display: flex;
         justify-content: center;
@@ -915,4 +956,20 @@ button.ant-modal-close {
     .claim-category-select-input {
         width: 290px;
     }
+
+    .ant-steps-vertical {
+        display: flex;
+        flex-direction: row;
+    }
+
+    /* .back-icon-container {
+        display: none;
+    } */
+
+    /* .back-icon-container-mob {
+        display: flex !important;
+        position: absolute;
+        top: -345px;
+        left: 25px;
+    } */
 }

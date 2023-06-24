@@ -123,7 +123,7 @@ const ViewDet = (props) => {
 
   //get personal details
   useEffect(async () => {
-    const response = await getTraveler(claimId);
+    const response = await getTraveler(userId);
     setPersonalDetails(response.data.data);
   }, []);
 

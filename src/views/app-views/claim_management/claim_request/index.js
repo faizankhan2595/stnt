@@ -144,7 +144,7 @@ const ClaimReq = () => {
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => showModal(record?.userId)}> Update Status</span>
+                    <span onClick={() => showModal(record?.claimId)}> Update Status</span>
                   </Menu.Item>
                 </Menu>
               }

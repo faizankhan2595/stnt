@@ -6,7 +6,7 @@ import { Steps } from 'antd';
 import { Col, Row, Table, Select, Button, message, Upload, Input, Checkbox, Modal } from 'antd';
 import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom'
-import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser, deleteClaimCategory, deleteDoc } from "services/apiService";
+import { getClaimCategories, getClaimCategoryAndDocs, getCountryDropdown, paymentSaveAPI, getCliamMetadata, getCompleteCliamData, BASE_URL, addAddress, getAddressDetails, updateAddress, getClaimByUser, deleteClaimCategory, deleteDoc, paymentUpdateAPI } from "services/apiService";
 // import * as htmlToImage from 'html-to-image';
 import axios from "axios";
 import html2canvas from "html2canvas";
@@ -45,40 +45,6 @@ const columns = [
 
 ];
 
-const claimHistoryColumns = [
-    {
-        title: 'Sr. No',
-        dataIndex: 'sno',
-        key: 'sno',
-    },
-    {
-        title: 'Claim ID',
-        dataIndex: 'claim_id',
-        key: 'claim_id',
-    },
-    {
-        title: 'Date',
-        dataIndex: 'date',
-        key: 'date',
-    },
-    {
-        title: 'Status',
-        dataIndex: 'status',
-        key: 'status',
-    },
-    // {
-    //     title: 'Action',
-    //     render: (record) => {
-    //         return (
-    //             <>
-    //                 <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>View Summary Claim</div>
-
-    //             </>
-    //         );
-    //     },
-    // },
-
-];
 
 const props = {
     name: 'file',
@@ -112,6 +78,7 @@ const ClaimSubmission = () => {
 
     const [imageSrc, setImageSrc] = useState("/img/sgp-card.jpg");
     const [isAlternateImage, setIsAlternateImage] = useState(false);
+    
 
     const [residentType, setResidentType] = useState();
     const [blockNo, setBlockNo] = useState();
@@ -139,6 +106,19 @@ const ClaimSubmission = () => {
 
     const [draftData, setDraftData] = useState([]);
     const [claimHistory, setClaimHistory] = useState([]);
+
+    const [paymentDetails, setPaymentDetails] = useState({});
+    const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
+
+    const [paymentId, setPaymentId] = useState(null);
+    const [bankAccountNumber, setBankAccountNumber] = useState('');
+    const [bankName, setBankName] = useState('');
+    const [payeeName, setPayeeName] = useState('');
+    const [payNowMobileNumber, setPayNowMobileNumber] = useState('');
+    const [PayeeNRIC, setPayeeNRIC] = useState('');
+    const [isDeclaration, setIsDeclaration] = useState(false);
+    const [isConsent, setIsConsent] = useState(false);
+    
 
     const handleImageToggle = () => {
         if (isAlternateImage) {
@@ -223,53 +203,49 @@ const ClaimSubmission = () => {
         setCountry(value);
     };
 
-    const getClaimsByUserFn = () => {
+    const getClaimsByUserFn = (uid = null) => {
         getClaimByUser().then(async (data) => {
             const claimByUserDetailsNew = data.data.data;
             if (claimByUserDetailsNew.length > 0) {
-                const latestClaim = claimByUserDetailsNew[claimByUserDetailsNew.length - 1];
+                let latestClaim = claimByUserDetailsNew[claimByUserDetailsNew.length - 1];
 
-                console.log("claimByUserDetailsNew", latestClaim);
+                if(uid) {
+                    console.log("uid", uid);
+                    latestClaim = claimByUserDetailsNew.find((claim) => claim.uidNo === uid);
+                    console.log("latestClaim", latestClaim);
+                }
+
                 setCountry(latestClaim.lossCountry);
 
                 let claimsNew = [];
 
                 for (const claimCategory of latestClaim.claimCategory) {
-                    console.log("claimCategory", claimCategory);
-                    console.log("claimCategory.claimCategory.id", claimCategory.claimCategory.id);
                     const claimDocsData = await getClaimCategoryAndDocs({ id: claimCategory.claimCategory.id })
                     const claimCategoryData = claimDocsData.data?.claimCategoryData;
                     const files = claimCategory.files;
 
                     let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument, index) => {
-                        
-                        const file = files.find((file) => file?.fieldname === claimDocument.title)   
 
-                        if(!file) {
+                        const file = files.find((file) => file?.fieldname === claimDocument.title)
+
+                        if (!file) {
                             return {
                                 ...claimDocument,
                                 url: null,
                                 name: null,
                                 claimRequestId: claimCategory.claimRequestId,
-                                documentId: index,
+                                documentId: null,
                             }
                         }
-                       
-                        console.log("file", file);
-                        console.log("file.fieldname", file.fieldname);
-                        console.log("claimDocument.title", claimDocument.title);
-                        console.log("claimDocument", claimDocument);
 
                         return {
                             ...claimDocument,
                             url: file?.path,
                             name: file?.originalname,
-                            claimRequestId: claimCategory.claimRequestId,
-                            documentId: index,
+                            claimRequestId: claimCategory.id,
+                            documentId: file?.id,
                         }
                     });
-
-                    console.log("claimDocuments", claimDocuments);
 
                     claimsNew.push({
                         claimCategoryId: claimCategory.claimCategory.id,
@@ -289,6 +265,18 @@ const ClaimSubmission = () => {
 
                 setClaims(claimsNew);
                 setClaimByUserDetails(latestClaim);
+
+                const paymentDetails = latestClaim.paymentDetails;
+
+                if(paymentDetails) {
+                    setSelectedPaymentOption(paymentDetails.paymentOptions);
+                    setBankAccountNumber(paymentDetails.bankAccountNumber);
+                    setBankName(paymentDetails.bankName);
+                    setPayeeName(paymentDetails.payeeName);
+                    setPayNowMobileNumber(paymentDetails.payNowMobileNumber);
+                    setPayeeNRIC(paymentDetails.payeeNRIC);
+                    setPaymentId(paymentDetails.id);
+                }
             }
         });
     }
@@ -310,7 +298,6 @@ const ClaimSubmission = () => {
 
         getCliamMetadata().then((data) => {
             const claimMetaDataNew = data.data.data;
-            console.log("claimMetaDataNew", claimMetaDataNew);
 
             let draftDataNew = [];
             let claimHistoryNew = [];
@@ -339,20 +326,69 @@ const ClaimSubmission = () => {
                     sno: claimH.claimReqId,
                     claim_id: claimH.claimUidNo,
                     date: claimH.submittedDate,
-                    status: "Submitted"
+                    status: "Submitted",
+                    uidNo: claimH.claimUidNo,
                 })
 
             }
-            console.log("draftDataNew", draftDataNew);
             setDraftData(draftDataNew);
 
-            console.log("claimHistoryNew", claimHistoryNew);
             setClaimHistory(claimHistoryNew);
 
             setClaimMetaData(claimMetaDataNew);
 
         });
     }, []);
+
+    const claimHistoryColumns = [
+        {
+            title: 'Sr. No',
+            dataIndex: 'sno',
+            key: 'sno',
+        },
+        {
+            title: 'Claim ID',
+            dataIndex: 'claim_id',
+            key: 'claim_id',
+        },
+        {
+            title: 'Date',
+            dataIndex: 'date',
+            key: 'date',
+        },
+        {
+            title: 'Status',
+            dataIndex: 'status',
+            key: 'status',
+        },
+        {
+            title: 'Action',
+            render: (record) => {
+                return (
+                    <>
+                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => {
+                            console.log("record", record);
+                            getClaimsByUserFn(record.uidNo)
+                            handleStepChange(2)
+                        }}>Edit</div>
+    
+                    </>
+                );
+            },
+        },
+        // {
+        //     title: 'Action',
+        //     render: (record) => {
+        //         return (
+        //             <>
+        //                 <div className="secondary-btn" style={{ maxWidth: "fit-content" }}>View Summary Claim</div>
+    
+        //             </>
+        //         );
+        //     },
+        // },
+    
+    ];
 
     //claim category dropdown logic ends here
 
@@ -562,9 +598,9 @@ const ClaimSubmission = () => {
             }
         });
 
-        
+
         console.log("Change Page", changePage);
-        if(!changePage) {
+        if (!changePage) {
             window.location.reload();
         }
         getClaimsByUserFn();
@@ -600,7 +636,6 @@ const ClaimSubmission = () => {
     const handleStepChange = async (step) => {
         if (step == 4) {
             if (!selectedPaymentOption) {
-                // Show an error message or handle the validation error
                 console.log("Please select a payment option");
                 message.error('Please select a payment option');
                 // alert("Please select a payment option");
@@ -651,18 +686,23 @@ const ClaimSubmission = () => {
                 paymentData.paymentOption = "Paynow Linked Account";
             }
 
-
             paymentData.claimRequestId = claimByUserDetails.id;
 
             console.log("paymentDetails", paymentData);
 
             try {
-                await paymentSaveAPI({ data: paymentData });
+                if(paymentId) {
+                    await paymentUpdateAPI({ data: paymentData, id: paymentId });
+                } else {
+                    await paymentSaveAPI({ data: paymentData });
+                }
             } catch (e) {
 
             }
-            await reviewDataFn();
+            reviewDataFn();
         }
+
+    
 
         setActiveStep(step);
     };
@@ -703,16 +743,7 @@ const ClaimSubmission = () => {
 
     //payment logic starts here
 
-    const [paymentDetails, setPaymentDetails] = useState({});
-    const [selectedPaymentOption, setSelectedPaymentOption] = useState(null);
 
-    const [bankAccountNumber, setBankAccountNumber] = useState('');
-    const [bankName, setBankName] = useState('');
-    const [payeeName, setPayeeName] = useState('');
-    const [payNowMobileNumber, setPayNowMobileNumber] = useState('');
-    const [PayeeNRIC, setPayeeNRIC] = useState('');
-    const [isDeclaration, setIsDeclaration] = useState(false);
-    const [isConsent, setIsConsent] = useState(false);
 
 
 
@@ -801,7 +832,14 @@ const ClaimSubmission = () => {
     return (
         <div>
             <div className="banner-container">
-                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: '375px', objectFit: 'cover' }} />
+                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: '415px', objectFit: 'cover' }} />
+                <div className="stnt-logo-container">
+                    <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '150px', height: 'auto' }} />
+                </div>
+
+                <div className="stnt-logo-container-mobile">
+                    <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '150px', height: 'auto' }} />
+                </div>
             </div>
 
 
@@ -1011,7 +1049,7 @@ const ClaimSubmission = () => {
                     <img src="/img/stntlogo.svg" alt="stnt" style={{ width: '100%', height: 'auto', }} />
                 </div>
                 <div className="claim-title-text">Claim Submission</div>
-                <div className="claim-title-sub-text">With a convenient insurance claim process, you can now register your claim, <br></br>upload the necessary documents and know the status instantly.</div>
+                <div className="claim-title-sub-text">With a convenient insurance claim process, you can now register your claim, upload the necessary documents and know the status instantly.</div>
                 <div className="logout-btn-container-mob">
                     <div className="update-address-container-mob" onClick={() => setIsContactDetailModalOpen(true)}>
                         <span>Update Contact Details</span>
@@ -1043,20 +1081,22 @@ const ClaimSubmission = () => {
                 </div>
             </div>
 
-            <div className="steps-container-mob">
+            <div className="steps-container-mob" style={{ pointerEvents: 'none' }}>
                 <div className="step-container">
 
-                    <Steps current={activeStep} labelPlacement="horizontal">
+                    {/* <div className="step-heading">Get<br></br> Started</div> */}
+
+                    <Steps direction="horizontal" current={activeStep} labelPlacement="vertical">
                         <Step
-                            title="Get started" onClick={() => handleStepChange(0)} />
+                             onClick={() => handleStepChange(0)} />
                         <Step
-                            title="Travel Details" onClick={() => handleStepChange(1)} />
+                             onClick={() => handleStepChange(1)} />
                         <Step
-                            title="Claim Details" onClick={() => handleStepChange(2)} />
+                             onClick={() => handleStepChange(2)} />
                         <Step
-                            title="Payment Details" onClick={() => handleStepChange(3)} />
+                            onClick={() => handleStepChange(3)} />
                         <Step
-                            title="Review" onClick={() => handleStepChange(4)} />
+                             onClick={() => handleStepChange(4)} />
 
                     </Steps>
 
@@ -1334,6 +1374,13 @@ const ClaimSubmission = () => {
                                 <div className="back-text">Back</div>
                             </div>
 
+                            {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
+                                <div className="back-icon">
+                                    <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '12px', height: 'auto', marginRight: '10px' }} />
+                                </div>
+
+                            </div> */}
+
                             <div className="travel-details-container">
                                 <div className="verify-details-heading">
                                     Your Travel Details
@@ -1393,6 +1440,12 @@ const ClaimSubmission = () => {
                         </div>
                         <div className="back-text">Back</div>
                     </div>
+
+                    {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
+                        <div className="back-icon">
+                            <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '12px', height: 'auto', marginRight: '10px' }} />
+                        </div>
+                    </div> */}
 
                     <div className="claim-details-title">
                         <div className="claim-details-heading">
@@ -1470,7 +1523,7 @@ const ClaimSubmission = () => {
                                                         const data = {
                                                             "claimRequestId": claim_doc.claimRequestId,
                                                             "fieldName": claim_doc.title,
-                                                            "documentId": index,
+                                                            "documentId": claim_doc.documentId,
                                                             // "id": claim.claimCategoryId
                                                         };
 
@@ -1517,7 +1570,7 @@ const ClaimSubmission = () => {
                     <div className="btns-container">
                         <div className="web-btn" onClick={() => setIsModalOpen(true)}>Add more claims</div>
                         <div className="save-draft-next-btn-container d-flex align-items-center">
-                            <div className="secondary-btn mr-2" onClick={()=> {
+                            <div className="secondary-btn mr-2" onClick={() => {
                                 addAllClaims();
                             }}>
                                 Save as draft
@@ -1554,6 +1607,13 @@ const ClaimSubmission = () => {
                                         </div>
                                         <div className="back-text">Back</div>
                                     </div>
+
+                                    {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
+                                        <div className="back-icon">
+                                            <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '12px', height: 'auto', marginRight: '10px' }} />
+                                        </div>
+                                    </div> */}
+
                                     <div className="verify-details-heading">
                                         Payment Details
                                     </div>
@@ -1739,6 +1799,12 @@ const ClaimSubmission = () => {
                         </div>
                         <div className="back-text">Back</div>
                     </div>
+
+                    {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
+                        <div className="back-icon">
+                            <img src="/img/back-icon.svg" alt="back-icon" style={{ width: '12px', height: 'auto', marginRight: '10px' }} />
+                        </div>
+                    </div> */}
 
                     <div className="claim-details-title">
                         <div className="claim-details-heading">

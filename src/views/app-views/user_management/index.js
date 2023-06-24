@@ -1,4 +1,4 @@
-import React,{useState} from "react";
+import { useState, useEffect } from "react";
 import { Button, DatePicker, Input } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
@@ -7,41 +7,60 @@ import EllipsisDropdown from "components/shared-components/EllipsisDropdown";
 import dayjs from "dayjs";
 import CustomIcon from 'components/util-components/CustomIcon'
 import { DeleteOutlined, EyeOutlined } from '@ant-design/icons'
-import { Edit,  ResetPass, UpdateStatus } from "assets/svg/icon";
+import { Edit, ResetPass, UpdateStatus } from "assets/svg/icon";
 // import { ChangeAgStatus } from "assets/svg/icon";
-import { Radio,Modal } from 'antd';
+import { Radio, Modal } from 'antd';
+import axios from "axios";
+
 const users = [
-    {
-      Sr_No: 1,
-      User_Name: 'JohnDoe',
-      Emai_ID: 'john.doe@example.com',
-      Phone_Number: '+1-555-555-5555',
-      Account_Created_On: '2021-01-01',
-      Status: 'Active'
-    },
-    {
-      Sr_No: 2,
-      User_Name: 'JaneSmith',
-      Emai_ID: 'jane.smith@example.com',
-      Phone_Number: '+1-555-555-5556',
-      Account_Created_On: '2021-01-02',
-      Status: 'Inactive'
-    },
-    {
-      Sr_No: 3,
-      User_Name: 'BobJohnson',
-      Emai_ID: 'bob.johnson@example.com',
-      Phone_Number: '+1-555-555-5557',
-      Account_Created_On: '2021-01-03',
-      Status: 'Active'
-    }
-  ];
-  
-  
+  {
+    Sr_No: 1,
+    User_Name: 'JohnDoe',
+    Emai_ID: 'john.doe@example.com',
+    Phone_Number: '+1-555-555-5555',
+    Account_Created_On: '2021-01-01',
+    Status: 'Active'
+  },
+  {
+    Sr_No: 2,
+    User_Name: 'JaneSmith',
+    Emai_ID: 'jane.smith@example.com',
+    Phone_Number: '+1-555-555-5556',
+    Account_Created_On: '2021-01-02',
+    Status: 'Inactive'
+  },
+  {
+    Sr_No: 3,
+    User_Name: 'BobJohnson',
+    Emai_ID: 'bob.johnson@example.com',
+    Phone_Number: '+1-555-555-5557',
+    Account_Created_On: '2021-01-03',
+    Status: 'Active'
+  }
+];
+
 
 const UserManage = () => {
-    const [value, setValue] = useState(1);
-    const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+
+  const getAllUsers = () => {
+    axios.get(`https://api.stntinternational.com/api/users`,
+      {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      }
+    ).then((response) => {
+      setAllUsers(response.data.data.rows);
+    })
+  }
+
+  useEffect(() => {
+    getAllUsers();
+  }, []);
+
+  const [value, setValue] = useState(1);
+  const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
   const changeStudHandleOk = () => {
@@ -58,29 +77,28 @@ const UserManage = () => {
     },
     {
       title: "User Name",
-      dataIndex: "User_Name",
+      dataIndex: "firstName",
     },
     {
       title: "Emai ID",
-      dataIndex: "Emai_ID",
+      dataIndex: "email",
     },
     {
       title: "Phone Number",
-      dataIndex: "Phone_Number",
+      dataIndex: "phone",
     },
     {
       title: "Account Created On",
-      dataIndex: "Account_Created_On",
+      dataIndex: "createdAt",
     },
     {
       title: "Status",
-      dataIndex: "Status",
+      dataIndex: "status",
       render: (text) => {
         return (
           <p
-            className={`${
-              text !== "Active" ? "text-danger" : "text-success"
-            } font-weight-semibold`}
+            className={`${text !== "Active" ? "text-danger" : "text-success"
+              } font-weight-semibold`}
           >
             {text}
           </p>
@@ -96,19 +114,19 @@ const UserManage = () => {
             <EllipsisDropdown
               menu={
                 <Menu>
-                <Menu.Item>
-                  <span onClick={() => console.log('del')}> <DeleteOutlined className='mr-2 ' />Delete</span>
-                </Menu.Item>
-                <Menu.Item>
-                  <Link to={`event_list/update/${record.id}`} className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</Link>
-                </Menu.Item>
-                <Menu.Item>
-                  <Link onClick={()=>setIsChangeStudModalOpen(true)} className="d-flex align-items-center" ><span className='mr-2'><UpdateStatus /></span>Update Status</Link >
-                </Menu.Item>
-                <Menu.Item>
-                  <Link to='/app/events/sport-event-funds/details' className="d-flex align-items-center" ><span className='mr-2'><ResetPass /></span>Reset Password</Link >
-                </Menu.Item>
-              </Menu>
+                  <Menu.Item>
+                    <span onClick={() => console.log('del')}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to={`event_list/update/${record.id}`} className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link onClick={() => setIsChangeStudModalOpen(true)} className="d-flex align-items-center" ><span className='mr-2'><UpdateStatus /></span>Update Status</Link >
+                  </Menu.Item>
+                  <Menu.Item>
+                    <Link to='/app/events/sport-event-funds/details' className="d-flex align-items-center" ><span className='mr-2'><ResetPass /></span>Reset Password</Link >
+                  </Menu.Item>
+                </Menu>
               }
             />
           </>
@@ -140,7 +158,8 @@ const UserManage = () => {
           <Link to={"user_management/register_new_user"}>Register New User</Link>
         </Button>
       </div>
-      <Helper clients={users} attribiue={columns} />
+      <Helper clients={allUsers} attribiue={columns} />
+      {/* 
       <Modal
         width={600}
         footer={null}
@@ -178,12 +197,13 @@ const UserManage = () => {
             Save
           </Button>
         </div>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };
 
 export default UserManage;
+
 const ChangeAgStatus = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

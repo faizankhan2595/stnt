@@ -10,6 +10,8 @@ import { Account, Edit, Export, History, Verified } from 'assets/svg/icon'
 import Helper from '../../Helper'
 import { Modal, Drawer } from 'antd';
 import { Link, useParams } from 'react-router-dom';
+import axios from 'axios';
+
 // import Drawer from 'react-modern-drawer'
 import 'react-modern-drawer/dist/index.css'
 
@@ -36,6 +38,10 @@ export default function MembershipRequest() {
   useEffect(() => {
     async function fetchTraveler() {
       const response = await getTraveler(id);
+      getInsuranceClaimData(response.data.data.passportNo);
+      getPoliciesClaimData(response.data.data.passportNo);
+      // getPoliciesClaimData("REDDOTAPP");
+      // getInsuranceClaimData("REDDOTAPP");
       setTraveler(response.data.data);
     }
 
@@ -44,7 +50,72 @@ export default function MembershipRequest() {
 
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
   const [insuranceClaimData, setInsuranceClaimData] = useState(membershipRequest)
-  const [claimSettlementTransactionsData, setclaimSettlementTransactionsData] = useState(membershipRequest)
+  // const [claimSettlementTransactionsData, setclaimSettlementTransactionsData] = useState(membershipRequest)
+  const [insuranceClaims, setInsuranceClaimsData] = useState([])
+  const [claimSettlementTransactionsData, setclaimSettlementTransactionsData] = useState([])
+  const [travelerPolicies, setTravelerPolicies] = useState([])
+
+
+  const getPoliciesClaimData = (passportNo) => {
+    axios.get(`https://api.stntinternational.com/api/travellers/policies/${passportNo}`, {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+    }).then((response) => {
+      const customData = response.data.data.map((obj) => {
+        return {
+          policyNumber: obj.policies.policyNumber,
+          policyType: obj.policies.type,
+          startDate: obj.policies.startDate,
+          endDate: obj.policies.endDate,
+          agencyName:obj.agencyName.agencyName,
+        }
+      })
+      setTravelerPolicies(customData);
+    });
+  }
+
+  const getInsuranceClaimData = (passportNo)  => {
+    axios.get(`https://api.stntinternational.com/api/travellers/claims-requests/${passportNo}`, 
+    {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+    }).then((response) => {
+      const customDataInsurance = response.data.claimRequests.map((obj) => {
+        return {
+          claimId: obj.claimUidNo,
+          uid:obj.userUidNo,
+          travelAgency:obj.agencyName,
+          submittedDate:obj.submittedDate,
+          lastUpdatedOn:obj.lastUpdatedOn,
+          claimCategories:obj.claimCategories,
+          status:obj.status,
+       
+        }
+      })
+      setInsuranceClaimsData(customDataInsurance);
+    });
+  }
+
+  const getClaimSettlementTransactionsData = ()  => {
+    axios.get("https://api.stntinternational.com/api/travellers/claim-settlement/transactions?size=10000&page=1",
+    {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+    }
+    ).then((response) => {
+      
+      setclaimSettlementTransactionsData(response.data.data);
+    });
+  }
+  
+  useEffect(() => {
+    getClaimSettlementTransactionsData();
+  }, []);
+  
+
   const [visible, setVisible] = useState(false)
   const showDrawer = () => {
     setVisible(true);
@@ -194,19 +265,6 @@ export default function MembershipRequest() {
   }
 
 
-  const policyHistoryData = [
-    {
-      sr_no: 1,
-      policy_no: "126534",
-      policy_type: "Deluxe",
-      travel_agency: "Abu Bakar Travel Services Pte Ltd",
-      start_date: "2022-05-07",
-      end_date: "2022-10-07",
-      status: "Active",
-    },
-  ];
-
-
   const policyHistoryColumns = [
     {
       title: 'Sr No',
@@ -214,23 +272,23 @@ export default function MembershipRequest() {
     },
     {
       title: "Policy No",
-      dataIndex: 'policy_no',
+      dataIndex: 'policyNumber',
     },
     {
       title: "Policy Type",
-      dataIndex: 'policy_type',
+      dataIndex: 'policyType',
     },
     {
       title: "Travel Agency",
-      dataIndex: 'travel_agency',
+      dataIndex: 'agencyName',
     },
     {
       title: "Start Date",
-      dataIndex: 'start_date',
+      dataIndex: 'startDate',
     },
     {
       title: "End Date",
-      dataIndex: 'end_date',
+      dataIndex: 'endDate',
     },
 
     {
@@ -359,18 +417,7 @@ export default function MembershipRequest() {
     },
   ]
 
-  const insuranceClaimsData = [
-    {
-      sr_no: 1,
-      uid: "12",
-      claim_id: "23",
-      travel_agency: "Abu Bakar Travel Services Pte Ltd",
-      submitted_date: "2022-05-07",
-      last_updated_on: "2022-10-07",
-      claim_categories: "Category",
-      status: "Active",
-    }
-  ]
+
   const insuranceClaimColumns = [
     {
       title: 'Sr No',
@@ -378,27 +425,27 @@ export default function MembershipRequest() {
     },
     {
       title: "UID",
-      dataIndex: 'uid',
+      dataIndex: 'userUidNo',
     },
     {
       title: "Claim ID",
-      dataIndex: 'claim_id',
+      dataIndex: 'claimId',
     },
     {
       title: "Travel Agency",
-      dataIndex: 'travel_agency',
+      dataIndex: 'travelAgency',
     },
     {
       title: "Submitted Date",
-      dataIndex: 'submitted_date',
+      dataIndex: 'submittedDate',
     },
     {
       title: "Last Updated On",
-      dataIndex: 'last_updated_on',
+      dataIndex: 'lastUpdatedOn',
     },
     {
       title: "Claim Categories",
-      dataIndex: 'claim_categories',
+      dataIndex: 'claimCategories',
     },
 
     {
@@ -524,17 +571,17 @@ export default function MembershipRequest() {
     },
   ]
 
-  const claimSettlementTransactionData = [
-    {
-      sr_no: 1,
-      uid: "12",
-      policy_type: "23",
-      approved_on: "Abu Bakar Travel Services Pte Ltd",
-      approved_category: "2022-05-07",
-      settlement_amount: "2022-10-07",
-      status: "Active",
-    }
-  ]
+  // const claimSettlementTransactionData = [
+  //   {
+  //     sr_no: 1,
+  //     uid: "12",
+  //     policy_type: "23",
+  //     approved_on: "Abu Bakar Travel Services Pte Ltd",
+  //     approved_category: "2022-05-07",
+  //     settlement_amount: "2022-10-07",
+  //     status: "Active",
+  //   }
+  // ]
 
   const claimSettlementTransactionsColumns = [
 
@@ -548,19 +595,19 @@ export default function MembershipRequest() {
     },
     {
       title: "Policy Type",
-      dataIndex: 'policy_type',
+      dataIndex: 'policyType',
     },
     {
       title: "Approved On",
-      dataIndex: 'approved_on',
+      dataIndex: 'approvedDate',
     },
     {
       title: "Approved Category",
-      dataIndex: 'approved_category',
+      dataIndex: 'numberOfApprovedCategory',
     },
     {
       title: "Settlement Amount",
-      dataIndex: 'settlement_amount',
+      dataIndex: 'claimSettlementAmount',
     },
     {
       title: "Status",
@@ -713,7 +760,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={policyHistoryData} attribiue={policyHistoryColumns} />
+            <Helper clients={travelerPolicies} attribiue={policyHistoryColumns} />
           </div>
 
         </div>
@@ -743,7 +790,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={insuranceClaimsData} attribiue={insuranceClaimColumns} />
+            <Helper clients={insuranceClaims} attribiue={insuranceClaimColumns} />
           </div>
 
         </div>
@@ -774,7 +821,7 @@ export default function MembershipRequest() {
           </div>
 
           <div>
-            <Helper clients={claimSettlementTransactionData} attribiue={claimSettlementTransactionsColumns} />
+            <Helper clients={claimSettlementTransactionsData} attribiue={claimSettlementTransactionsColumns} />
           </div>
 
         </div>

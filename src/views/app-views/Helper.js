@@ -2,14 +2,13 @@ import { Table } from 'antd'
 import React, { useState } from 'react'
 import './Helper.css'
 
-function Helper({ attribiue, clients }) {
+function Helper({ attribiue, clients, showFrontentPagination = false }) {
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     // console.log(clients)
 
     return (
         <div>
-
             <Table
                 rowKey='id'
                 rowSelection={{
@@ -17,7 +16,10 @@ function Helper({ attribiue, clients }) {
                     onChange: (selectedRowKeys, selectedRows) => {
                         setSelectedRowKeys(selectedRowKeys);
                     }
-                }} columns={attribiue} dataSource={clients} />
+                }} 
+                columns={attribiue} 
+                dataSource={clients}
+            />
         </div>
     )
 }
