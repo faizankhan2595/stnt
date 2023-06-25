@@ -610,6 +610,17 @@ const ViewDet = (props) => {
                   </p>
                 )}
 
+                {travelDetails?.paymentDetails?.payNow && (
+                  <p className="w-50">
+                    PayNow Number:{" "}
+                    <span style={{ color: "black" }} className="font-weight-bold">
+                      {travelDetails?.paymentDetails?.payNow}
+                    </span>
+                  </p>
+                )}
+
+
+
               </div>
             </div>
           </div>
@@ -736,40 +747,59 @@ const ViewDet = (props) => {
               </h4>
               <div className="d-flex mt-4">
                 <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payment Option
-                  </p>
-                  <h5>{travelDetails?.paymentDetails?.paymentOptions}</h5>
+                  {travelDetails?.paymentDetails?.paymentOptions && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                      Payment Option:{" "}
+                      <span style={{ color: "black" }} className="font-weight-bold">
+                        {travelDetails?.paymentDetails?.paymentOptions}
+                      </span>
+                    </p>
+                  )}
+
+
                 </div>
                 <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payee Name (as per bank acccount)
-                  </p>
-                  <h5>{travelDetails?.paymentDetails?.payeeName}</h5>
+                  {travelDetails?.paymentDetails?.payeeName && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                      Payee Name (as per bank acccount)
+                      <h5>{travelDetails?.paymentDetails?.payeeName}</h5>
+                    </p>
+                  )}
+
                 </div>
               </div>
 
               <div className="d-flex mt-4">
                 <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Payee NRIC
-                  </p>
-                  <h5>{travelDetails?.paymentDetails?.payeeNRIC}</h5>
+                  {travelDetails?.paymentDetails?.payeeNRIC && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                      Payee NRIC
+                      <h5>{travelDetails?.paymentDetails?.payeeNRIC}</h5>
+                    </p>
+                  )}
                 </div>
+
                 <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Bank Name
-                  </p>
-                  <h5>{travelDetails?.paymentDetails?.bankName}</h5>
+                  {travelDetails?.paymentDetails?.payeeContactNo && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                      Bank Name:
+                      <h5>{travelDetails?.paymentDetails?.bankName}</h5>
+                    </p>
+                  )}
+
                 </div>
               </div>
 
               <div className="d-flex mt-4">
                 <div className="w-50">
-                  <p style={{ color: "black" }} className="m-0 mb-1">
-                    Bank Account No
+                  {travelDetails?.paymentDetails?.bankAccountNo && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                    Bank Account No:
+                    <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
                   </p>
-                  <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
+                  )}
+                  
+                 
                 </div>
               </div>
             </div>
