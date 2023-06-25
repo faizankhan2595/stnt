@@ -570,34 +570,46 @@ const ViewDet = (props) => {
                     {travelDetails?.paymentDetails?.paymentOptions}
                   </span>
                 </p>
-                <p className="w-50">
-                  Payee Name (as per bank account):{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    {travelDetails?.paymentDetails?.payeeName}
-                  </span>
-                </p>
+                {travelDetails?.paymentDetails?.payeeName && (
+                  <p className="w-50">
+                    Payee Name (as per bank account):{" "}
+                    <span style={{ color: "black" }} className="font-weight-bold">
+                      {travelDetails?.paymentDetails?.payeeName}
+                    </span>
+                  </p>
+                )}
+
               </div>
               <div className="d-flex justify-content-between">
-                <p className="w-50">
-                  Payee NRIC/FIN:{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    {travelDetails?.paymentDetails?.payeeNRIC}
-                  </span>
-                </p>
-                <p className="w-50">
-                  Bank Name (DBS/POSB Only):{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    {travelDetails?.paymentDetails?.bankName}
-                  </span>
-                </p>
+                {travelDetails?.paymentDetails?.payeeNRIC && (
+                  <p className="w-50">
+                    Payee NRIC/FIN:{" "}
+                    <span style={{ color: "black" }} className="font-weight-bold">
+                      {travelDetails?.paymentDetails?.payeeNRIC}
+                    </span>
+                  </p>
+                )}
+
+                {travelDetails?.paymentDetails?.bankName && (
+                  <p className="w-50">
+                    Bank Name (DBS/POSB Only):{" "}
+                    <span style={{ color: "black" }} className="font-weight-bold">
+                      {travelDetails?.paymentDetails?.bankName}
+                    </span>
+                  </p>
+                )}
+
               </div>
               <div className="d-flex justify-content-between">
-                <p className="w-50">
-                  Bank Account Number:{" "}
-                  <span style={{ color: "black" }} className="font-weight-bold">
-                    {travelDetails?.paymentDetails?.bankAccountNumber}
-                  </span>
-                </p>
+                {travelDetails?.paymentDetails?.bankAccountNumber && (
+                  <p className="w-50">
+                    Bank Account Number:{" "}
+                    <span style={{ color: "black" }} className="font-weight-bold">
+                      {travelDetails?.paymentDetails?.bankAccountNumber}
+                    </span>
+                  </p>
+                )}
+
               </div>
             </div>
           </div>
@@ -896,25 +908,25 @@ const ViewDet = (props) => {
               )}
             </div>
             <div className="mb-3">
-            <h5>Settlement Amount<span class="mandatory-item">*</span></h5>
-            <Input 
-            value={settledAmount}
-            onChange={(e) => setsettledAmount(e.target.value)}
-            placeholder="Enter settlement amount" className="w-50"/>
+              <h5>Settlement Amount<span class="mandatory-item">*</span></h5>
+              <Input
+                value={settledAmount}
+                onChange={(e) => setsettledAmount(e.target.value)}
+                placeholder="Enter settlement amount" className="w-50" />
             </div>
             <div className="mb-3">
-            <h5>No. of Categories Approved<span class="mandatory-item">*</span></h5>
-            <Input 
-            value={approvedCategoryNumber}
-            type="number"
-            onChange={(e) => setApprovedCategoryNumber(e.target.value)}
-            placeholder="Only digits allowed" className="w-50"/>
+              <h5>No. of Categories Approved<span class="mandatory-item">*</span></h5>
+              <Input
+                value={approvedCategoryNumber}
+                type="number"
+                onChange={(e) => setApprovedCategoryNumber(e.target.value)}
+                placeholder="Only digits allowed" className="w-50" />
             </div>
-            
+
             <div className="d-flex flex-end">
-            <Button className="px-4 font-weight-semibold text-white bg-info" onClick={submitSettlementDocs}>submit</Button>
+              <Button className="px-4 font-weight-semibold text-white bg-info" onClick={submitSettlementDocs}>submit</Button>
             </div>
-           
+
 
           </div>
           <div
@@ -1000,7 +1012,7 @@ const ViewDet = (props) => {
             </>
           );
         })}
-     
+
       </Modal>
       <Modal
         width={600}
