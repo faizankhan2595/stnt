@@ -558,6 +558,8 @@ const ClaimSubmission = () => {
                 data.append('claimRequestId', claimCategory.claimRequestId);
             }
 
+            data.append('mode', changePage ? 'next' : 'saveAsDraft')
+
             let config = {
                 method: method,
                 maxBodyLength: Infinity,
@@ -590,6 +592,7 @@ const ClaimSubmission = () => {
         const body = {
             claimReqId: ids,
             lossCountry: country,
+            mode: changePage ? 'next' : 'saveAsDraft'
         }
 
         await axios.put(BASE_URL + '/api/website/claim-request/save-draft/', body, {
@@ -602,6 +605,7 @@ const ClaimSubmission = () => {
         console.log("Change Page", changePage);
         if (!changePage) {
             window.location.reload();
+            return;
         }
         getClaimsByUserFn();
         handleStepChange(3);
