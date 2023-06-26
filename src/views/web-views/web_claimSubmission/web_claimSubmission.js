@@ -604,7 +604,7 @@ const ClaimSubmission = () => {
 
         console.log("Change Page", changePage);
         if (!changePage) {
-            // window.location.reload();
+            window.location.reload();
             return;
         }
         getClaimsByUserFn();
