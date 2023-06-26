@@ -127,7 +127,7 @@ const UserManage = () => {
                   </Menu.Item>
                   <Menu.Item>
                     <Link
-                      to="claim_document_manager/view_document"
+                      to={`/app/claim_document_manager/view_document/${record.id}`}
                       className="d-flex align-items-center"
                     >
                       <span className="mr-2">

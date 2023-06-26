@@ -13,7 +13,7 @@ import {
 } from "assets/svg/icon";
 import TextArea from "antd/lib/input/TextArea";
 import { useEffect } from "react";
-import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestSettlementDocs, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, getTraveler } from "services/apiService";
+import { claimRequestAddRemarks, claimRequestClaimDetails, claimRequestGetremarks, claimRequestSettlementDocs, claimRequestStatus, claimRequestTimeline, claimRequestTravelDetails, generatePDF, getTraveler } from "services/apiService";
 
 import { Link, useParams } from 'react-router-dom';
 //import style
@@ -96,6 +96,7 @@ const ViewDet = (props) => {
   const [remarksList, setRemarksList] = useState([]);
   const [settledAmount, setsettledAmount] = useState("");
   const [approvedCategoryNumber, setApprovedCategoryNumber] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // const [claimSettlementDocs, setClaimSettlementDocs] = useState([]);
 
@@ -794,12 +795,12 @@ const ViewDet = (props) => {
                 <div className="w-50">
                   {travelDetails?.paymentDetails?.bankAccountNo && (
                     <p style={{ color: "black" }} className="m-0 mb-1">
-                    Bank Account No:
-                    <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
-                  </p>
+                      Bank Account No:
+                      <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
+                    </p>
                   )}
-                  
-                 
+
+
                 </div>
               </div>
             </div>
@@ -980,13 +981,32 @@ const ViewDet = (props) => {
           </h4>
           {/* {props.match?.params?.claimId}
           {props.match?.params?.userId} */}
-          <Button
-            style={{ width: "125px" }}
-            onClick={() => setIsModalOpen(true)}
-            className="bg-info text-white"
-          >
-            Add Remarks
-          </Button>
+          <div>
+
+            <Button
+              loading={loading}
+              onClick={async () => {
+                setLoading(true);
+                try {
+                  const response = await generatePDF({claimRequestID: claimId});
+                } catch (e) {
+                  console.log(e);
+                }
+                setLoading(false);
+              }}
+              className="secondary-btn mr-2"
+            >
+              Generate Claims Form
+            </Button>
+
+            <Button
+              style={{ width: "125px" }}
+              onClick={() => setIsModalOpen(true)}
+              className="bg-info text-white"
+            >
+              Add Remarks
+            </Button>
+          </div>
         </div>
       </div>
       <div className="claimreqdetTab">

@@ -686,8 +686,23 @@ export const deleteDoc = async (data) => {
         method: 'put',
         maxBodyLength: Infinity,
         url: 'https://api.stntinternational.com/api/website//claim-request/delete-doc',
-        headers: {},
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
         data: data
+    };
+
+    return await axios.request(config)
+}
+
+export const generatePDF = async (data) => {
+    let config = {
+        method: 'get',
+        maxBodyLength: Infinity,
+        url: 'https://api.stntinternational.com/api/claim/claim-summary/'+ data.claimRequestID,
+        headers: {
+            'Authorization': 'Bearer ' + localStorage.getItem('token')
+        },
     };
 
     return await axios.request(config)

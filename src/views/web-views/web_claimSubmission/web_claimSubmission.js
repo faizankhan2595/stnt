@@ -604,7 +604,7 @@ const ClaimSubmission = () => {
 
         console.log("Change Page", changePage);
         if (!changePage) {
-            window.location.reload();
+            // window.location.reload();
             return;
         }
         getClaimsByUserFn();
@@ -1527,11 +1527,12 @@ const ClaimSubmission = () => {
                                                         const data = {
                                                             "claimRequestId": claim_doc.claimRequestId,
                                                             "fieldName": claim_doc.title,
-                                                            "documentId": claim_doc.documentId,
+                                                            "documentId": "" + claim_doc.documentId,
                                                             // "id": claim.claimCategoryId
                                                         };
 
                                                         const response = await deleteDoc(data);
+                                                        window.location.reload();
                                                     }}
                                                 >Delete</div>
                                             </div>

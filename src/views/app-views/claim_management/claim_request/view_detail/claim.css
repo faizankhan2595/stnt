@@ -2,3 +2,10 @@
     color: #ED2939;
     font-weight: 600;
 }
+
+.secondary-btn {
+    background-color: #dadada00;
+    border: 2px solid #3e79f7!important;
+    color: #3e79f7!important;
+    font-weight: 600;
+}
