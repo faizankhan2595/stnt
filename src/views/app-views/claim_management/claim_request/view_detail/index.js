@@ -718,7 +718,7 @@ const ViewDet = (props) => {
 
                     <h5 className="mt-4">Documents Uploaded</h5>
                     <ul className="p-0" style={{ width: "100%" }}>
-                      {currentFiles.map((file) => (<li className="my-3" style={styles.files}>
+                      {currentFiles.map((file) => (file ? <li className="my-3" style={styles.files}>
                         <a href={file.path} target="_blank" rel="noreferrer">
                           {" "}
                           <div className="d-flex align-items-center">
@@ -727,7 +727,7 @@ const ViewDet = (props) => {
                               {file.fieldname} <br />{" "}
                             </span>
                           </div>
-                        </a></li>))}
+                        </a></li> : null))}
                     </ul>
 
                   </div>
@@ -1075,7 +1075,7 @@ const ViewDet = (props) => {
           <GreenExportFile /> <span> View documents and pictures of claim</span>
         </h4>
         <ul className="p-0" style={{ width: "100%" }}>
-          {currentFiles.map((file) => (<li className="my-3" style={styles.files}>
+          {currentFiles.map((file) => (file ? <li className="my-3" style={styles.files}>
             <a href={file.path} target="_blank" rel="noreferrer">
               {" "}
               <div className="d-flex align-items-center">
@@ -1089,7 +1089,7 @@ const ViewDet = (props) => {
                 <DownloadSvg />
               </span> */}
               </span>
-            </a></li>))}
+            </a></li> : null))}
         </ul>
       </Modal>
     </div>
