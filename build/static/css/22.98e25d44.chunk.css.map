@@ -1,1 +1,0 @@
-{"version":3,"sources":["webpack://src/views/app-views/claim_management/claim_request/view_detail/claim.css"],"names":[],"mappings":"AAAA,gBACI,aAAc,CACd,eACJ","file":"22.98e25d44.chunk.css","sourcesContent":[".mandatory-item {\r\n    color: #ED2939;\r\n    font-weight: 600;\r\n}\r\n"]}
