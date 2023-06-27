@@ -199,6 +199,13 @@ const ClaimSubmission = () => {
     const [country, setCountry] = useState();
 
     const onCountrySelect = (value) => {
+        if (!value) {          
+            console.log("Please select a country");
+            message.error("Please select a country");
+          } else {
+            console.log(`selected ${value}`);
+            setCountry(value);
+          }
         console.log(`selected ${value}`);
         setCountry(value);
     };
@@ -638,6 +645,13 @@ const ClaimSubmission = () => {
     }
 
     const handleStepChange = async (step) => {
+        if(step == 2) {
+            if(!country) {
+                message.error('Please select a country');
+                return;
+            }
+        }
+
         if (step == 4) {
             if (!selectedPaymentOption) {
                 console.log("Please select a payment option");

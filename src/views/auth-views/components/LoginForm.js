@@ -136,12 +136,14 @@ export const LoginForm = (props) => {
 						},
 						{
 							type: 'email',
+							
 							message: 'Please enter a valid email!'
 						}
 					]}>
 					<Input
 						value="username"
 						onChange={e => setUsername(e.target.value)}
+						placeholder="Enter email/username"
 						prefix={<MailOutlined className="text-primary" />} />
 				</Form.Item>
 				<Form.Item
@@ -169,6 +171,7 @@ export const LoginForm = (props) => {
 				>
 					<Input.Password
 						value="password"
+						placeholder="Enter password"
 						onChange={e => setPassword(e.target.value)}
 						prefix={<LockOutlined className="text-primary" />}
 					/>
