@@ -313,7 +313,7 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Email ID
                 </p>
-                <h5>+65 133569966</h5>
+                <h5>{personalDetails?.address?.emailAddress}</h5>
               </div>
             </div>
 
@@ -322,14 +322,14 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Phone Number
                 </p>
-                <h5>+65 133569966</h5>
+                <h5>{personalDetails?.address?.phoneNumber}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Gender
                 </p>
                 <h5>
-                  {personalDetails?.gender}
+                N/A
                 </h5>
               </div>
             </div>
@@ -350,28 +350,28 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Postal Code
                 </p>
-                <h5>123456</h5>
+                <h5>{personalDetails?.address?.postalCode}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Block Number
                 </p>
-                <h5>012</h5>
+                <h5>{personalDetails?.address?.blockNo}</h5>
               </div>
             </div>
 
             <div className="d-flex mt-4">
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
-                  Street Number
+                  Street Name
                 </p>
-                <h5>123</h5>
+                <h5>{personalDetails?.address?.streetName}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Unit Number
                 </p>
-                <h5>1324</h5>
+                <h5>{personalDetails?.address?.unitNo}</h5>
               </div>
             </div>
 
@@ -380,13 +380,13 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Level Number
                 </p>
-                <h5>456</h5>
+                <h5>{personalDetails?.address?.unitLevel}</h5>
               </div>
               <div className="w-50">
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   Country
                 </p>
-                <h5>Singapore</h5>
+                <h5>{personalDetails?.nationality}</h5>
               </div>
             </div>
           </div>
@@ -718,7 +718,7 @@ const ViewDet = (props) => {
 
                     <h5 className="mt-4">Documents Uploaded</h5>
                     <ul className="p-0" style={{ width: "100%" }}>
-                      {currentFiles.map((file) => (file ? <li className="my-3" style={styles.files}>
+                      {claimRequest.files.map((file) => (file ? <li className="my-3" style={styles.files}>
                         <a href={file.path} target="_blank" rel="noreferrer">
                           {" "}
                           <div className="d-flex align-items-center">
@@ -729,11 +729,7 @@ const ViewDet = (props) => {
                           </div>
                         </a></li> : null))}
                     </ul>
-
                   </div>
-
-
-
                 );
               })}
 
@@ -989,6 +985,30 @@ const ViewDet = (props) => {
                 setLoading(true);
                 try {
                   const response = await generatePDF({claimRequestID: claimId});
+                  console.log(response.data);
+                  const url = window.URL.createObjectURL(new Blob([response.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.setAttribute('download', 'file.pdf'); // or any other extension
+                  document.body.appendChild(link);
+                  link.click();
+
+                  // resopnse.data
+                  //   %PDF-1.7
+                  // %����
+
+                  // 4 0 obj
+                  // <<
+                  // /Length 2095
+                  // /Filter /FlateDecode
+                  // >>
+                  // stream
+
+                  // download
+
+                  // require("downloadjs")(response.data, "Download.pdf", "application/pdf");
+
+                  setLoading(false);
                 } catch (e) {
                   console.log(e);
                 }

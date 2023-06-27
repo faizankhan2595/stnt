@@ -25,10 +25,9 @@ const ClaimReq = () => {
   const [claimId, setClaimId] = useState("");
 
 
-  const showModal = (userId) => {
+  const showModal = (claimId) => {
     setIsModalOpen(true);
-    setClaimId(userId);
-    console.log('userId', userId);
+    setClaimId(claimId);
   };
 
   const onRadChange = (e) => {
@@ -39,7 +38,6 @@ const ClaimReq = () => {
 
     claimRequestStatus(claimId, value, comment).then((response) => {
       console.log(response);
-
     });
 
     // setTimeout(() => {
@@ -144,7 +142,7 @@ const ClaimReq = () => {
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => showModal(record?.claimId)}> Update Status</span>
+                    <span onClick={() => showModal(record?.originalClaimId)}> Update Status</span>
                   </Menu.Item>
                 </Menu>
               }

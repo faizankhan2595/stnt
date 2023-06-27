@@ -118,6 +118,7 @@ const ClaimSubmission = () => {
     const [PayeeNRIC, setPayeeNRIC] = useState('');
     const [isDeclaration, setIsDeclaration] = useState(false);
     const [isConsent, setIsConsent] = useState(false);
+    const [currentDraftID, setCurrentDraftID] = useState(null);
     
 
     const handleImageToggle = () => {
@@ -210,87 +211,94 @@ const ClaimSubmission = () => {
         setCountry(value);
     };
 
-    const getClaimsByUserFn = (uid = null) => {
-        getClaimByUser().then(async (data) => {
-            const claimByUserDetailsNew = data.data.data;
-            if (claimByUserDetailsNew.length > 0) {
-                let latestClaim = claimByUserDetailsNew[claimByUserDetailsNew.length - 1];
+    const getClaimsByUserFn = async (uid = null, id = null) => {
+       const data = await getClaimByUser();
+       const claimByUserDetailsNew = data.data.data;
 
-                if(uid) {
-                    console.log("uid", uid);
-                    latestClaim = claimByUserDetailsNew.find((claim) => claim.uidNo === uid);
-                    console.log("latestClaim", latestClaim);
-                }
+       if (claimByUserDetailsNew.length > 0) {
+           let latestClaim = claimByUserDetailsNew[claimByUserDetailsNew.length - 1];
 
-                setCountry(latestClaim.lossCountry);
+           if(uid) {
+               console.log("uid", uid);
+               latestClaim = claimByUserDetailsNew.find((claim) => claim.uidNo === uid);
+               console.log("latestClaim", latestClaim);
+           }
 
-                let claimsNew = [];
+           if(id) {
+               console.log("id", id);
+               latestClaim = claimByUserDetailsNew.find((claim) => claim.id === id);
+               console.log("latestClaim", latestClaim);
+               setCurrentDraftID(id);
+           }
 
-                for (const claimCategory of latestClaim.claimCategory) {
-                    const claimDocsData = await getClaimCategoryAndDocs({ id: claimCategory.claimCategory.id })
-                    const claimCategoryData = claimDocsData.data?.claimCategoryData;
-                    const files = claimCategory.files;
+           setCountry(latestClaim.lossCountry);
 
-                    let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument, index) => {
+           let claimsNew = [];
 
-                        const file = files.find((file) => file?.fieldname === claimDocument.title)
+           for (const claimCategory of latestClaim.claimCategory) {
+               const claimDocsData = await getClaimCategoryAndDocs({ id: claimCategory.claimCategory.id })
+               const claimCategoryData = claimDocsData.data?.claimCategoryData;
+               const files = claimCategory.files;
 
-                        if (!file) {
-                            return {
-                                ...claimDocument,
-                                url: null,
-                                name: null,
-                                claimRequestId: claimCategory.claimRequestId,
-                                documentId: null,
-                            }
-                        }
+               let claimDocuments = claimCategoryData?.claimDocuments.map((claimDocument, index) => {
 
-                        return {
-                            ...claimDocument,
-                            url: file?.path,
-                            name: file?.originalname,
-                            claimRequestId: claimCategory.id,
-                            documentId: file?.id,
-                        }
-                    });
+                   const file = files.find((file) => file?.fieldname === claimDocument.title)
 
-                    claimsNew.push({
-                        claimCategoryId: claimCategory.claimCategory.id,
-                        isDraft: true,
-                        claimDocs: claimDocuments,
-                        files: claimCategory.files
-                    });
-                }
+                   if (!file) {
+                       return {
+                           ...claimDocument,
+                           url: null,
+                           name: null,
+                           claimRequestId: claimCategory.claimRequestId,
+                           documentId: null,
+                       }
+                   }
 
-                if (claimsNew.length === 0) {
-                    claimsNew.push({
-                        claimCategoryId: null,
-                        isDraft: true,
-                        claimDocs: [],
-                    });
-                }
+                   return {
+                       ...claimDocument,
+                       url: file?.path,
+                       name: file?.originalname,
+                       claimRequestId: claimCategory.id,
+                       documentId: file?.id,
+                   }
+               });
 
-                setClaims(claimsNew);
-                setClaimByUserDetails(latestClaim);
+               claimsNew.push({
+                   claimCategoryId: claimCategory.claimCategory.id,
+                   isDraft: true,
+                   claimDocs: claimDocuments,
+                   files: claimCategory.files
+               });
+           }
 
-                const paymentDetails = latestClaim.paymentDetails;
+           if (claimsNew.length === 0) {
+               claimsNew.push({
+                   claimCategoryId: null,
+                   isDraft: true,
+                   claimDocs: [],
+               });
+           }
 
-                if(paymentDetails) {
-                    setSelectedPaymentOption(paymentDetails.paymentOptions);
-                    setBankAccountNumber(paymentDetails.bankAccountNumber);
-                    setBankName(paymentDetails.bankName);
-                    setPayeeName(paymentDetails.payeeName);
-                    setPayNowMobileNumber(paymentDetails.payNowMobileNumber);
-                    setPayeeNRIC(paymentDetails.payeeNRIC);
-                    setPaymentId(paymentDetails.id);
-                }
-            }
-        });
+           setClaims(claimsNew);
+           setClaimByUserDetails(latestClaim);
+
+           const paymentDetails = latestClaim.paymentDetails;
+
+           if(paymentDetails) {
+               setSelectedPaymentOption(paymentDetails.paymentOptions);
+               setBankAccountNumber(paymentDetails.bankAccountNumber);
+               setBankName(paymentDetails.bankName);
+               setPayeeName(paymentDetails.payeeName);
+               setPayNowMobileNumber(paymentDetails.payNowMobileNumber);
+               setPayeeNRIC(paymentDetails.payeeNRIC);
+               setPaymentId(paymentDetails.id);
+           }
+       }
     }
 
-    useEffect(() => {
-        getClaimsByUserFn();
-    }, []);
+    // useEffect(() => {
+    //     getClaimsByUserFn();
+    // }, []);
 
     useEffect(() => {
         getClaimCategories().then((data) => {
@@ -314,15 +322,17 @@ const ClaimSubmission = () => {
                 const lastDraft = draftClaims[draftClaims.length - 1];
                 const dateOfDraft = lastDraft.dateOfDraft;
                 const draftName = lastDraft.draftName;
+            }
 
-                for (const draftN of draftName) {
-                    draftDataNew.push({
-                        key: draftN.id,
-                        sno: draftN.id,
-                        draftName: draftN.title,
-                        dateOfDraft: dateOfDraft,
-                    })
-                }
+            let draftI = 1;
+
+            for (const draftN of draftClaims) {
+                draftDataNew.push({
+                    key: draftN.id,
+                    sno: draftN.id,
+                    draftName: "Draft " + draftI++,
+                    dateOfDraft: draftN.dateOfDraft,
+                })
             }
 
             const claimHistory = claimMetaDataNew.claimHistory;
@@ -336,14 +346,11 @@ const ClaimSubmission = () => {
                     status: "Submitted",
                     uidNo: claimH.claimUidNo,
                 })
-
             }
+
             setDraftData(draftDataNew);
-
             setClaimHistory(claimHistoryNew);
-
             setClaimMetaData(claimMetaDataNew);
-
         });
     }, []);
 
@@ -373,9 +380,9 @@ const ClaimSubmission = () => {
             render: (record) => {
                 return (
                     <>
-                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => {
+                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={async () => {
                             console.log("record", record);
-                            getClaimsByUserFn(record.uidNo)
+                            await getClaimsByUserFn(record.uidNo)
                             handleStepChange(2)
                         }}>Edit</div>
     
@@ -553,7 +560,7 @@ const ClaimSubmission = () => {
             for (const claimDoc of claim.claimDocs) {
                 data.append(claimDoc.title, claimDoc.file);
             }
-            const oldClaimCategories = claimByUserDetails.claimCategory;
+            const oldClaimCategories = claimByUserDetails?.claimCategory || [];
 
             const claimCategory = oldClaimCategories.find((claimCategory) => claimCategory.claimCategory.id === claim.claimCategoryId);
 
@@ -640,6 +647,7 @@ const ClaimSubmission = () => {
         getCompleteCliamData(claimByUserDetails.id).then((data) => {
             const reviewDataNew2 = data.data;
             console.log("reviewDataNew2", reviewDataNew2)
+            setPaymentId(reviewDataNew2.data.paymentDetails.id);
             setReviewDataNew(reviewDataNew2.data);
         });
     }
@@ -661,7 +669,14 @@ const ClaimSubmission = () => {
             }
 
 
-            const paymentData = {};
+            const paymentData = {
+                payeeName: null,
+                PayeeNRIC: null,
+                bankName: null,
+                bankAccountNumber: null,
+                paymentOption: null,
+                payNow: null,
+            };
             if (selectedPaymentOption === 'dbs_posb') {
                 if (!payeeName) {
                     message.error('Please enter Payee Name');
@@ -679,6 +694,7 @@ const ClaimSubmission = () => {
                     message.error('Please enter Bank Account Number');
                     return;
                 }
+                if (!payeeName)
                 paymentData.payeeName = payeeName;
                 paymentData.PayeeNRIC = PayeeNRIC;
                 paymentData.bankName = bankName;
@@ -700,7 +716,7 @@ const ClaimSubmission = () => {
                     message.error('Please enter PayNow Mobile Number');
                     return;
                 }
-                paymentData.payNowMobileNumber = payNowMobileNumber;
+                paymentData.payNow = payNowMobileNumber;
                 paymentData.paymentOption = "Paynow Linked Account";
             }
 
@@ -719,8 +735,6 @@ const ClaimSubmission = () => {
             }
             reviewDataFn();
         }
-
-    
 
         setActiveStep(step);
     };
@@ -750,7 +764,10 @@ const ClaimSubmission = () => {
             render: (record) => {
                 return (
                     <>
-                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => handleStepChange(1)}>Resume editing</div>
+                        <div className="secondary-btn" style={{ maxWidth: "fit-content" }} onClick={() => {
+                            getClaimsByUserFn(null, record.id);
+                            handleStepChange(1)
+                        }}>Resume editing</div>
 
                     </>
                 );
@@ -1546,7 +1563,7 @@ const ClaimSubmission = () => {
                                                         };
 
                                                         const response = await deleteDoc(data);
-                                                        window.location.reload();
+                                                        getClaimsByUserFn(null, currentDraftID);
                                                     }}
                                                 >Delete</div>
                                             </div>
@@ -1647,6 +1664,7 @@ const ClaimSubmission = () => {
                                                 showSearch
                                                 placeholder="Select Payment Option"
                                                 optionFilterProp="children"
+                                                value={selectedPaymentOption}
                                                 onChange={handlePaymentOptionChange}
                                                 onSearch={onSearch}
                                                 filterOption={(input, option) =>
@@ -2121,6 +2139,13 @@ const ClaimSubmission = () => {
                                         <div className="policy-details-container">
                                             <div className="policy-details-label">Payee Name (as per bank acccount)</div>
                                             <div className="policy-detail">{reviewDataNew?.paymentDetails?.payeeName}</div>
+                                        </div>
+                                    )}
+
+                                      {reviewDataNew?.paymentDetails?.payNow && (
+                                        <div className="policy-details-container">
+                                            <div className="policy-details-label">PayNow Number </div>
+                                            <div className="policy-detail">{reviewDataNew?.paymentDetails?.payNow}</div>
                                         </div>
                                     )}
 

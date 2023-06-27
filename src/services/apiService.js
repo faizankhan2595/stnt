@@ -360,12 +360,12 @@ export const paymentSaveAPI = async ({ data }) => {
     return await axios.request(config)
 }
 
-export const paymentUpdateAPI = async ({ data, paymentId }) => {
+export const paymentUpdateAPI = async ({ data, id }) => {
 
     let config = {
-        method: 'post',
+        method: 'put',
         maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/claim-request/update/payment/' + paymentId,
+        url: BASE_URL + '/api/website/claim-request/update/payment/' + id,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
@@ -648,7 +648,7 @@ export const claimRequestStatus = async (id, status, comment) => {
         },
 
         data: {
-            "userId": id,
+            id: id,
             "status": status,
             "comment": comment
         }
@@ -701,8 +701,10 @@ export const generatePDF = async (data) => {
         maxBodyLength: Infinity,
         url: 'https://api.stntinternational.com/api/claim/claim-summary/'+ data.claimRequestID,
         headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
+            'Response-Type': 'blob',
         },
+        responseType: 'blob'
     };
 
     return await axios.request(config)
