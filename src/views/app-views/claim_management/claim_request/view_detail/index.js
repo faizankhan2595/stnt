@@ -329,7 +329,7 @@ const ViewDet = (props) => {
                   Gender
                 </p>
                 <h5>
-                N/A
+                  N/A
                 </h5>
               </div>
             </div>
@@ -753,7 +753,6 @@ const ViewDet = (props) => {
                     </p>
                   )}
 
-
                 </div>
                 <div className="w-50">
                   {travelDetails?.paymentDetails?.payeeName && (
@@ -764,9 +763,25 @@ const ViewDet = (props) => {
                   )}
 
                 </div>
+                <div className="w-50">
+                    {travelDetails?.paymentDetails?.payNow && (
+                      <p style={{ color: "black" }} className="m-0 mb-1">
+                        PayNow Number
+                        <h5>{travelDetails?.paymentDetails?.payNow}</h5>
+                      </p>
+                    )}
+                  </div>
               </div>
 
               <div className="d-flex mt-4">
+              <div className="w-50">
+                  {travelDetails?.paymentDetails?.bankName && (
+                    <p style={{ color: "black" }} className="m-0 mb-1">
+                      Bank Name:
+                      <h5>{travelDetails?.paymentDetails?.bankName}</h5>
+                    </p>
+                  )}
+                </div>
                 <div className="w-50">
                   {travelDetails?.paymentDetails?.payeeNRIC && (
                     <p style={{ color: "black" }} className="m-0 mb-1">
@@ -776,28 +791,19 @@ const ViewDet = (props) => {
                   )}
                 </div>
 
-                <div className="w-50">
-                  {travelDetails?.paymentDetails?.payeeContactNo && (
-                    <p style={{ color: "black" }} className="m-0 mb-1">
-                      Bank Name:
-                      <h5>{travelDetails?.paymentDetails?.bankName}</h5>
-                    </p>
-                  )}
-
-                </div>
+        
               </div>
 
               <div className="d-flex mt-4">
                 <div className="w-50">
-                  {travelDetails?.paymentDetails?.bankAccountNo && (
+                  {travelDetails?.paymentDetails?.bankAccountNumber && (
                     <p style={{ color: "black" }} className="m-0 mb-1">
                       Bank Account No:
-                      <h5>{travelDetails?.paymentDetails?.bankAccountNo}</h5>
+                      <h5>{travelDetails?.paymentDetails?.bankAccountNumber}</h5>
                     </p>
                   )}
-
-
                 </div>
+
               </div>
             </div>
             <Divider />
@@ -984,7 +990,7 @@ const ViewDet = (props) => {
               onClick={async () => {
                 setLoading(true);
                 try {
-                  const response = await generatePDF({claimRequestID: claimId});
+                  const response = await generatePDF({ claimRequestID: claimId });
                   console.log(response.data);
                   const url = window.URL.createObjectURL(new Blob([response.data]));
                   const link = document.createElement('a');
