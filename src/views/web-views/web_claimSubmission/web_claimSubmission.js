@@ -1548,6 +1548,12 @@ const ClaimSubmission = () => {
                       {claimMetaData?.policyDetails?.uidNo}
                     </div>
                   </div>
+                  <div className="policy-details-container">
+                    <div className="policy-details-label">Geographical Limit:</div>
+                    <div className="policy-detail">
+                      {claimMetaData?.policyDetails?.geographicalUnit}
+                    </div>
+                  </div>
                 </Col>
                 <Col
                   span={6}
@@ -1576,6 +1582,14 @@ const ClaimSubmission = () => {
                     </div>
                     <div className="policy-detail">
                       {claimMetaData?.policyDetails?.durationOfPackage}
+                    </div>
+                  </div>
+                  <div className="policy-details-container">
+                    <div className="policy-details-label">
+                      Cost:
+                    </div>
+                    <div className="policy-detail">
+                      {claimMetaData?.policyDetails?.cost}
                     </div>
                   </div>
                 </Col>
