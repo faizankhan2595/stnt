@@ -34,7 +34,7 @@ export class NavPanel extends Component {
           {/* <Menu.Item key="search" >
             <span><SearchOutlined className="nav-icon mr-0" /></span>
           </Menu.Item> */}
-          <Menu.Item key="noto">
+          {/* <Menu.Item key="noto">
             <span>
               <BellOutlined className="nav-icon mr-0" />
             </span>
@@ -43,7 +43,7 @@ export class NavPanel extends Component {
             <span>
               <SettingOutlined className="nav-icon mr-0" />
             </span>
-          </Menu.Item>
+          </Menu.Item> */}
           <Menu.SubMenu
             key="item1"
             title={

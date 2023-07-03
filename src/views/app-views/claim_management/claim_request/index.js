@@ -38,6 +38,9 @@ const ClaimReq = () => {
 
     claimRequestStatus(claimId, value, comment).then((response) => {
       console.log(response);
+      if (response.data.status) {
+        setIsModalOpen(false);
+      }
     });
 
     // setTimeout(() => {
@@ -72,7 +75,7 @@ const ClaimReq = () => {
       setClaimRequests(claimRequests);
       setConsolidateClaimsData(response.data.claimData?.consolidateClaimsData);
     });
-  }, []);
+  }, [claimRequests]);
 
 
 

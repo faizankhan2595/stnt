@@ -334,7 +334,7 @@ export const getClaimCategories = async () => {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/claim-categories',
+        url: BASE_URL + '/api/claim-category?size=100',
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
 
@@ -376,19 +376,32 @@ export const paymentUpdateAPI = async ({ data, id }) => {
 }
 
 export const getCliamMetadata = async () => {
-    let data = '';
+    try {
+        let data = '';
 
-    let config = {
-        method: 'get',
-        maxBodyLength: Infinity,
-        url: BASE_URL + '/api/website/claim-request/user/meta',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('token')
-        },
-        data: data
-    };
+        let config = {
+            method: 'get',
+            maxBodyLength: Infinity,
+            url: BASE_URL + '/api/website/claim-request/user/meta',
+            headers: {
+                'Authorization': 'Bearer ' + localStorage.getItem('token')
+            },
+            data: data
+        };
 
-    return await axios.request(config)
+        let res1 = await axios.request(config);
+        console.log("res1", res1);
+        return res1;
+    } catch (error) {
+        
+        if (error) {
+            localStorage.removeItem('token');
+            window.location.pathname = "/";
+        }
+        console.error(error);
+        
+        throw error;
+    }
 }
 
 export const getCompleteCliamData = async (id) => {
@@ -460,7 +473,7 @@ export const addClaimCategory = async ({ title, description }) => {
 
 export const deleteClaimCategory = async (id) => {
     let data = {
-        "id": "2",
+        "id": id,
         "title": "Hello",
         "description": "This is fastly new Test claim document for the data",
         "isMandatory": false
@@ -468,12 +481,12 @@ export const deleteClaimCategory = async (id) => {
 
     let config = {
         method: 'delete',
-        maxBodyLength: Infinity,
+        // maxBodyLength: Infinity,
         url: BASE_URL + `/api/claim-documents/${id}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },
-        data: data
+        // data: data
     };
 
     return await axios.request(config)

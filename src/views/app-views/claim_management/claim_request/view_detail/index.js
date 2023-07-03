@@ -329,7 +329,7 @@ const ViewDet = (props) => {
                   Gender
                 </p>
                 <h5>
-                  N/A
+                  {personalDetails.gender===null?'N/A':personalDetails.gender}
                 </h5>
               </div>
             </div>

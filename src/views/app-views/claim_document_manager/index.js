@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import { Button, DatePicker, Image, Input, message } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
@@ -11,7 +11,13 @@ import { DeleteOutlined, EyeOutlined } from "@ant-design/icons";
 import { Edit, History, ResetPass, UpdateStatus } from "assets/svg/icon";
 import { ChangeAgStatus } from "assets/svg/icon";
 import { Radio, Modal } from "antd";
-import { deleteClaimCategory, getClaimCategories } from "services/apiService";
+import {
+  BASE_URL,
+  deleteClaimCategory,
+  getClaimCategories,
+} from "services/apiService";
+import moment from "moment";
+import axios from "axios";
 
 const UserManage = () => {
   const [claims, setClaims] = useState([]);
@@ -22,36 +28,76 @@ const UserManage = () => {
   const [claimCategories, setClaimCategories] = useState([]);
 
   useEffect(() => {
-    
     getClaimCategories().then((data) => {
-        const claimCategories = data.data.claimCategories.map((claimCategory) => {
-            return {
-               claim_category: claimCategory.title,
-               status: claimCategory.status,
-               updated_by: claimCategory.updatedBY,
-               last_updated: claimCategory.updatedAt
-            };
-        });
-        setClaimCategories(claimCategories);
+      console.log("data", data);
+      const claimCategories = data.data.data.map((claimCategory) => {
+        return {
+          id: claimCategory.id,
+          claim_category: claimCategory.title,
+          status: claimCategory.status,
+          updated_by: claimCategory.updatedBY,
+          last_updated: claimCategory.updatedAt,
+        };
+      });
+      setClaimCategories(claimCategories);
     });
   }, []);
 
-  const deleteClaimCategory = async (id) => {
-    await deleteClaimCategory(id).then(res => {
-      message.success('Claim category deleted successfully');
-      setTimeout(() => {
-        window.location.href = '/app/claim_document_manager'
-      }, 1000);
-    })
-      .catch(err => {
-        message.error('Claim category deletion failed')
+  const deleteClaimCateg = async (id) => {
+    await deleteClaimCategory(id)
+      .then((res) => {
+        message.success("Claim category deleted successfully");
+        console.log(res);
+        // setTimeout(() => {
+        //   window.location.href = "/app/claim_document_manager";
+        // }, 1000);
+      })
+      .catch((err) => {
+        message.error("Claim category deletion failed");
+        console.log(err);
         // setTimeout(() => {
         //     window.location.href = '/web/web_claimSubmission'
         // }, 1000);
-      })
-  }
-  
-  const onSearch = (value) => console.log(value);
+      });
+  };
+
+  const onSearch = async (value) => {
+    if (value==='' && claimCategories.length===0) {
+      getClaimCategories().then((data) => {
+        console.log("data", data);
+        const claimCategory = data.data.data.map((claimCategory) => {
+          return {
+            id: claimCategory.id,
+            claim_category: claimCategory.title,
+            status: claimCategory.status,
+            updated_by: claimCategory.updatedBY,
+            last_updated: claimCategory.updatedAt,
+          };
+        });
+        setClaimCategories(claimCategory);
+      });
+    }
+    console.log(value);
+    let res1 = await axios.get(
+      `https://api.stntinternational.com/api/claim-category?searchByTitle=${value}&size=100`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      }
+    );
+    console.log(res1.data.data);
+    const claimCategory = res1.data.data.map((claimCategory) => {
+      return {
+        id: claimCategory.id,
+        claim_category: claimCategory.title,
+        status: claimCategory.status,
+        updated_by: claimCategory.updatedBY,
+        last_updated: claimCategory.updatedAt,
+      };
+    });
+    setClaimCategories(claimCategory);
+  };
   const { Search } = Input;
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
@@ -63,7 +109,7 @@ const UserManage = () => {
   const columns = [
     {
       title: "Sr No",
-      dataIndex: "Sr_No",
+      dataIndex: "id",
     },
     {
       title: "Claim Category",
@@ -76,6 +122,9 @@ const UserManage = () => {
     {
       title: "Last Updated On",
       dataIndex: "last_updated",
+      render: (date) => {
+        return <>{moment(date).format("DD MMM YYYY, hh:mm:ss A")}</>;
+      },
     },
     {
       title: "Status",
@@ -84,7 +133,7 @@ const UserManage = () => {
         return (
           <p
             className={`${
-              text !== "Active" ? "text-danger" : "text-success"
+              text !== "active" ? "text-danger" : "text-success"
             } font-weight-semibold`}
           >
             {text}
@@ -104,9 +153,9 @@ const UserManage = () => {
                   <Menu.Item>
                     <Link
                       onClick={() => {
-                        setUpdateStatusVal(record.Sr_No);
+                        setUpdateStatusVal(record.id);
                         setIsChangeStudModalOpen(true);
-                        setValue(record.Status==='Active'?1:2)
+                        setValue(record.status === "active" ? 1 : 2);
                       }}
                       className="d-flex align-items-center"
                     >
@@ -118,7 +167,7 @@ const UserManage = () => {
                   </Menu.Item>
                   <Menu.Item>
                     <Link
-                      to={`event_list/update/${record.Sr_No}`}
+                      to={`event_list/update/${record.id}`}
                       className="d-flex align-items-center"
                     >
                       <CustomIcon className="mr-2" svg={Edit} />
@@ -136,8 +185,8 @@ const UserManage = () => {
                       View/Edit Documents
                     </Link>
                   </Menu.Item>
-                  <Menu.Item>
-                    <span onClick={deleteClaimCategory}>
+                  <Menu.Item onClick={()=>deleteClaimCateg(record.id)}>
+                    <span>
                       {" "}
                       <DeleteOutlined className="mr-2 " />
                       Delete
@@ -151,24 +200,41 @@ const UserManage = () => {
       },
     },
   ];
-  const updateStatus = () => {
-    let cloneClaim = claims;
+  const updateStatus = async () => {
+    let data = {
+      id: updateStatusVal,
+      status: value === 1 ? "active" : "inactive",
+    };
+    let config = {
+      method: "put",
+      url: BASE_URL + "/api/claim-category/change-status",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      data: data,
+    };
+
+    const res1 = await axios.request(config);
+    console.log(res1);
+    if (res1.data.status) {
+      setIsChangeStudModalOpen(false);
+    }
+    let cloneClaim = claimCategories;
     let claimData = cloneClaim.map((elem, index) => {
-      if (elem.Sr_No === updateStatusVal) {
+      if (elem.id === updateStatusVal) {
         if (value === 1) {
-          return {...elem,Status:"Active"};
+          return { ...elem, status: "active" };
         } else {
-          return {...elem,Status:"Inactive"};
+          return { ...elem, status: "inactive" };
         }
       } else {
         return elem;
       }
     });
-    setClaims(claimData);
+    setClaimCategories(claimData);
     console.log(claimData);
+    setIsChangeStudModalOpen(false);
   };
-
-
 
   return (
     <div>
@@ -183,7 +249,9 @@ const UserManage = () => {
           />
         </div>
         <Button className="bg-info text-white">
-          <Link to={"claim_document_manager/add_new_category"}>Add New Category</Link>
+          <Link to={"claim_document_manager/add_new_category"}>
+            Add New Category
+          </Link>
         </Button>
       </div>
       <Helper clients={claimCategories} attribiue={columns} />
@@ -221,7 +289,6 @@ const UserManage = () => {
             className="px-4 font-weight-semibold text-white bg-info"
             onClick={() => {
               updateStatus();
-              setIsChangeStudModalOpen(false);
             }}
           >
             Save
