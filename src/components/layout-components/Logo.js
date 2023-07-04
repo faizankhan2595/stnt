@@ -4,9 +4,9 @@ import { APP_NAME } from 'configs/AppConfig';
 import { connect } from "react-redux";
 import utils from 'utils';
 import { Grid } from 'antd';
-import MainLogo from '../../assets/main_logo.png'
+// import MainLogo from '../../assets/main_logo.png'
 import MainLogoSm from '../../assets/main_logo_sm.png'
-
+const MainLogo ='/img/stnt-logo-white.svg'
 const { useBreakpoint } = Grid;
 
 const getLogoWidthGutter = (props, isMobile) => {
@@ -54,7 +54,7 @@ export const Logo = (props) => {
     <div
       className={getLogoDisplay(isMobile, props.mobileLogo)} 
       style={{width: `${getLogoWidthGutter(props, isMobile)}`}}>
-      <img src={getLogo(props)} alt={`${APP_NAME} logo`}/>
+      <img style={{width:'150px'}} src={getLogo(props)} alt={`${APP_NAME} logo`}/>
     </div>
   )
 }

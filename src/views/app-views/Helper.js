@@ -2,7 +2,7 @@ import { Table } from 'antd'
 import React, { useState } from 'react'
 import './Helper.css'
 
-function Helper({ attribiue, clients, showFrontentPagination = false }) {
+function Helper({checkbox, attribiue, clients, showFrontentPagination = false }) {
 
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     // console.log(clients)
@@ -11,7 +11,7 @@ function Helper({ attribiue, clients, showFrontentPagination = false }) {
         <div>
             <Table
                 rowKey='id'
-                rowSelection={{
+                rowSelection={checkbox && {
                     selectedRowKeys,
                     onChange: (selectedRowKeys, selectedRows) => {
                         setSelectedRowKeys(selectedRowKeys);

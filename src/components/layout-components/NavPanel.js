@@ -82,15 +82,19 @@ export class NavPanel extends Component {
             <div
               style={{ width: "250px" }}
               className="d-flex px-3 py-1 pb-2 align-items-center"
+              onClick={()=>{
+                localStorage.removeItem('token')
+                window.location.href='/auth/login-2'
+              }}
             >
-              <Link className="d-flex align-items-center text-black-50">
+              <span className="d-flex align-items-center text-black-50">
                 <div className="mt-1">
                   <LogoutOutlined />
                 </div>
                 <div className="ml-2">
-                  <h4 className="m-0">Sign Out</h4>
+                  <h4 className="m-0">Log Out</h4>
                 </div>
-              </Link>
+              </span>
             </div>
           </Menu.SubMenu>
         </Menu>

@@ -167,7 +167,7 @@ const UserManage = () => {
                   </Menu.Item>
                   <Menu.Item>
                     <Link
-                      to={`event_list/update/${record.id}`}
+                      to={`claim_document_manager/edit_new_category?id=${record.id}`}
                       className="d-flex align-items-center"
                     >
                       <CustomIcon className="mr-2" svg={Edit} />
@@ -185,13 +185,13 @@ const UserManage = () => {
                       View/Edit Documents
                     </Link>
                   </Menu.Item>
-                  <Menu.Item onClick={()=>deleteClaimCateg(record.id)}>
+                  {/* <Menu.Item onClick={()=>deleteClaimCateg(record.id)}>
                     <span>
                       {" "}
                       <DeleteOutlined className="mr-2 " />
                       Delete
                     </span>
-                  </Menu.Item>
+                  </Menu.Item> */}
                 </Menu>
               }
             />

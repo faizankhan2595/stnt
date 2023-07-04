@@ -15,6 +15,7 @@ import Helper from "../../Helper";
 import EllipsisDropdown from "components/shared-components/EllipsisDropdown";
 import TextArea from "antd/lib/input/TextArea";
 import { claimRequestStatus, getClaimRequests } from "services/apiService";
+import moment from "moment";
 
 
 const ClaimReq = () => {
@@ -58,8 +59,9 @@ const ClaimReq = () => {
     const page = 1;
     
     getClaimRequests(size, page).then((response) => {
-      const claimRequests = response.data.claimData?.data?.map((claimData) => {
+      const claimRequests = response.data.claimData?.data?.map((claimData,i) => {
           return {
+              sr_no:i+1,
               uidNo: claimData.userUidNo,
               claimId: claimData.claimUidNo,
               originalClaimId: claimData.claimId,
@@ -116,6 +118,10 @@ const ClaimReq = () => {
     {
       title: "Claimed Date",
       dataIndex: "claimedDate",
+      width:120,
+      render:(date)=>{
+        return <>{moment(date).format('YYYY-MM-DD')}</>
+      }
     },
     {
       title: "Status",
@@ -123,7 +129,7 @@ const ClaimReq = () => {
       render: (text) => {
         return (
           <p
-            className={`${text !== "Active" ? "text-danger" : "text-success"
+            className={`${text !== "completed" ? "text-danger" : "text-success"
               } font-weight-semibold`}
           >
             {text}
@@ -159,10 +165,11 @@ const ClaimReq = () => {
 
   return (
     <div>
+        <h3>Claim Management / Claim Request</h3>
       <div className="mb-4 bg-white d-flex justify-content-between">
         <div className="w-25 p-3 d-flex align-items-center justify-content-center">
           <div
-            style={{ background: "#fafafb", width: "100%" }}
+            style={{ background: "#fafafb", width: "75%" }}
             className="rounded d-flex align-items-start p-3 justify-content-between"
           >
             <div>
@@ -177,7 +184,7 @@ const ClaimReq = () => {
         </div>
         <div className="w-25 p-3 d-flex align-items-start justify-content-center">
           <div
-            style={{ background: "#fafafb", width: "100%" }}
+            style={{ background: "#fafafb", width: "75%" }}
             className="rounded d-flex align-items-start p-3 justify-content-between"
           >
             <div>
@@ -191,7 +198,7 @@ const ClaimReq = () => {
         </div>
         <div className="w-25 p-3 d-flex align-items-start justify-content-center">
           <div
-            style={{ background: "#fafafb", width: "100%" }}
+            style={{ background: "#fafafb", width: "75%" }}
             className="rounded d-flex align-items-start p-3 justify-content-between"
           >
             <div>
@@ -205,7 +212,7 @@ const ClaimReq = () => {
         </div>
         <div className="w-25 p-3 d-flex align-items-start justify-content-center">
           <div
-            style={{ background: "#fafafb", width: "100%" }}
+            style={{ background: "#fafafb", width: "75%" }}
             className="rounded d-flex align-items-start p-3 justify-content-between"
           >
             <div>
@@ -248,7 +255,7 @@ const ClaimReq = () => {
           <Link to={"travel_agency/add_new"}> + Add New</Link>
         </Button> */}
         </div>
-        <Helper clients={claimRequests} attribiue={claimRequestsColumns} />
+        <Helper checkbox={false} clients={claimRequests} attribiue={claimRequestsColumns} />
       </div>
       <Modal
         width={600}

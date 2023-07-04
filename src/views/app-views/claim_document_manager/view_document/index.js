@@ -9,6 +9,10 @@ import CustomIcon from 'components/util-components/CustomIcon'
 import { DeleteOutlined } from '@ant-design/icons'
 import { Edit,   UpdateStatus } from "assets/svg/icon";
 import { Radio, Modal } from "antd";
+import { useParams } from 'react-router-dom/cjs/react-router-dom.min';
+import { useEffect } from 'react';
+import axios from 'axios';
+import { BASE_URL } from 'services/apiService';
 const data = [
     {
       Sr_No: 1,
@@ -35,6 +39,8 @@ const data = [
   
 const ViewDoc = () => {
   const [users, setUsers] = useState(data);
+  const [title, setTitle] = useState('')
+  const { id } = useParams();
   const [updateStatusVal, setUpdateStatusVal] = useState(null);
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
   const [value, setValue] = useState(1);
@@ -94,7 +100,7 @@ const ViewDoc = () => {
         return (
           <p
             className={`${
-              text !== "Active" ? "text-danger" : "text-success"
+              text !== "active" ? "text-danger" : "text-success"
             } font-weight-semibold`}
           >
             {text}
@@ -135,6 +141,34 @@ const ViewDoc = () => {
       },
     },
   ];
+
+  const getCategory = async (id) => {
+    const res1 = await axios.get(`${BASE_URL}/api/claim-category/${id}`, {
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+    });
+    setTitle(res1.data.claimCategory.title)
+    const users = res1.data.claimDocuments.map((elem,i)=>{
+      return {
+        id:elem.id,
+        claimCategoryId:elem.claimCategoryId,
+        Sr_No: i+1,
+        Document_Type: elem.title,
+        Mandatory: elem.isMandatory,
+        Last_Updated_On: elem.updatedAt,
+        Status: elem.status
+      }
+    })
+    setUsers(users)
+  };
+
+  useEffect(() => {
+    if (id) {
+      getCategory(id);
+    }
+  }, [])
+  
   return (
     <div>
         <div className='p-3 bg-white'>
@@ -143,7 +177,7 @@ const ViewDoc = () => {
                 <div className='claimDocManSvg'>
                     <ClaimReqDet/>
                 </div>
-                <div className='ml-2'><h5 className='m-0 mt-2'>Medical & Other Expenses</h5><p>View & add different types of document  for claim category to be uploaded by travelers.</p></div>
+                <div className='ml-2'><h5 className='m-0 mt-2'>{title?title:"Medical & Other Expenses"}</h5><p>View & add different types of document  for claim category to be uploaded by travelers.</p></div>
             </div>
         </div>
         <div className='d-flex justify-content-between my-3'>
@@ -154,7 +188,7 @@ const ViewDoc = () => {
               width: 200,
             }}
           />
-          <Button className='bg-info text-white' > <Link className='text-white' to={"view_document/add_new_document"}>New Document Category</Link></Button>
+          <Button className='bg-info text-white' > <Link className='text-white' to={"/app/claim_document_manager/view_document/add_new_document"}>New Document Category</Link></Button>
         </div>
         <Helper clients={users} attribiue={columns} />
         <Modal
