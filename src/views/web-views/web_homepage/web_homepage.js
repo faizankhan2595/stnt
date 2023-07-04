@@ -47,15 +47,16 @@ const Homepage = () => {
     return (
         <div className="main-container">
             <div className="banner-container">
-                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: 'auto', marginTop:'130px'}} />
+                <img src="/img/banner-img.png" alt="banner" style={{ width: '100%', height: "457px", objectFit: "cover"}} />
                 <div className="stnt-logo-container">
                     <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '150px', height: 'auto'}} />
                 </div>
             </div>
 
             <div>
-                <div className="stnt-logo-container-mobile">
-                    <img src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '100px', height: 'auto' }} />
+                <div className="stnt-logo-container-mobile d-flex flex-column">
+                    <img className="hidefromDesk" src="/img/stnt-logo-white.svg" alt="stnt" style={{ width: '100px', height: 'auto' }} />
+                <h3 className="text-white mt-3">Verify Details</h3>
                 </div>
             </div>
 
@@ -106,7 +107,7 @@ const Homepage = () => {
                         </div>
 
                         <div className="btn-container">
-                            <button className="web-btn" onClick={submit}>Verify</button>
+                            <button className="web-btn" onClick={submit}>Submit</button>
                         </div>
                     </div>
                 </Col>

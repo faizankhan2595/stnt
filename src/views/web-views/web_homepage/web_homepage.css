@@ -148,8 +148,13 @@
     /* width: 100%; */
 }
 
-
+.hidefromDesk{
+    display: none;
+}
 @media screen and (max-width: 768px) {
+    .hidefromDesk{
+        display: block;
+    }
 
     .verify-details-container {
     padding: 0px 10px;
@@ -193,6 +198,12 @@
         align-items: center;
         box-shadow: 0px -8px 16px rgba(0, 0, 0, 0.05);
         /* width: 100%; */
+    }
+    .label-field-container {
+        margin: 10px 0px 4px 0px;
+    }
+    .verify-details-container{
+        margin-top: 49px;
     }
 
 }

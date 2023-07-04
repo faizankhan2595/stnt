@@ -40,6 +40,7 @@ const ClaimReq = () => {
       console.log(response);
       if (response.data.status) {
         setIsModalOpen(false);
+        window.location.reload()
       }
     });
 
@@ -75,7 +76,7 @@ const ClaimReq = () => {
       setClaimRequests(claimRequests);
       setConsolidateClaimsData(response.data.claimData?.consolidateClaimsData);
     });
-  }, [claimRequests]);
+  }, []);
 
 
 

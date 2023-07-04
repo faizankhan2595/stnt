@@ -836,6 +836,7 @@ button.ant-modal-close {
         color: white;
         font-size: 10px;
         margin-right: 10px;
+        height: 41px;
     }
 
     .claim-title-sub-text {
@@ -869,7 +870,9 @@ button.ant-modal-close {
         justify-content: center;
         align-items: center;
     }
-
+    .virtual-card-img-container{
+        margin-left: 0;
+    }
     .virtual-card-desc {
         padding-right: 0px;
         border: none;

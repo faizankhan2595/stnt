@@ -1,7 +1,7 @@
 import React from "react";
 import "./claimSubmission.css";
 import "../fonts.css";
-import { UploadOutlined } from "@ant-design/icons";
+import { UploadOutlined, DeleteTwoTone } from "@ant-design/icons";
 import { Steps } from "antd";
 import {
   Col,
@@ -91,7 +91,7 @@ const props = {
 
 const ClaimSubmission = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false)
+  const [editMode, setEditMode] = useState(false);
   const [isContactDetailModalOpen, setIsContactDetailModalOpen] =
     useState(false);
   // const [isChecked, setIsChecked] = useState(false);
@@ -329,25 +329,43 @@ const ClaimSubmission = () => {
   // useEffect(() => {
   //     getClaimsByUserFn();
   // }, []);
+  const getClaimCategy = async () => {
+    let data = "";
 
+    let config = {
+      method: "get",
+      maxBodyLength: Infinity,
+      url: BASE_URL + "/api/website/claim-categories",
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      },
+      data: data,
+    };
+
+    return await axios.request(config);
+  };
   useEffect(() => {
-    getClaimCategories().then((data) => {
-      const claimCategoriesNew = data.data.claimCategories.map(
-        (claimCategory) => {
-          return {
-            value: claimCategory.id,
-            label: claimCategory.title,
-          };
-        }
-      );
-      setClaimCategories(claimCategoriesNew);
-    });
+    getClaimCategy()
+      .then((data) => {
+        console.log(data);
+        const claimCategoriesNew = data.data.claimCategories.map(
+          (claimCategory) => {
+            return {
+              value: claimCategory.id,
+              label: claimCategory.title,
+            };
+          }
+        );
+        setClaimCategories(claimCategoriesNew);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     getCliamMetadata().then((data) => {
       const claimMetaDataNew = data.data.data;
 
-      let draftDataNew = [];
-      let claimHistoryNew = [];
+      // let draftDataNew = [];
 
       const draftClaims = claimMetaDataNew.draftClaims;
       if (draftClaims.length) {
@@ -355,30 +373,44 @@ const ClaimSubmission = () => {
         const dateOfDraft = lastDraft.dateOfDraft;
         const draftName = lastDraft.draftName;
       }
+      const draftDataNew = draftClaims.map((draftN, index) => ({
+        key: draftN.id,
+        sno: index + 1,
+        draftName: "Draft " + (index + 1),
+        dateOfDraft: draftN.dateOfDraft,
+      }));
 
       let draftI = 1;
 
-      for (const draftN of draftClaims) {
-        draftDataNew.push({
-          key: draftN.id,
-          sno: draftN.id,
-          draftName: "Draft " + draftI++,
-          dateOfDraft: draftN.dateOfDraft,
-        });
-      }
+      // for (const draftN of draftClaims) {
+      //   draftDataNew.push({
+      //     key: draftN.id,
+      //     sno: draftN.id,
+      //     draftName: "Draft " + draftI++,
+      //     dateOfDraft: draftN.dateOfDraft,
+      //   });
+      // }
 
       const claimHistory = claimMetaDataNew.claimHistory;
 
-      for (const claimH of claimHistory) {
-        claimHistoryNew.push({
-          key: claimH.claimReqId,
-          sno: claimH.claimReqId,
-          claim_id: claimH.claimUidNo,
-          date: claimH.submittedDate,
-          status: claimH.status==="new"?"Submitted":claimH.status,
-          uidNo: claimH.claimUidNo,
-        });
-      }
+      let claimHistoryNew = claimHistory.map((claimH, i) => ({
+        key: claimH.claimReqId,
+        sno: i + 1,
+        claim_id: claimH.claimUidNo,
+        date: claimH.submittedDate,
+        status: claimH.status === "new" ? "Submitted" : claimH.status,
+        uidNo: claimH.claimUidNo,
+      }));
+      // for (const claimH of claimHistory) {
+      //   claimHistoryNew.push({
+      //     key: claimH.claimReqId,
+      //     sno: claimH.claimReqId,
+      //     claim_id: claimH.claimUidNo,
+      //     date: claimH.submittedDate,
+      //     status: claimH.status==="new"?"Submitted":claimH.status,
+      //     uidNo: claimH.claimUidNo,
+      //   });
+      // }
 
       setDraftData(draftDataNew);
       setClaimHistory(claimHistoryNew);
@@ -412,36 +444,38 @@ const ClaimSubmission = () => {
       render: (record) => {
         return (
           <>
-            <div
-              className="secondary-btn"
-              style={{ maxWidth: "fit-content" }}
-              onClick={async () => {
-                getClaimsByUserFn(null, record.key);
-                getReview(record.key);
-                fetch("https://geolocation-db.com/json/")
-  .then(response => {
-    if (response.ok) {
-      return response.json(); // Parse response data as JSON
-    } else {
-      throw new Error('Error: ' + response.status);
-    }
-  })
-  .then(data => {
-    // Process the data returned by the API
-    console.log(data);
-    setIp(data.IPv4)
-  })
-  .catch(error => {
-    // Handle any errors that occurred during the API call
-    console.error('Error:', error);
-  });
-                // console.log("record", record);
-                // await getClaimsByUserFn(record.uidNo);
-                // handleStepChange(2);
-              }}
-            >
-              Edit
-            </div>
+            {record.status === "Submitted" && (
+              <div
+                className="secondary-btn"
+                style={{ maxWidth: "fit-content" }}
+                onClick={async () => {
+                  getClaimsByUserFn(null, record.key);
+                  getReview(record.key);
+                  fetch("https://geolocation-db.com/json/")
+                    .then((response) => {
+                      if (response.ok) {
+                        return response.json(); // Parse response data as JSON
+                      } else {
+                        throw new Error("Error: " + response.status);
+                      }
+                    })
+                    .then((data) => {
+                      // Process the data returned by the API
+                      console.log(data);
+                      setIp(data.IPv4);
+                    })
+                    .catch((error) => {
+                      // Handle any errors that occurred during the API call
+                      console.error("Error:", error);
+                    });
+                  // console.log("record", record);
+                  // await getClaimsByUserFn(record.uidNo);
+                  // handleStepChange(2);
+                }}
+              >
+                Edit
+              </div>
+            )}
           </>
         );
       },
@@ -586,8 +620,8 @@ const ClaimSubmission = () => {
           }
         } else {
           setIsContactDetailModalOpen(true);
-        //   localStorage.removeItem("token");
-        //   window.location.pathname = "/";
+          //   localStorage.removeItem("token");
+          //   window.location.pathname = "/";
         }
       })
       .catch((err) => {
@@ -600,22 +634,22 @@ const ClaimSubmission = () => {
       // const res = await axios.get("https://api.ipify.org/?format=json");
       // setIp(res.data.ip);
       fetch("https://geolocation-db.com/json/")
-  .then(response => {
-    if (response.ok) {
-      return response.json(); // Parse response data as JSON
-    } else {
-      throw new Error('Error: ' + response.status);
-    }
-  })
-  .then(data => {
-    // Process the data returned by the API
-    console.log(data);
-    setIp(data.IPv4)
-  })
-  .catch(error => {
-    // Handle any errors that occurred during the API call
-    console.error('Error:', error);
-  });
+        .then((response) => {
+          if (response.ok) {
+            return response.json(); // Parse response data as JSON
+          } else {
+            throw new Error("Error: " + response.status);
+          }
+        })
+        .then((data) => {
+          // Process the data returned by the API
+          console.log(data);
+          setIp(data.IPv4);
+        })
+        .catch((error) => {
+          // Handle any errors that occurred during the API call
+          console.error("Error:", error);
+        });
     };
     getData();
   }, []);
@@ -625,7 +659,7 @@ const ClaimSubmission = () => {
   const onSearch = (val) => {};
 
   const updateAllClaims = async () => {
-    console.log("update",reviewDataNew,claims);
+    console.log("update", reviewDataNew, claims);
     // reviewDataNew.claimRequestDocs.map((elem,i)=>{
     //   console.log(elem);
     //   const FormData = require("form-data");
@@ -657,9 +691,9 @@ const ClaimSubmission = () => {
     //   })
 
     // })
-  }
+  };
 
-  const addAllClaims = async (changePage = false,update=false) => {
+  const addAllClaims = async (changePage = false, update = false) => {
     const ids = [];
 
     for (const claim of claims) {
@@ -710,7 +744,7 @@ const ClaimSubmission = () => {
           alert(error.response.data.message);
           console.log(error.response.data.message);
         } else {
-          alert("An error occurred. Please try again later.");
+          alert("Please Upload .pdf, .png, .jpeg, and .jpg only !.");
         }
         throw error;
       }
@@ -834,12 +868,12 @@ const ClaimSubmission = () => {
       console.log("paymentDetails", paymentData);
 
       try {
-        if (reviewDataNew.paymentDetails===null || !paymentId) {
-            await paymentSaveAPI({ data: paymentData });
+        if (reviewDataNew.paymentDetails === null || !paymentId) {
+          await paymentSaveAPI({ data: paymentData });
         } else {
-            if (paymentId) {
-                await paymentUpdateAPI({ data: paymentData, id: paymentId });
-              }
+          if (paymentId) {
+            await paymentUpdateAPI({ data: paymentData, id: paymentId });
+          }
         }
         // if (paymentId) {
         //   await paymentUpdateAPI({ data: paymentData, id: paymentId });
@@ -868,9 +902,9 @@ const ClaimSubmission = () => {
     setReviewDataNew(res1.data.data);
     if (res1.data.data.declarationUserName) {
       console.log(res1.data.data.declarationUserName);
-      setUserName(res1.data.data.declarationUserName)
-      setIsDeclaration(res1.data.data.isDeclaration)
-      setIsConsent(res1.data.data.isConsent)
+      setUserName(res1.data.data.declarationUserName);
+      setIsDeclaration(res1.data.data.isDeclaration);
+      setIsConsent(res1.data.data.isConsent);
     }
     console.log(res1.data);
     if (res1.status) {
@@ -927,10 +961,10 @@ const ClaimSubmission = () => {
   };
 
   const submitMain = async () => {
-    console.log("selectedPaymentOption",selectedPaymentOption);
-    if (selectedPaymentOption===null) {
-        message.error('Please Fill Payment Details !');
-        return
+    console.log("selectedPaymentOption", selectedPaymentOption);
+    if (selectedPaymentOption === null) {
+      message.error("Please Fill Payment Details !");
+      return;
     }
 
     if (!isDeclaration) {
@@ -1033,7 +1067,7 @@ const ClaimSubmission = () => {
 
       <div className="logout-btn-container">
         <Link to={`/`}>
-          <div className="logout-btn">Logout</div>
+          <div className="logout-btn">Log Out</div>
         </Link>
         <div
           className="update-details-container"
@@ -1102,7 +1136,11 @@ const ClaimSubmission = () => {
                   className="input-field-main"
                   placeholder="Block No"
                   value={blockNo}
-                  onChange={(e) => setBlockNo(e.target.value)}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                    setBlockNo(filteredValue);
+                  }}
                 />
               </div>
             </div>
@@ -1160,7 +1198,11 @@ const ClaimSubmission = () => {
                       className="input-field-main"
                       placeholder="Unit No"
                       value={unitNo}
-                      onChange={(e) => setUnitNo(e.target.value)}
+                      onChange={(e) => {
+                        const inputValue = e.target.value;
+                        const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                        setUnitNo(filteredValue);
+                      }}
                     />
                   </div>
                 </div>
@@ -1197,7 +1239,11 @@ const ClaimSubmission = () => {
                   className="input-field-main"
                   placeholder="Postal code"
                   value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                    setPostalCode(filteredValue);
+                  }}
                 />
               </div>
             </div>
@@ -1213,7 +1259,11 @@ const ClaimSubmission = () => {
                   className="input-field-main"
                   placeholder="Country"
                   value={country2}
-                  onChange={(e) => setCountry2(e.target.value)}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const filteredValue = inputValue.replace(/[0-9]/g, "");
+                    setCountry2(filteredValue);
+                  }}
                 />
               </div>
             </div>
@@ -1248,7 +1298,11 @@ const ClaimSubmission = () => {
                   className="input-field-main"
                   placeholder="Phone number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) => {
+                    const inputValue = e.target.value;
+                    const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                    setPhoneNumber(filteredValue);
+                  }}
                 />
               </div>
             </div>
@@ -1277,12 +1331,15 @@ const ClaimSubmission = () => {
       </Modal>
 
       <div className="claim-title-container">
+      {activeStep === 0 ? <>
         <div className="claim-title-text">Claim Submission</div>
         <div className="claim-title-sub-text">
           With a convenient insurance claim process, you can now register your
           claim, <br></br>upload the necessary documents and know the status
           instantly.
         </div>
+        </>
+        : <><div className="claim-title-text">Travel Details</div></>}
         <div className="logout-btn-container-mob">
           <div
             className="update-address-container-mob"
@@ -1291,7 +1348,7 @@ const ClaimSubmission = () => {
             <span>Update Contact Details</span>
           </div>
           <Link to={`/`}>
-            <div className="logout-btn-mob">Logout</div>
+            <div className="logout-btn-mob">Log Out</div>
           </Link>
         </div>
       </div>
@@ -1304,11 +1361,21 @@ const ClaimSubmission = () => {
             style={{ width: "100%", height: "auto" }}
           />
         </div>
-        <div className="claim-title-text">Claim Submission</div>
-        <div className="claim-title-sub-text">
-          With a convenient insurance claim process, you can now register your
-          claim, upload the necessary documents and know the status instantly.
-        </div>
+        {activeStep === 0 ? (
+          <>
+            <div className="claim-title-text">Claim Submission</div>
+            <div className="claim-title-sub-text">
+              With a convenient insurance claim process, you can now register
+              your claim, upload the necessary documents and know the status
+              instantly.
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="claim-title-text">Travel Details</div>
+          </>
+        )}
+
         <div className="logout-btn-container-mob">
           <div
             className="update-address-container-mob"
@@ -1317,7 +1384,7 @@ const ClaimSubmission = () => {
             <span>Update Contact Details</span>
           </div>
           <Link to={`/`}>
-            <div className="logout-btn-mob">Logout</div>
+            <div className="logout-btn-mob">Log Out</div>
           </Link>
         </div>
       </div>
@@ -1424,9 +1491,10 @@ const ClaimSubmission = () => {
                 >
                   A virtual claim payment card is unique digit computer
                   generated number that is created solely for a use between a
-                  payer and payee. We will provide a Claim Assistance Card for
-                  your to ensure that you have handy policy details as well as
-                  direct claims assistance number always with you.
+                  payer and payee.
+                  <br /> We will provide a Claim Assistance Card for your to
+                  ensure that you have handy policy details as well as direct
+                  claims assistance number always with you.
                 </Col>
                 <Col
                   lg={{ span: 12 }}
@@ -1438,8 +1506,10 @@ const ClaimSubmission = () => {
                     id="domEl"
                     ref={domEl}
                   >
-                    <div className="d-flex justify-content-center bg-white">{!isAlternateImage ? "Front" : "Rear"}</div>
-                    
+                    <div className="w-100 d-flex justify-content-center bg-white">
+                      {!isAlternateImage ? "Front" : "Rear"}
+                    </div>
+
                     <img
                       src={imageSrc}
                       alt="virtual-card-img"
@@ -1549,7 +1619,9 @@ const ClaimSubmission = () => {
                     </div>
                   </div>
                   <div className="policy-details-container">
-                    <div className="policy-details-label">Geographical Limit:</div>
+                    <div className="policy-details-label">
+                      Geographical Limit:
+                    </div>
                     <div className="policy-detail">
                       {claimMetaData?.policyDetails?.geographicalUnit}
                     </div>
@@ -1585,9 +1657,7 @@ const ClaimSubmission = () => {
                     </div>
                   </div>
                   <div className="policy-details-container">
-                    <div className="policy-details-label">
-                      Cost:
-                    </div>
+                    <div className="policy-details-label">Cost:</div>
                     <div className="policy-detail">
                       {claimMetaData?.policyDetails?.cost}
                     </div>
@@ -1821,9 +1891,9 @@ const ClaimSubmission = () => {
                 <div className="verify-details-heading">
                   Your Travel Details
                 </div>
-                <div className="verify-details-sub-text">
+                {/* <div className="verify-details-sub-text">
                   Please enter your travel insurance policy details below.
-                </div>
+                </div> */}
               </div>
 
               <div className="select-country-container">
@@ -1850,20 +1920,21 @@ const ClaimSubmission = () => {
                 </div>
 
                 <div className="initiate-claim-btn-container">
-                  {editMode ? 
-                  <div
-                    className="web-btn-full"
-                    onClick={() => handleStepChange(4)}
-                  >
-                    Update
-                  </div> : 
-                  <div
-                    className="web-btn-full"
-                    onClick={() => handleStepChange(2)}
-                  >
-                    NEXT
-                  </div>
-                  }
+                  {editMode ? (
+                    <div
+                      className="web-btn-full"
+                      onClick={() => handleStepChange(4)}
+                    >
+                      Update
+                    </div>
+                  ) : (
+                    <div
+                      className="web-btn-full"
+                      onClick={() => handleStepChange(2)}
+                    >
+                      NEXT
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1878,19 +1949,18 @@ const ClaimSubmission = () => {
 
       {activeStep === 2 && (
         <div className="claim-details-main-container py-3 px-5">
-            {
-                !editMode &&
-          <div className="back-icon-container" onClick={handleStepBack}>
-            <div className="back-icon">
-              <img
-                src="/img/back-icon.svg"
-                alt="back-icon"
-                style={{ width: "7px", height: "auto", marginRight: "10px" }}
-              />
+          {!editMode && (
+            <div className="back-icon-container" onClick={handleStepBack}>
+              <div className="back-icon">
+                <img
+                  src="/img/back-icon.svg"
+                  alt="back-icon"
+                  style={{ width: "7px", height: "auto", marginRight: "10px" }}
+                />
+              </div>
+              <div className="back-text">Back</div>
             </div>
-            <div className="back-text">Back</div>
-          </div>
-            }
+          )}
 
           {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
                         <div className="back-icon">
@@ -1930,6 +2000,20 @@ const ClaimSubmission = () => {
                 >
                   Claim request {index + 1}
                 </div>
+                {index !== 0 && (
+                  <Button
+                    danger
+                    onClick={() => {
+                      setClaims((preval) => {
+                        return preval.filter((elem, i) => {
+                          return index !== i;
+                        });
+                      });
+                    }}
+                  >
+                    <DeleteTwoTone twoToneColor="#eb2f96" />
+                  </Button>
+                )}
               </div>
 
               <div className="claim-category-select mb-3">
@@ -1939,6 +2023,7 @@ const ClaimSubmission = () => {
                 <Select
                   showSearch
                   onChange={async (value) => {
+                    console.log("value", value);
                     setClaimCategories((preval) => {
                       return preval.map((elem, i) => {
                         if (elem.value === value) {
@@ -2083,72 +2168,68 @@ const ClaimSubmission = () => {
           </Modal>
 
           <div className="btns-container">
-            {
-                !editMode && 
-            <div
-              className="web-btn"
-              onClick={() => {
-                setDisableOpt([
-                  ...disableOpt,
-                  {
-                    index: "",
-                    val: "",
-                  },
-                ]);
-                setIsModalOpen(true);
-              }}
-            >
-              Add more claims
-            </div>
-            }
+            {!editMode && (
+              <div
+                className="web-btn"
+                onClick={() => {
+                  setDisableOpt([
+                    ...disableOpt,
+                    {
+                      index: "",
+                      val: "",
+                    },
+                  ]);
+                  setIsModalOpen(true);
+                }}
+              >
+                Add more claims
+              </div>
+            )}
             <div className="save-draft-next-btn-container d-flex align-items-center">
-              {
-                !editMode &&
-              <div
-                className="secondary-btn mr-2"
-                onClick={() => {
-                  if (claims[0].claimCategoryId === null) {
-                    message.error(
-                      "Please select at least one req and document !"
-                    );
-                    return;
-                  }
-                  addAllClaims();
-                }}
-              >
-                Save as draft
-              </div>
-              }
-              {
-                !editMode &&
-              <div
-                className="web-btn"
-                onClick={() => {
-                  if (claims[0].claimCategoryId === null) {
-                    message.error(
-                      "Please select at least one req and document !"
-                    );
-                    return;
-                  }
-                  addAllClaims(true);
-                }}
-              >
-                Next
-              </div>
-              }
-              {
-                editMode && 
+              {!editMode && (
                 <div
-                className="web-btn"
-                onClick={() => {
-                  updateAllClaims()
-                  // addAllClaims(true,true)
-                  setActiveStep(4);
-                }}
-              >
-                Update
-              </div>
-              }
+                  className="secondary-btn mr-2"
+                  onClick={() => {
+                    if (claims[0].claimCategoryId === null) {
+                      message.error(
+                        "Please select at least one req and document !"
+                      );
+                      return;
+                    }
+                    addAllClaims();
+                  }}
+                >
+                  Save as draft
+                </div>
+              )}
+              {!editMode && (
+                <div
+                  className="web-btn"
+                  onClick={() => {
+                    if (claims[0].claimCategoryId === null) {
+                      message.error(
+                        "Please select at least one req and document !"
+                      );
+                      return;
+                    }
+                    addAllClaims(true);
+                  }}
+                >
+                  Next
+                </div>
+              )}
+              {editMode && (
+                <div
+                  className="web-btn"
+                  onClick={() => {
+                    updateAllClaims();
+                    // addAllClaims(true,true)
+                    setActiveStep(4);
+                  }}
+                >
+                  Update
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -2165,23 +2246,25 @@ const ClaimSubmission = () => {
               <Col span={8}></Col>
               <Col lg={{ span: 8 }} xs={{ span: 24 }}>
                 <div className="travel-details-container">
-                    {
-                        !editMode &&
-                  <div className="back-icon-container" onClick={handleStepBack}>
-                    <div className="back-icon">
-                      <img
-                        src="/img/back-icon.svg"
-                        alt="back-icon"
-                        style={{
-                          width: "7px",
-                          height: "auto",
-                          marginRight: "10px",
-                        }}
-                      />
+                  {!editMode && (
+                    <div
+                      className="back-icon-container"
+                      onClick={handleStepBack}
+                    >
+                      <div className="back-icon">
+                        <img
+                          src="/img/back-icon.svg"
+                          alt="back-icon"
+                          style={{
+                            width: "7px",
+                            height: "auto",
+                            marginRight: "10px",
+                          }}
+                        />
+                      </div>
+                      <div className="back-text">Back</div>
                     </div>
-                    <div className="back-text">Back</div>
-                  </div>
-                    }
+                  )}
 
                   {/* <div className="back-icon-container-mob" onClick={handleStepBack}>
                                         <div className="back-icon">
@@ -2247,7 +2330,10 @@ const ClaimSubmission = () => {
                             value={payeeName}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(/[0-9]/g, "")
+                              const filteredValue = inputValue.replace(
+                                /[0-9]/g,
+                                ""
+                              );
                               setPayeeName(filteredValue);
                             }}
                           />
@@ -2264,7 +2350,10 @@ const ClaimSubmission = () => {
                             value={PayeeNRIC}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                              const filteredValue = inputValue.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
                               setPayeeNRIC(filteredValue);
                             }}
                           />
@@ -2315,7 +2404,10 @@ const ClaimSubmission = () => {
                             value={bankAccountNumber}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(/[^0-9]/g, "");
+                              const filteredValue = inputValue.replace(
+                                /[^0-9]/g,
+                                ""
+                              );
                               setBankAccountNumber(filteredValue);
                             }}
                           />
@@ -2357,7 +2449,10 @@ const ClaimSubmission = () => {
                             value={payeeName}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(/[0-9]/g, "")                              
+                              const filteredValue = inputValue.replace(
+                                /[0-9]/g,
+                                ""
+                              );
                               setPayeeName(filteredValue);
                             }}
                           />
@@ -2370,24 +2465,22 @@ const ClaimSubmission = () => {
                 {/* In case of paynow slelect, show this field */}
 
                 {/* In case of cheque slelect, show this field */}
-                 {
-                    !editMode &&
-                <div
-                  className="web-btn-full"
-                  onClick={() => handleStepChange(4)}
-                >
-                  Next
-                </div>
-                 }           
-                 {
-                    editMode &&
-                <div
-                  className="web-btn-full"
-                  onClick={() => handleStepChange(4)}
-                >
-                  Update
-                </div>
-                 }           
+                {!editMode && (
+                  <div
+                    className="web-btn-full"
+                    onClick={() => handleStepChange(4)}
+                  >
+                    Next
+                  </div>
+                )}
+                {editMode && (
+                  <div
+                    className="web-btn-full"
+                    onClick={() => handleStepChange(4)}
+                  >
+                    Update
+                  </div>
+                )}
               </Col>
               <Col span={8}></Col>
             </Row>
@@ -2494,17 +2587,19 @@ const ClaimSubmission = () => {
                     </div>
                   </div>
 
-                    <div className="d-flex countryEditButton">
-                  <div className="policy-details-container">
-
-                    <div className="policy-details-label">
-                      Country where Loss Occurred
+                  <div className="d-flex countryEditButton">
+                    <div className="policy-details-container">
+                      <div className="policy-details-label">
+                        Country where Loss Occurred
+                      </div>
+                      <div className="policy-detail d-flex">
+                        {reviewDataNew?.lossCountry}
+                      </div>
                     </div>
-                    <div className="policy-detail d-flex">
-                      {reviewDataNew?.lossCountry}
-                    </div>
-                    </div>
-                    <div className="edit-icon" onClick={()=>handleStepChange(1)}>
+                    <div
+                      className="edit-icon"
+                      onClick={() => handleStepChange(1)}
+                    >
                       <div className="icon">
                         <img
                           src="/img/edit-icon.svg"
@@ -2663,29 +2758,29 @@ const ClaimSubmission = () => {
 
                 <div className="virtual-card-heading-text">Claim Details</div>
               </div>
-              
+
               <div
-                        className="edit-icon-container"
-                        onClick={() => {
-                            handleStepChange(2)
-                            setEditMode(true)
-                        }}
-                      >
-                        <div className="edit-icon">
-                          <div className="icon">
-                            <img
-                              src="/img/edit-icon.svg"
-                              alt="edit-icon"
-                              style={{
-                                width: "12px",
-                                height: "auto",
-                                marginRight: "5px",
-                              }}
-                            />
-                          </div>
-                          <span>Edit</span>
-                        </div>
-                      </div>
+                className="edit-icon-container"
+                onClick={() => {
+                  handleStepChange(2);
+                  setEditMode(true);
+                }}
+              >
+                <div className="edit-icon">
+                  <div className="icon">
+                    <img
+                      src="/img/edit-icon.svg"
+                      alt="edit-icon"
+                      style={{
+                        width: "12px",
+                        height: "auto",
+                        marginRight: "5px",
+                      }}
+                    />
+                  </div>
+                  <span>Edit</span>
+                </div>
+              </div>
               {/* <div className="review-edit-icon-container d-flex">
                                 <div className="review-edit-icon">
                                     <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
@@ -2905,8 +3000,8 @@ const ClaimSubmission = () => {
                   <div
                     className="edit-icon-container"
                     onClick={() => {
-                        handleStepChange(3)
-                        setEditMode(true)
+                      handleStepChange(3);
+                      setEditMode(true);
                     }}
                   >
                     <div className="edit-icon">
@@ -3022,7 +3117,11 @@ const ClaimSubmission = () => {
             <div className="declaration-container pl-2">
               <div className="checkbox-text">
                 <Checkbox
-                defaultChecked={reviewDataNew.isDeclaration ? reviewDataNew.isDeclaration : isDeclaration}
+                  defaultChecked={
+                    reviewDataNew.isDeclaration
+                      ? reviewDataNew.isDeclaration
+                      : isDeclaration
+                  }
                   value={isDeclaration}
                   onChange={(e) => {
                     setIsDeclaration(e.target.checked);
@@ -3047,7 +3146,11 @@ const ClaimSubmission = () => {
                   <div style={{ marginTop: "15px" }}>
                     <Input
                       placeholder="User Name"
-                      value={reviewDataNew.declarationUserName ? reviewDataNew.declarationUserName : userName}
+                      value={
+                        reviewDataNew.declarationUserName
+                          ? reviewDataNew.declarationUserName
+                          : userName
+                      }
                       onChange={(e) => {
                         setUserName(e.target.value);
                       }}
@@ -3060,7 +3163,9 @@ const ClaimSubmission = () => {
 
             <div className="checkbox-text my-3">
               <Checkbox
-              defaultChecked={reviewDataNew.isConsent ? reviewDataNew.isConsent : isConsent}
+                defaultChecked={
+                  reviewDataNew.isConsent ? reviewDataNew.isConsent : isConsent
+                }
                 value={isConsent}
                 onChange={(e) => {
                   setIsConsent(e.target.checked);
