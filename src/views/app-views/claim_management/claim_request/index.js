@@ -119,9 +119,9 @@ const ClaimReq = () => {
       title: "Claimed Date",
       dataIndex: "claimedDate",
       width:120,
-      render:(date)=>{
-        return <>{moment(date).format('YYYY-MM-DD')}</>
-      }
+      render: (date) => {
+        return <>{moment(date).format("DD MMM YYYY, hh:mm:ss A")}</>;
+      },
     },
     {
       title: "Status",

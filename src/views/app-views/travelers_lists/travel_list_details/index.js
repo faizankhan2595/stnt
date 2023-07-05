@@ -69,6 +69,8 @@ export default function MembershipRequest() {
           startDate: obj.policies.startDate,
           endDate: obj.policies.endDate,
           agencyName:obj.agencyName.agencyName,
+          status:obj.policies.status,
+          id:obj.policies.id,
         }
       })
       setTravelerPolicies(customData);
@@ -121,8 +123,8 @@ export default function MembershipRequest() {
     setVisible(true);
   };
 
-  const [value, setValue] = useState(1);
-
+  const [value, setValue] = useState('active');
+const [policyUpdateId, setPolicyUpdateId] = useState(null)
   const onClose = () => {
     setVisible(false);
   };
@@ -131,18 +133,33 @@ export default function MembershipRequest() {
 
   const showModal = () => {
     setIsModalOpen(true);
-    handleOk()
+    // handleOk()
   };
-
+  const updatePolicyStatus = async (id) => {
+    console.log(id,value);
+    let res1 = await axios.put(`https://api.stntinternational.com/api/travellers/policies/update-status`,{id:id,status:value},
+    {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      },
+    })
+    if(res1.data.status){
+      setIsModalOpen(false);
+      window.location.reload()
+    } else {
+      setIsModalOpen(false);
+      alert("Something Went Wronng !")
+    }
+  }
   const onRadChange = (e) => {
     console.log('radio checked', e.target.value);
     setValue(e.target.value);
   };
 
   const handleOk = () => {
-    setTimeout(() => {
+    // setTimeout(() => {
       setIsModalOpen(false);
-    }, 5000)
+    // }, 5000)
   };
 
   const handleCancel = () => {
@@ -268,7 +285,7 @@ export default function MembershipRequest() {
   const policyHistoryColumns = [
     {
       title: 'Sr No',
-      dataIndex: 'sr_no',
+      dataIndex: 'id',
     },
     {
       title: "Policy No",
@@ -295,7 +312,7 @@ export default function MembershipRequest() {
       title: "Status",
       dataIndex: 'status',
       render: text => {
-        return <p className={`${text !== "Active" ? 'text-danger' : "text-success"} font-weight-semibold`}>{text}</p>
+        return <p className={`${text !== "active" ? 'text-danger' : "text-success"} font-weight-semibold`}>{text}</p>
       }
     },
     {
@@ -308,7 +325,11 @@ export default function MembershipRequest() {
               <Menu>
                 <Menu.Item>
                   {/* <span onClick={showDrawer} > <EyeOutlined className='mr-2 ' />View Details</span > */}
-                  <Link onClick={() => showModal()}><HistoryOutlined className='mr-2 ' />Update Status</Link>
+                  <span onClick={() => {
+                    setValue(record.status)
+                    setPolicyUpdateId(record.id)
+                    showModal()
+                  }}><HistoryOutlined className='mr-2 ' />Update Status</span>
                   <Drawer
                     title={`Membership Request Details `}
                     placement='right'
@@ -915,8 +936,8 @@ export default function MembershipRequest() {
             <span className="ml-2"> Change Policy Status</span>
           </h3>
           <Radio.Group className="ml-5" onChange={onRadChange} value={value}>
-            <Radio className="ml-3" value={1}>Active</Radio>
-            <Radio className="ml-3" value={2}>Inactive</Radio>
+            <Radio className="ml-3" value={'active'}>Active</Radio>
+            <Radio className="ml-3" value={'inactive'}>Inactive</Radio>
 
           </Radio.Group>
           <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
@@ -934,9 +955,10 @@ export default function MembershipRequest() {
           </Button>
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
-          // onClick={() => {
-          //   setIsChangeStudModalOpen(false);
-          // }}
+          onClick={() => {
+            updatePolicyStatus(policyUpdateId)
+            // showModal(false);
+          }}
           >
             Save
           </Button>

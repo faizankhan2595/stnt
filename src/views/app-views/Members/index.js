@@ -1,4 +1,4 @@
-import { Button, Modal } from "antd";
+import { Button, DatePicker, Modal,Input } from "antd";
 import React, { useEffect, useState } from "react";
 import { clients } from "../data";
 import Helper from "../Helper";
@@ -10,12 +10,13 @@ import { Link } from "react-router-dom";
 import CustomIcon from "components/util-components/CustomIcon";
 import { Export, History } from "assets/svg/icon";
 import axios from "axios";
-
-
+import { PopulateList } from "configs/icons";
+const { Search } = Input;
 export default function Members() {
   const [membersData, setMembersData] = useState([]);
 
-  axios.defaults.headers.common["Authorization"] = 'Bearer ' + localStorage.getItem('token');
+  axios.defaults.headers.common["Authorization"] =
+    "Bearer " + localStorage.getItem("token");
 
   const onDeleteData = (record) => {
     console.log(record);
@@ -41,7 +42,7 @@ export default function Members() {
         <a href={record.manifestUrl} target="_blank" rel="noopener noreferrer">
           {record.fileName}
         </a>
-      )
+      ),
       //manifestUrl
     },
     {
@@ -85,17 +86,33 @@ export default function Members() {
       render: (record) => {
         return (
           <>
-            <EllipsisDropdown menu={
-              <Menu>
-                <Menu.Item>
-                  <Link to={`members/memberdetails/${record.id}`} > <EyeOutlined className='mr-2 ' />View Details</Link >
-                </Menu.Item>
-                <Menu.Item>
-                  <span onClick={() => onDeleteData(record)}> <DeleteOutlined className='mr-2 ' />Delete</span>
-                </Menu.Item>
-              </Menu>
-            } />
-
+            <EllipsisDropdown
+              menu={
+                <Menu>
+                  {/* <Menu.Item>
+                    <Link to={`members/memberdetails/${record.id}`}>
+                      {" "}
+                      <EyeOutlined className="mr-2 " />
+                      View Details
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <span onClick={() => onDeleteData(record)}>
+                      {" "}
+                      <DeleteOutlined className="mr-2 " />
+                      Delete
+                    </span>
+                  </Menu.Item> */}
+                  <Menu.Item onClick={() => console.log(record)}>
+                    <span className="d-flex align-items-center">
+                      <PopulateList />
+                      {" "}
+                      <span className="ml-2">Populate List</span>
+                    </span>
+                  </Menu.Item>
+                </Menu>
+              }
+            />
           </>
         );
       },
@@ -103,9 +120,11 @@ export default function Members() {
   ];
 
   const getMembers = () => {
-    axios.get("https://api.stntinternational.com/api/manifests").then((response) => {
-      setMembersData(response.data.data);
-    });
+    axios
+      .get("https://api.stntinternational.com/api/manifests?size=1000")
+      .then((response) => {
+        setMembersData(response.data.data);
+      });
   };
 
   const deleteMember = (record) => {
@@ -133,25 +152,23 @@ export default function Members() {
 
   return (
     <div>
-        <div className="d-flex justify-content-between">
-      <div className="memberDetailTableSearchFilter">
-          <form className="memberDetailSearch">
-            <CustomIcon svg={History} />{" "}
-            <input
-              className="memberDetailSerachInput"
-              placeholder="Search"
-              type="text"
-              name="search"
-              id=""
+      <h3>Traveler / Manifest Import</h3>
+      <div className="d-flex justify-content-between">
+        <div className="membershipPlanTableSearchFilter d-flex mb-4">
+        <Search
+            placeholder="Search"
+            onSearch={(value) => console.log(value)}
+            style={{
+              width: 200,
+            }}
+          />
+          <div className="ml-2">
+            <DatePicker
+              onChange={(date, dateString) => console.log(date, dateString)}
+              style={{
+                width: 200,
+              }}
             />
-          </form>
-          <div className="memberDetailFilter">
-            <CustomIcon svg={History} />{" "}
-            <span className="memberDetailFilterText"> Filters</span>
-          </div>
-          <div className="memberDetailFilter">
-            <CustomIcon svg={Export} />{" "}
-            <span className="memberDetailFilterText"> Export</span>
           </div>
         </div>
         <Button className="bg-info text-white">

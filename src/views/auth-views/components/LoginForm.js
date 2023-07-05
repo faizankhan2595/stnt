@@ -59,6 +59,7 @@ export const LoginForm = (props) => {
 
       const data = response.data;
       localStorage.setItem("token", data.token);
+      localStorage.setItem("role", data.jobTitle);
       window.location.href = "/app/dashboard";
     } catch (error) {
       setError("Invalid username or password");

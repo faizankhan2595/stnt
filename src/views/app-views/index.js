@@ -4,6 +4,7 @@ import Loading from 'components/shared-components/Loading';
 import { APP_PREFIX_PATH } from 'configs/AppConfig'
 
 export const AppViews = () => {
+  const role = localStorage.getItem("role");
   return (
     <Suspense fallback={<Loading cover="content" />}>
       <Switch>
@@ -11,19 +12,7 @@ export const AppViews = () => {
           <Redirect to={`${APP_PREFIX_PATH}/dashboard`} />
         </Route>
         <Route path={`${APP_PREFIX_PATH}/dashboard`} component={lazy(() => import(`./Dashboard`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/user_management`} component={lazy(() => import(`./user_management`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management`} component={lazy(() => import(`./virtual_card_management`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/view_card_history`} component={lazy(() => import(`./virtual_card_management/view_card_history`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/add_new`} component={lazy(() => import(`./virtual_card_management/add_new`))} />
 
-        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager`} component={lazy(() => import(`./claim_document_manager`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/add_new_category`} component={lazy(() => import(`./claim_document_manager/add_new_category`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/edit_new_category`} component={lazy(() => import(`./claim_document_manager/add_new_category`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/view_document/add_new_document`} component={lazy(() => import(`./claim_document_manager/view_document/add_new_document`))} />
-        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/view_document/:id`} component={lazy(() => import(`./claim_document_manager/view_document`))} />
-
-        
-        <Route exact path={`${APP_PREFIX_PATH}/user_management/register_new_user`} component={lazy(() => import(`./user_management/register_new_user`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request`} component={lazy(() => import(`./claim_management/claim_request`))} />
         <Route exact path={`${APP_PREFIX_PATH}/claim_management/claim_request/view_detail/:claimId/:userId`} component={lazy(() => import(`./claim_management/claim_request/view_detail/index`))} />
         <Route exact path={`${APP_PREFIX_PATH}/travel_agency`} component={lazy(() => import(`./travel_agency`))} />
@@ -51,6 +40,23 @@ export const AppViews = () => {
         <Route exact path={`${APP_PREFIX_PATH}/facilities/facility_list/:facility_types/add_new`} component={lazy(() => import(`./Facility/AddNewFacilityTypes.js`))} />
         <Route exact path={`${APP_PREFIX_PATH}/web_homepage`} component={lazy(() => import(`./web_homepage/web_homepage`))} />
         <Route exact path={`${APP_PREFIX_PATH}/web_claimSubmission`} component={lazy(() => import(`./web_claimSubmission/web_claimSubmission`))} />
+        {
+          role === "superAdmin" && <>
+        <Route exact path={`${APP_PREFIX_PATH}/user_management`} component={lazy(() => import(`./user_management`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management`} component={lazy(() => import(`./virtual_card_management`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/view_card_history`} component={lazy(() => import(`./virtual_card_management/view_card_history`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/virtual_card_management/add_new`} component={lazy(() => import(`./virtual_card_management/add_new`))} />
+
+        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager`} component={lazy(() => import(`./claim_document_manager`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/add_new_category`} component={lazy(() => import(`./claim_document_manager/add_new_category`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/edit_new_category`} component={lazy(() => import(`./claim_document_manager/add_new_category`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/view_document/add_new_document`} component={lazy(() => import(`./claim_document_manager/view_document/add_new_document`))} />
+        <Route exact path={`${APP_PREFIX_PATH}/claim_document_manager/view_document/:id`} component={lazy(() => import(`./claim_document_manager/view_document`))} />
+
+        
+      <Route exact path={`${APP_PREFIX_PATH}/user_management/register_new_user`} component={lazy(() => import(`./user_management/register_new_user`))} />
+      </>
+      }
       </Switch>
     </Suspense>
   )

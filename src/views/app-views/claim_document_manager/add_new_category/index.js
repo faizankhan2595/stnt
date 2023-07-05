@@ -164,7 +164,7 @@ const AddNew = () => {
             style={{ gap: "10px" }}
             className="mt-5 d-flex justify-content-end"
           >
-            <Button className="px-4 font-weight-semibold" htmlType="button">
+            <Button onClick={()=>history.goBack()} className="px-4 font-weight-semibold" htmlType="button">
               Cancel
             </Button>
             <Button

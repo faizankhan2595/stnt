@@ -92,6 +92,7 @@ const props = {
 const ClaimSubmission = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [isedit, setIsedit] = useState(false)
   const [isContactDetailModalOpen, setIsContactDetailModalOpen] =
     useState(false);
   // const [isChecked, setIsChecked] = useState(false);
@@ -449,6 +450,7 @@ const ClaimSubmission = () => {
                 className="secondary-btn"
                 style={{ maxWidth: "fit-content" }}
                 onClick={async () => {
+                  setIsedit(true)
                   getClaimsByUserFn(null, record.key);
                   getReview(record.key);
                   fetch("https://geolocation-db.com/json/")
@@ -981,6 +983,11 @@ const ClaimSubmission = () => {
       alert("Please enter User Name to proceed");
       return;
     }
+    if (isedit) {
+      setIsedit(false);
+      setActiveStep(0)
+      return
+    }
 
     let config = {
       method: "post",
@@ -1331,15 +1338,20 @@ const ClaimSubmission = () => {
       </Modal>
 
       <div className="claim-title-container">
-      {activeStep === 0 ? <>
-        <div className="claim-title-text">Claim Submission</div>
-        <div className="claim-title-sub-text">
-          With a convenient insurance claim process, you can now register your
-          claim, <br></br>upload the necessary documents and know the status
-          instantly.
-        </div>
-        </>
-        : <><div className="claim-title-text">Travel Details</div></>}
+        {activeStep === 0 ? (
+          <>
+            <div className="claim-title-text">Claim Submission</div>
+            <div className="claim-title-sub-text">
+              With a convenient insurance claim process, you can now register
+              your claim, <br></br>upload the necessary documents and know the
+              status instantly.
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="claim-title-text">Travel Details</div>
+          </>
+        )}
         <div className="logout-btn-container-mob">
           <div
             className="update-address-container-mob"
@@ -1361,7 +1373,7 @@ const ClaimSubmission = () => {
             style={{ width: "100%", height: "auto" }}
           />
         </div>
-        {activeStep === 0 ? (
+        {activeStep === 0 && (
           <>
             <div className="claim-title-text">Claim Submission</div>
             <div className="claim-title-sub-text">
@@ -1370,9 +1382,25 @@ const ClaimSubmission = () => {
               instantly.
             </div>
           </>
-        ) : (
+        )}
+        {activeStep === 1 && (
           <>
             <div className="claim-title-text">Travel Details</div>
+          </>
+        )}
+        {activeStep === 2 && (
+          <>
+            <div className="claim-title-text">Claim Details</div>
+          </>
+        )}
+        {activeStep === 3 && (
+          <>
+            <div className="claim-title-text">Payment Details</div>
+          </>
+        )}
+        {activeStep === 4 && (
+          <>
+            <div className="claim-title-text">Review</div>
           </>
         )}
 
@@ -1420,13 +1448,13 @@ const ClaimSubmission = () => {
           <Steps
             direction="horizontal"
             current={activeStep}
-            labelPlacement="vertical"
+            labelPlacement="horizontal"
           >
-            <Step onClick={() => handleStepChange(0)} />
-            <Step onClick={() => handleStepChange(1)} />
-            <Step onClick={() => handleStepChange(2)} />
-            <Step onClick={() => handleStepChange(3)} />
-            <Step onClick={() => handleStepChange(4)} />
+            <Step title="Get started" onClick={() => handleStepChange(0)} />
+            <Step title="Travel Details" onClick={() => handleStepChange(1)} />
+            <Step title="Claim Details" onClick={() => handleStepChange(2)} />
+            <Step title="Payment Details" onClick={() => handleStepChange(3)} />
+            <Step title="Review" onClick={() => handleStepChange(4)} />
           </Steps>
         </div>
       </div>
@@ -1969,7 +1997,7 @@ const ClaimSubmission = () => {
                     </div> */}
 
           <div className="claim-details-title">
-            <div className="claim-details-heading">Claim requests</div>
+            <div className="claim-details-heading">Claim Requests</div>
             <div className="claim-details-sub-text">
               claim request can be initiated by selecting category of claim and
               uploading documents & pictures. User can add multiple claims for
@@ -2021,37 +2049,40 @@ const ClaimSubmission = () => {
                   Claim Category
                 </div>
                 <Select
-                  showSearch
-                  onChange={async (value) => {
-                    console.log("value", value);
-                    setClaimCategories((preval) => {
-                      return preval.map((elem, i) => {
-                        if (elem.value === value) {
-                          return { ...elem, disabled: true };
-                        } else if (claim.claimCategoryId === elem.value) {
-                          return { ...elem, disabled: false };
-                        } else {
-                          return elem;
-                        }
-                      });
-                    });
-                    const claimNew = [...claims];
-                    const data = await getClaimCategoryAndDocs({ id: value });
-                    const claimCategoryData = data.data?.claimCategoryData;
-                    claimNew[index].claimCategoryId = value;
-                    claimNew[index].claimDocs =
-                      claimCategoryData?.claimDocuments;
-                    setClaims(claimNew);
-                    // console.log(value,disableOpt);
-                  }}
-                  placeholder="Select a category"
-                  optionFilterProp="children"
-                  name="categories"
-                  // disabled={}
-                  value={claim.claimCategoryId}
-                  options={claimCategories}
-                  className="claim-category-select-input"
-                />
+  showSearch
+  onChange={async (value) => {
+    console.log("value", value);
+    setClaimCategories((prevVal) => {
+      return prevVal.map((elem) => {
+        if (elem.value === value) {
+          return { ...elem, disabled: true };
+        } else if (claim.claimCategoryId === elem.value) {
+          return { ...elem, disabled: false };
+        } else {
+          return elem;
+        }
+      });
+    });
+
+    const claimNew = [...claims];
+    const data = await getClaimCategoryAndDocs({ id: value });
+    const claimCategoryData = data.data?.claimCategoryData;
+    claimNew[index].claimCategoryId = value;
+    claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
+    setClaims(claimNew);
+  }}
+  placeholder="Select a category"
+  optionFilterProp="children" // Use "children" property for filtering options
+  filterOption={(input, option) => {
+    console.log(input,option);
+    return option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
+  }} // Filter options based on the "children" property
+  name="categories"
+  value={claim.claimCategoryId}
+  options={claimCategories}
+  className="claim-category-select-input"
+/>
+
               </div>
 
               <div
@@ -2350,10 +2381,7 @@ const ClaimSubmission = () => {
                             value={PayeeNRIC}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(
-                                /[^0-9]/g,
-                                ""
-                              );
+                              const filteredValue = inputValue.replace(/[^a-zA-Z0-9]/g, ""); // Only allow alphabets and numbers
                               setPayeeNRIC(filteredValue);
                             }}
                           />

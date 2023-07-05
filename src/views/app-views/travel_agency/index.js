@@ -48,6 +48,7 @@ const TravelAgency = () => {
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
+  const [statusId, setStatusId] = useState(null)
   const [value, setValue] = useState(1);
 
 
@@ -60,12 +61,15 @@ const TravelAgency = () => {
     setValue(e.target.value);
   };
 
-  const onUpdateStatus = async (record) => {
-    console.log(record);
+  const onUpdateStatus = async (id) => {
+    console.log(id);
     let data = {};
-    data.id = ""+record.id;
+    data.id = ""+id;
     data.status = value;
-    await UpdateTravelAgencyStatus(data);
+    let res1 = await UpdateTravelAgencyStatus(data);
+    if(res1.data.status){
+      window.location.reload()
+    }
   };
 
 
@@ -126,7 +130,11 @@ const TravelAgency = () => {
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => setIsChangeStudModalOpen(true)}>
+                    <span onClick={() => {
+                      setStatusId(record.id)
+                      setIsChangeStudModalOpen(true)
+                    }
+                    }>
                       {" "}
                       Update Status
                     </span>
@@ -134,8 +142,21 @@ const TravelAgency = () => {
                 </Menu>
               }
             />
+          </>
+        );
+      },
+    },
+  ];
 
-            <Modal
+  useEffect(async () => {
+    const response = await GetAllTravelAgency({ size: 10000, page: 1, search: '' });
+    console.log(response.data.data.rows);
+    setData(response.data.data.rows);
+  }, []);
+
+  return (
+    <div>
+       <Modal
               width={600}
               footer={null}
               visible={isChangeStudModalOpen}
@@ -166,7 +187,7 @@ const TravelAgency = () => {
                 <Button
                   className="px-4 font-weight-semibold text-white bg-info"
                   onClick={() => {
-                    onUpdateStatus(record);
+                    onUpdateStatus(statusId);
                     setIsChangeStudModalOpen(false);
                   }}
                 >
@@ -174,21 +195,6 @@ const TravelAgency = () => {
                 </Button>
               </div>
             </Modal>
-
-          </>
-        );
-      },
-    },
-  ];
-
-  useEffect(async () => {
-    const response = await GetAllTravelAgency({ size: 10000, page: 1, search: '' });
-    console.log(response.data.data.rows);
-    setData(response.data.data.rows);
-  }, []);
-
-  return (
-    <div>
       <div className="d-flex justify-content-between">
         <div className="membershipPlanTableSearchFilter d-flex mb-3">
           <Search
