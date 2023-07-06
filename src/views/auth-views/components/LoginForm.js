@@ -267,6 +267,41 @@ export const LoginForm = (props) => {
 		  <span onClick={handleCancel} className="mt-2 forget_password_loginTwo">Cancel</span>
         </div>
       </Modal>
+      <Modal
+        width={600}
+        footer={null}
+        visible={false}
+        onCancel={handleCancel}
+      >
+        <div style={{width:'400px'}} className="m-auto d-flex my-3 flex-column justify-content-center">
+		<div className="d-flex align-items-center flex-column justify-content-center"><ForgetEmailIcon/></div>
+          <h3 className="text-center">Reset Password</h3>
+		  <h5>New Password </h5>
+		  <Input.Password
+            // value="New Password"
+            placeholder="Enter password"
+            onChange={(e) => console.log(e.target.value)}
+            prefix={<LockOutlined className="text-primary" />}
+          />
+		   <h5 className="mt-3">Confirmb New Password </h5>
+		   <Input.Password
+            // value="Confirm New Password"
+            placeholder="Confirm password"
+            onChange={(e) => console.log(e.target.value)}
+            prefix={<LockOutlined className="text-primary" />}
+          />
+		  <div className="d-flex my-3 align-items-center flex-column justify-content-center">
+          <Button
+            style={{ backgroundColor: "#41C1B2", border: "none" }}
+            className="mt-3"
+            type="primary"
+            onClick={handleOk}
+          >
+            Submit
+          </Button>
+		  <span onClick={handleCancel} className="mt-2 forget_password_loginTwo">Cancel</span></div>
+        </div>
+      </Modal>
     </>
   );
 };

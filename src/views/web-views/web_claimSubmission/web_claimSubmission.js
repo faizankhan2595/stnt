@@ -92,7 +92,7 @@ const props = {
 const ClaimSubmission = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
-  const [isedit, setIsedit] = useState(false)
+  const [isedit, setIsedit] = useState(false);
   const [isContactDetailModalOpen, setIsContactDetailModalOpen] =
     useState(false);
   // const [isChecked, setIsChecked] = useState(false);
@@ -124,6 +124,8 @@ const ClaimSubmission = () => {
   const [claimMetaData, setClaimMetaData] = useState({});
   const [reviewDataNew, setReviewDataNew] = useState({});
   const [claimByUserDetails, setClaimByUserDetails] = useState({});
+  const [claimReqIndex, setClaimReqIndex] = useState(0);
+  const [editCategory, setEditCategory] = useState({})
   const [disableOpt, setDisableOpt] = useState([{ index: 0, val: "" }]);
   const [claims, setClaims] = useState([
     {
@@ -267,39 +269,41 @@ const ClaimSubmission = () => {
         });
         const claimCategoryData = claimDocsData.data?.claimCategoryData;
         const files = claimCategory.files;
-
-        let claimDocuments = claimCategoryData?.claimDocuments.map(
-          (claimDocument, index) => {
-            const file = files.find(
-              (file) => file?.fieldname === claimDocument.title
-            );
-
-            if (!file) {
+        if (files!==null) {
+          
+          let claimDocuments = claimCategoryData?.claimDocuments.map(
+            (claimDocument, index) => {
+              const file = files.find(
+                (file) => file?.fieldname === claimDocument.title
+              );
+  
+              if (!file) {
+                return {
+                  ...claimDocument,
+                  url: null,
+                  name: null,
+                  claimRequestId: claimCategory.claimRequestId,
+                  documentId: null,
+                };
+              }
+  
               return {
                 ...claimDocument,
-                url: null,
-                name: null,
-                claimRequestId: claimCategory.claimRequestId,
-                documentId: null,
+                url: file?.path,
+                name: file?.originalname,
+                claimRequestId: claimCategory.id,
+                documentId: file?.id,
               };
             }
+          );
+          claimsNew.push({
+            claimCategoryId: claimCategory.claimCategory.id,
+            isDraft: true,
+            claimDocs: claimDocuments,
+            files: claimCategory.files,
+          });
+        }
 
-            return {
-              ...claimDocument,
-              url: file?.path,
-              name: file?.originalname,
-              claimRequestId: claimCategory.id,
-              documentId: file?.id,
-            };
-          }
-        );
-
-        claimsNew.push({
-          claimCategoryId: claimCategory.claimCategory.id,
-          isDraft: true,
-          claimDocs: claimDocuments,
-          files: claimCategory.files,
-        });
       }
 
       if (claimsNew.length === 0) {
@@ -450,7 +454,8 @@ const ClaimSubmission = () => {
                 className="secondary-btn"
                 style={{ maxWidth: "fit-content" }}
                 onClick={async () => {
-                  setIsedit(true)
+                  setEditMode(true);
+                  setIsedit(true);
                   getClaimsByUserFn(null, record.key);
                   getReview(record.key);
                   fetch("https://geolocation-db.com/json/")
@@ -655,6 +660,13 @@ const ClaimSubmission = () => {
     };
     getData();
   }, []);
+useEffect(() => {
+  if (editMode) {
+    console.log("tst");
+    reviewDataFn();
+  }
+}, [])
+// }, [reviewDataNew])
 
   //address details logic ends here
 
@@ -889,6 +901,20 @@ const ClaimSubmission = () => {
     setActiveStep(step);
   };
 
+  const deleteClaimDraft = async (id) => {
+    const res1 = await axios.delete(`https://api.stntinternational.com/api/website/claim-request/delete/draft/${id}`,{
+      headers: {
+        Authorization: "Bearer " + localStorage.getItem("token"),
+      }
+    }) 
+    if(res1.data.status){
+      message.success(`Draft ${id} Deleted Successfully !`)
+      setTimeout(() => {
+        window.location.reload()
+      }, 400);
+    }
+  }
+
   const handleStepBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
   };
@@ -939,16 +965,28 @@ const ClaimSubmission = () => {
         // console.log(record);
         return (
           <>
-            <div
-              className="secondary-btn"
-              style={{ maxWidth: "fit-content" }}
-              onClick={() => {
-                getClaimsByUserFn(null, record.key);
-                getReview(record.key);
-                // handleStepChange(1)
-              }}
-            >
-              Resume editing
+            <div className="d-flex">
+              <div
+                className="secondary-btn"
+                style={{ maxWidth: "fit-content" }}
+                onClick={() => {
+                  getClaimsByUserFn(null, record.key);
+                  getReview(record.key);
+                  setEditMode(true);
+                  // handleStepChange(1)
+                }}
+              >
+                Resume editing
+              </div>
+              <Button
+                className="secondary-btn ml-2"
+                style={{ maxWidth: "fit-content" }}
+                onClick={() => {
+                  deleteClaimDraft(record.key)
+                }}
+              >
+                <DeleteTwoTone twoToneColor="#eb2f96" />
+              </Button>
             </div>
           </>
         );
@@ -985,8 +1023,8 @@ const ClaimSubmission = () => {
     }
     if (isedit) {
       setIsedit(false);
-      setActiveStep(0)
-      return
+      setActiveStep(0);
+      return;
     }
 
     let config = {
@@ -1975,7 +2013,7 @@ const ClaimSubmission = () => {
 
       {/* Claim Details tab start */}
 
-      {activeStep === 2 && (
+      {activeStep === 2 && !editMode && (
         <div className="claim-details-main-container py-3 px-5">
           {!editMode && (
             <div className="back-icon-container" onClick={handleStepBack}>
@@ -2049,40 +2087,44 @@ const ClaimSubmission = () => {
                   Claim Category
                 </div>
                 <Select
-  showSearch
-  onChange={async (value) => {
-    console.log("value", value);
-    setClaimCategories((prevVal) => {
-      return prevVal.map((elem) => {
-        if (elem.value === value) {
-          return { ...elem, disabled: true };
-        } else if (claim.claimCategoryId === elem.value) {
-          return { ...elem, disabled: false };
-        } else {
-          return elem;
-        }
-      });
-    });
+                  showSearch
+                  onChange={async (value) => {
+                    console.log("value", value);
+                    setClaimCategories((prevVal) => {
+                      return prevVal.map((elem) => {
+                        if (elem.value === value) {
+                          return { ...elem, disabled: true };
+                        } else if (claim.claimCategoryId === elem.value) {
+                          return { ...elem, disabled: false };
+                        } else {
+                          return elem;
+                        }
+                      });
+                    });
 
-    const claimNew = [...claims];
-    const data = await getClaimCategoryAndDocs({ id: value });
-    const claimCategoryData = data.data?.claimCategoryData;
-    claimNew[index].claimCategoryId = value;
-    claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
-    setClaims(claimNew);
-  }}
-  placeholder="Select a category"
-  optionFilterProp="children" // Use "children" property for filtering options
-  filterOption={(input, option) => {
-    console.log(input,option);
-    return option?.label?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-  }} // Filter options based on the "children" property
-  name="categories"
-  value={claim.claimCategoryId}
-  options={claimCategories}
-  className="claim-category-select-input"
-/>
-
+                    const claimNew = [...claims];
+                    const data = await getClaimCategoryAndDocs({ id: value });
+                    const claimCategoryData = data.data?.claimCategoryData;
+                    claimNew[index].claimCategoryId = value;
+                    claimNew[index].claimDocs =
+                      claimCategoryData?.claimDocuments;
+                    setClaims(claimNew);
+                  }}
+                  placeholder="Select a category"
+                  optionFilterProp="children" // Use "children" property for filtering options
+                  filterOption={(input, option) => {
+                    console.log(input, option);
+                    return (
+                      option?.label
+                        ?.toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }} // Filter options based on the "children" property
+                  name="categories"
+                  value={claim.claimCategoryId}
+                  options={claimCategories}
+                  className="claim-category-select-input"
+                />
               </div>
 
               <div
@@ -2265,6 +2307,273 @@ const ClaimSubmission = () => {
           </div>
         </div>
       )}
+      {activeStep === 2 && editMode && (
+        <div className="claim-details-main-container py-3 px-5">
+          <div className="claim-details-title">
+            <div className="claim-details-heading">Claim Requests</div>
+            <div className="claim-details-sub-text">
+              claim request can be initiated by selecting category of claim and
+              uploading documents & pictures. User can add multiple claims for
+              different categories from list
+            </div>
+          </div>
+          {/* {
+            reviewDataNew?.claimRequestDocs[claimReqIndex]
+          } */}
+
+          {claims.map((claim, index) => {
+            return (
+            <>
+              <div
+                className="heading-icon-container-2"
+                style={{ display: "flex", alignItems: "center" }}
+              >
+                <div className="virtual-card-icon-container">
+                  <img
+                    src="/img/policy-details-icon.svg"
+                    alt="policy-details-icon"
+                    style={{
+                      width: "32px",
+                      height: "auto",
+                      marginRight: "10px",
+                    }}
+                  />
+                </div>
+                <div
+                  className="virtual-card-heading-text"
+                  style={{ backgroundColor: "#FCFAFA", padding: "15px" }}
+                >
+                  Claim request {index + 1}
+                </div>
+              </div>
+
+              <div className="claim-category-select mb-3">
+                <div className="label" style={{ marginBottom: "10px" }}>
+                  Claim Category
+                </div>
+                <Select
+                  showSearch
+                  disabled
+                  // onChange={async (value) => {
+                  //   console.log("value", value);
+                  //   setClaimCategories((prevVal) => {
+                  //     return prevVal.map((elem) => {
+                  //       if (elem.value === value) {
+                  //         return { ...elem, disabled: true };
+                  //       } else if (claim.claimCategoryId === elem.value) {
+                  //         return { ...elem, disabled: false };
+                  //       } else {
+                  //         return elem;
+                  //       }
+                  //     });
+                  //   });
+
+                  //   const claimNew = [...claims];
+                  //   const data = await getClaimCategoryAndDocs({ id: value });
+                  //   const claimCategoryData = data.data?.claimCategoryData;
+                  //   claimNew[index].claimCategoryId = value;
+                  //   claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
+                  //   setClaims(claimNew);
+                  // }}
+                  placeholder="Select a category"
+                  optionFilterProp="children" // Use "children" property for filtering options
+                  filterOption={(input, option) => {
+                    console.log(input, option);
+                    return (
+                      option?.label
+                        ?.toLowerCase()
+                        .indexOf(input.toLowerCase()) >= 0
+                    );
+                  }} // Filter options based on the "children" property
+                  name="categories"
+                  value={
+                    reviewDataNew?.claimRequestDocs[claimReqIndex].claimCategory
+                      .id
+                  }
+                  options={claimCategories}
+                  className="claim-category-select-input"
+                />
+              </div>
+
+              <div
+                className="documents-upload-heading"
+                style={{ margrinBottom: "10px", margrinTop: "20px" }}
+              >
+                Documents Upload
+              </div>
+              <div className="mandatory-items-note">* are mandatory items</div>
+
+              <div className="documents-upload-container">
+                <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                  {
+                    console.log(claim.claimDocs,reviewDataNew?.claimRequestDocs[claimReqIndex].files)
+                  }
+                  {
+                   reviewDataNew?.claimRequestDocs[claimReqIndex].files===null && editCategory.claimDocuments.map((claim_doc, claim_doc_index) => (
+                    <>
+                      <Col
+                        lg={{ span: 24 }}
+                        xs={{ span: 24 }}
+                        className="document-upload-label mb-2 mt-2"
+                      >
+                        {claim_doc.title}
+                        {claim_doc.isMandatory && (
+                          <span className="mandatory-item">*</span>
+                        )}
+                      </Col>
+                      <Col
+                        lg={{ span: 24 }}
+                        xs={{ span: 24 }}
+                        className="pl-4 mb-2"
+                      >
+                        <Upload
+                          name="file"
+                          action={(file) => {
+                            const claimNew = [...claims];
+                            claimNew[index].claimDocs[claim_doc_index].file =
+                              file;
+                            setClaims(claimNew);
+                          }}
+                          customRequest={({ file, onSuccess }) => {
+                            setTimeout(() => {
+                              onSuccess("ok");
+                            }, 0);
+                          }}
+                        >
+                          <Button icon={<UploadOutlined />}>
+                            Click to Upload
+                          </Button>
+                        </Upload>
+                        {claim_doc.url && (
+                          <>
+                            <div className="mt-2">
+                              <a
+                                href={claim_doc.url}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {claim_doc.name}
+                              </a>
+                              <div
+                                className="delete-btn"
+                                onClick={async () => {
+                                  const data = {
+                                    claimRequestId: claim_doc.claimRequestId,
+                                    fieldName: claim_doc.title,
+                                    documentId: "" + claim_doc.documentId,
+                                    // "id": claim.claimCategoryId
+                                  };
+
+                                  const response = await deleteDoc(data);
+                                  getClaimsByUserFn(null, currentDraftID);
+                                }}
+                              >
+                                Delete
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </Col>
+                    </>
+                  ))}
+                  {reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files.map((claim_doc, claim_doc_index) => (
+                    <>
+                      <Col
+                        lg={{ span: 24 }}
+                        xs={{ span: 24 }}
+                        className="document-upload-label mb-2 mt-2"
+                      >
+                        {claim_doc.fieldname}
+                        {claim_doc.isMandatory && (
+                          <span className="mandatory-item">*</span>
+                        )}
+                      </Col>
+                      <Col
+                        lg={{ span: 24 }}
+                        xs={{ span: 24 }}
+                        className="pl-4 mb-2"
+                      >
+                        <Upload
+                          name="file"
+                          action={(file) => {
+                            const claimNew = [...claims];
+                            claimNew[index].claimDocs[claim_doc_index].file =
+                              file;
+                            setClaims(claimNew);
+                          }}
+                          customRequest={({ file, onSuccess }) => {
+                            setTimeout(() => {
+                              onSuccess("ok");
+                            }, 0);
+                          }}
+                        >
+                          <Button icon={<UploadOutlined />}>
+                            Click to Upload
+                          </Button>
+                        </Upload>
+                        {claim_doc.path && (
+                          <>
+                            <div className="mt-2">
+                              <a
+                                href={claim_doc.path}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {claim_doc.originalname}
+                              </a>
+                              <div
+                                className="delete-btn"
+                                onClick={async () => {
+                                  const data = {
+                                    claimRequestId: reviewDataNew?.claimRequestDocs[claimReqIndex].claimRequestId,
+                                    fieldName: claim_doc.fieldname,
+                                    documentId: "" + claim_doc.id,
+                                    // "id": claim.claimCategoryId
+                                  };
+
+                                  const response = await deleteDoc(data);
+                                  getClaimsByUserFn(null, currentDraftID);
+                                  console.log(response);
+                                }}
+                              >
+                                Delete
+                              </div>
+                            </div>
+                          </>
+                        )}
+                      </Col>
+                    </>
+                  ))}
+                </Row>
+              </div>
+            </>
+          )})}
+
+          <div className="btns-container">
+            <div className="save-draft-next-btn-container d-flex align-items-center">
+              
+              {editMode && (
+                <div
+                  className="web-btn"
+                  onClick={() => {
+                    if (claims[0].claimCategoryId === null) {
+                      message.error(
+                        "Please select at least one req and document !"
+                      );
+                      return;
+                    }
+                    updateAllClaims();
+                    // addAllClaims(true,true)
+                    setActiveStep(4);
+                  }}
+                >
+                  Update
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Claim Details tab end */}
 
@@ -2381,7 +2690,10 @@ const ClaimSubmission = () => {
                             value={PayeeNRIC}
                             onChange={(e) => {
                               const inputValue = e.target.value;
-                              const filteredValue = inputValue.replace(/[^a-zA-Z0-9]/g, ""); // Only allow alphabets and numbers
+                              const filteredValue = inputValue.replace(
+                                /[^a-zA-Z0-9]/g,
+                                ""
+                              ); // Only allow alphabets and numbers
                               setPayeeNRIC(filteredValue);
                             }}
                           />
@@ -2787,7 +3099,7 @@ const ClaimSubmission = () => {
                 <div className="virtual-card-heading-text">Claim Details</div>
               </div>
 
-              <div
+              {/* <div
                 className="edit-icon-container"
                 onClick={() => {
                   handleStepChange(2);
@@ -2808,7 +3120,7 @@ const ClaimSubmission = () => {
                   </div>
                   <span>Edit</span>
                 </div>
-              </div>
+              </div> */}
               {/* <div className="review-edit-icon-container d-flex">
                                 <div className="review-edit-icon">
                                     <img src="/img/icon-edit.svg" alt="edit-icon" style={{ width: '15px', height: 'auto', marginRight: '10px' }} />
@@ -2870,9 +3182,16 @@ const ClaimSubmission = () => {
                       span={8}
                       className="d-flex justify-content-end align-items-start"
                     >
-                      {/* <div
+                      <div
                         className="edit-icon-container"
-                        onClick={() => handleStepChange(2)}
+                        onClick={async() => {
+                          let res1 = await axios.get(`https://api.stntinternational.com/api/website/claim-categories/documents/${claimRequestDoc.claimCategory.id}`,{headers: {
+                            'Authorization': 'Bearer ' + localStorage.getItem('token')
+                        }})
+                        setEditCategory(res1.data.claimCategoryData);
+                          setClaimReqIndex(index);
+                          handleStepChange(2);
+                        }}
                       >
                         <div className="edit-icon">
                           <div className="icon">
@@ -2888,7 +3207,7 @@ const ClaimSubmission = () => {
                           </div>
                           <span>Edit</span>
                         </div>
-                      </div> */}
+                      </div>
                     </Col>
                   </Row>
                 </div>
