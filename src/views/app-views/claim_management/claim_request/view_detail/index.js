@@ -431,7 +431,7 @@ const ViewDet = (props) => {
                 <p style={{ color: "black" }} className="m-0 mb-1">
                   UID
                 </p>
-                <h5>{travelDetails?.uidNo}</h5>
+                <h5>{travelDetails?.userUidNo}</h5>
               </div>
             </div>
 

@@ -808,7 +808,9 @@ useEffect(() => {
     getCompleteCliamData(claimByUserDetails.id).then((data) => {
       const reviewDataNew2 = data.data;
       console.log("reviewDataNew2", reviewDataNew2);
-      setPaymentId(reviewDataNew2.data.paymentDetails.id);
+      if (reviewDataNew2.data.paymentDetails!==null) {
+        setPaymentId(reviewDataNew2.data.paymentDetails.id);
+      }
       setReviewDataNew(reviewDataNew2.data);
     });
   };
@@ -2279,7 +2281,14 @@ useEffect(() => {
                 <div
                   className="web-btn"
                   onClick={() => {
+                    // console.log(!claims[0].claimDocs[0].file);
                     if (claims[0].claimCategoryId === null) {
+                      message.error(
+                        "Please select at least one req and document !"
+                      );
+                      return;
+                    }
+                    if (!claims[0].claimDocs[0].file) {
                       message.error(
                         "Please select at least one req and document !"
                       );
@@ -2322,6 +2331,9 @@ useEffect(() => {
           } */}
 
           {claims.map((claim, index) => {
+            if(index!==claimReqIndex){
+              return false
+            }
             return (
             <>
               <div
@@ -2406,10 +2418,10 @@ useEffect(() => {
               <div className="documents-upload-container">
                 <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
                   {
-                    console.log(claim.claimDocs,reviewDataNew?.claimRequestDocs[claimReqIndex].files)
+                    console.log(claim.claimDocs,reviewDataNew?.claimRequestDocs[claimReqIndex])
                   }
                   {
-                   reviewDataNew?.claimRequestDocs[claimReqIndex].files===null && editCategory.claimDocuments.map((claim_doc, claim_doc_index) => (
+                   editCategory.claimDocuments.map((claim_doc, claim_doc_index) => (
                     <>
                       <Col
                         lg={{ span: 24 }}
@@ -2429,6 +2441,7 @@ useEffect(() => {
                         <Upload
                           name="file"
                           action={(file) => {
+                            console.log(claims[index].claimDocs[claim_doc_index]);
                             const claimNew = [...claims];
                             claimNew[index].claimDocs[claim_doc_index].file =
                               file;
@@ -2444,28 +2457,31 @@ useEffect(() => {
                             Click to Upload
                           </Button>
                         </Upload>
-                        {claim_doc.url && (
+                        {reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index]!==null && (
                           <>
                             <div className="mt-2">
                               <a
-                                href={claim_doc.url}
+                                href={reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index].path}
                                 target="_blank"
                                 rel="noreferrer"
                               >
-                                {claim_doc.name}
+                                {reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index].originalname}
                               </a>
                               <div
                                 className="delete-btn"
                                 onClick={async () => {
                                   const data = {
-                                    claimRequestId: claim_doc.claimRequestId,
-                                    fieldName: claim_doc.title,
-                                    documentId: "" + claim_doc.documentId,
+                                    claimRequestId: reviewDataNew?.claimRequestDocs[claimReqIndex].claimRequestId,
+                                    fieldName: reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index].fieldname,
+                                    documentId: "" + reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index].id,
                                     // "id": claim.claimCategoryId
                                   };
 
                                   const response = await deleteDoc(data);
-                                  getClaimsByUserFn(null, currentDraftID);
+                                  if(response.data.status){
+                                    getClaimsByUserFn(null, currentDraftID);
+                                    reviewDataFn()
+                                  }
                                 }}
                               >
                                 Delete
@@ -2476,7 +2492,7 @@ useEffect(() => {
                       </Col>
                     </>
                   ))}
-                  {reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files.map((claim_doc, claim_doc_index) => (
+                  {/* {reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files.map((claim_doc, claim_doc_index) => (
                     <>
                       <Col
                         lg={{ span: 24 }}
@@ -2484,7 +2500,7 @@ useEffect(() => {
                         className="document-upload-label mb-2 mt-2"
                       >
                         {claim_doc.fieldname}
-                        {claim_doc.isMandatory && (
+                        {claim.claimDocs[claim_doc_index].isMandatory && (
                           <span className="mandatory-item">*</span>
                         )}
                       </Col>
@@ -2533,6 +2549,7 @@ useEffect(() => {
 
                                   const response = await deleteDoc(data);
                                   getClaimsByUserFn(null, currentDraftID);
+                                  reviewDataFn()
                                   console.log(response);
                                 }}
                               >
@@ -2543,7 +2560,7 @@ useEffect(() => {
                         )}
                       </Col>
                     </>
-                  ))}
+                  ))} */}
                 </Row>
               </div>
             </>
