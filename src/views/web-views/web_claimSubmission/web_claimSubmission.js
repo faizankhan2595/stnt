@@ -105,7 +105,7 @@ const ClaimSubmission = () => {
 
   const [imageSrc, setImageSrc] = useState("/img/sgp-card.jpg");
   const [isAlternateImage, setIsAlternateImage] = useState(false);
-
+  const [newFileList, setNewFileList] = useState([])
   const [residentType, setResidentType] = useState();
   const [blockNo, setBlockNo] = useState();
   const [buildingName, setBuildingName] = useState();
@@ -672,39 +672,27 @@ useEffect(() => {
 
   const onSearch = (val) => {};
 
-  const updateAllClaims = async () => {
-    console.log("update", reviewDataNew, claims);
-    // reviewDataNew.claimRequestDocs.map((elem,i)=>{
-    //   console.log(elem);
-    //   const FormData = require("form-data");
-    //   let data = new FormData();
-    //   data.append("claimRequestId", elem.claimRequestId);
-    //   data.append("lossCountry", country);
-    //   claims.map((singleClaim,i)=>{
-    //     singleClaim.claimDocs.map((elem,i)=>{
-    //       if (elem.file) {
-    //         data.append(elem.title, elem.file);
-    //       }
-    //     })
-    //   })
-    //   // elem.files.map((elem,i)=>{
-    //   //   data.append(elem.fieldname, country);
-    //   // })
-    //   let config = {
-    //     method: "put",
-    //     url: BASE_URL + "/api/website/claim-request",
-    //     headers: {
-    //       Authorization: `Bearer ${localStorage.getItem("token")}`,
-    //     },
-    //     data: data,
-    //   };
-    //   axios.request(config).then((res)=>{
-    //     console.log(res)
-    //   }).catch((err)=>{
-    //     console.log(err);
-    //   })
-
-    // })
+  const updateAllClaims = async (updateDoc) => {
+    console.log(reviewDataNew.lossCountry);
+    const FormData = require("form-data");
+    let data = new FormData();
+    data.append("claimRequestId", updateDoc.claimDocs[0].claimRequestId);
+    data.append('lossCountry',reviewDataNew.lossCountry)
+    for (var i = 0; i < newFileList.length; i++) {
+      // Append each file to the FormData object
+      if (newFileList[i].title!==undefined) {
+        console.log(i,newFileList[i].file);
+        data.append(newFileList[i].title, newFileList[i].file)
+      }
+    }
+    const res1 = await axios.put(`https://api.stntinternational.com/api/website/claim-request`,data,{
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem("token")}`,
+      }
+    })
+    
+    console.log("update", res1)
+    reviewDataFn()
   };
 
   const addAllClaims = async (changePage = false, update = false) => {
@@ -717,8 +705,15 @@ useEffect(() => {
       data.append("lossCountry", country);
 
       for (const claimDoc of claim.claimDocs) {
-        data.append(claimDoc.title, claimDoc.file);
+        console.log(claimDoc);
+        for (var i = 0; i < claimDoc.file.length; i++) {
+          // Append each file to the FormData object
+          console.log(i,claimDoc.file[i]);
+          data.append(claimDoc.title, claimDoc.file[i]);
+        }
+        // data.append(claimDoc.title, claimDoc.file);// [ file1, file2]
       }
+      // return
       const oldClaimCategories = claimByUserDetails?.claimCategory || [];
 
       const claimCategory = oldClaimCategories.find(
@@ -2159,9 +2154,11 @@ useEffect(() => {
                         <Upload
                           name="file"
                           action={(file) => {
+                            // console.log(claims);
                             const claimNew = [...claims];
-                            claimNew[index].claimDocs[claim_doc_index].file =
-                              file;
+                            let files = claimNew[index].claimDocs[claim_doc_index].file===undefined ? [file] : [...claimNew[index].claimDocs[claim_doc_index].file,file]
+                            // console.log(claimNew[index].claimDocs[claim_doc_index].file,files);
+                            claimNew[index].claimDocs[claim_doc_index].file = files;
                             setClaims(claimNew);
                           }}
                           customRequest={({ file, onSuccess }) => {
@@ -2440,12 +2437,67 @@ useEffect(() => {
                       >
                         <Upload
                           name="file"
+                          onRemove={async (e) => {
+                            console.log(newFileList,e)
+                            const update = newFileList.filter((elem)=>{
+                                  return elem.uid!==e.uid
+                                })
+                                setNewFileList(update)
+                            // setNewFileList((preval)=>{
+                            //   preval.filter((elem)=>{
+                            //     return elem.uid!==e.uid
+                            //   })
+                            // })
+                            return
+                            if (reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null) {
+                            const data = {
+                              claimRequestId: reviewDataNew?.claimRequestDocs[claimReqIndex].claimRequestId,
+                              fieldName: e.fieldname,
+                              documentId: "" + e.id,
+                              // "id": claim.claimCategoryId
+                            };
+
+                            const response = await deleteDoc(data);
+                            console.log(response);
+                            if(response.data.status){
+                              getClaimsByUserFn(null, currentDraftID);
+                              reviewDataFn()
+                            }} else{
+                              console.log(e);
+                            }
+                          }}
+                          fileList={newFileList.filter((elem,i)=>{
+                            console.log(newFileList,i);
+                            if (elem.fieldname===undefined) {
+                              if (claim_doc.title===elem.title) {
+                                console.log(elem);
+                                return elem
+                              }
+                            } else {
+                              return claim_doc.title===elem.fieldname
+                            }
+                          })
+                        }
                           action={(file) => {
-                            console.log(claims[index].claimDocs[claim_doc_index]);
-                            const claimNew = [...claims];
-                            claimNew[index].claimDocs[claim_doc_index].file =
-                              file;
-                            setClaims(claimNew);
+                            console.log(newFileList);
+                            const newList={
+                              title:claim_doc.title,
+                              ind:claim_doc_index,
+                              file:file,
+                              name:file.name
+                            }
+                            console.log(newList);
+                            const update = [...newFileList,newList]
+                            console.log(update);
+                            setNewFileList(update)
+                            // if(claims[index].claimDocs.length===0){
+                              // setNewFileList([...newFileList,file])
+                              // return
+                            // }
+                            // const claimNew = [...claims];
+                            // claimNew[index].claimDocs[claim_doc_index].file =
+                            //   file;
+                            // setClaims(claimNew);
                           }}
                           customRequest={({ file, onSuccess }) => {
                             setTimeout(() => {
@@ -2457,7 +2509,7 @@ useEffect(() => {
                             Click to Upload
                           </Button>
                         </Upload>
-                        {reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index]!==null && (
+                        {/* {(reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index]!==null) && (
                           <>
                             <div className="mt-2">
                               <a
@@ -2488,7 +2540,7 @@ useEffect(() => {
                               </div>
                             </div>
                           </>
-                        )}
+                        )} */}
                       </Col>
                     </>
                   ))}
@@ -2579,7 +2631,7 @@ useEffect(() => {
                       );
                       return;
                     }
-                    updateAllClaims();
+                    updateAllClaims(claims[claimReqIndex]);
                     // addAllClaims(true,true)
                     setActiveStep(4);
                   }}
@@ -3205,8 +3257,18 @@ useEffect(() => {
                           let res1 = await axios.get(`https://api.stntinternational.com/api/website/claim-categories/documents/${claimRequestDoc.claimCategory.id}`,{headers: {
                             'Authorization': 'Bearer ' + localStorage.getItem('token')
                         }})
+                        const listOfFiles = claimRequestDoc.files.map((elem,i)=>{
+                          return {
+                              uid:elem.id,
+                              name:elem.originalname,
+                              url:elem.path,
+                              id:elem.id,
+                              fieldname:elem.fieldname
+                            }
+                          })
                         setEditCategory(res1.data.claimCategoryData);
-                          setClaimReqIndex(index);
+                        setNewFileList(listOfFiles);
+                        setClaimReqIndex(index);
                           handleStepChange(2);
                         }}
                       >

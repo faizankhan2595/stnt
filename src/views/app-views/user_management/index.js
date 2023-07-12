@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Button, DatePicker, Input } from "antd";
+import { Button, DatePicker, Input, Table } from "antd";
 import { Menu } from "antd";
 import { Link } from "react-router-dom";
 import Helper from "../Helper";
@@ -11,6 +11,7 @@ import { Edit, ResetPass, UpdateStatus } from "assets/svg/icon";
 // import { ChangeAgStatus } from "assets/svg/icon";
 import { Radio, Modal } from 'antd';
 import axios from "axios";
+import moment from "moment";
 
 const users = [
   {
@@ -42,38 +43,69 @@ const users = [
 
 const UserManage = () => {
   const [allUsers, setAllUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState()
 
-  const getAllUsers = () => {
-    axios.get(`https://api.stntinternational.com/api/users`,
-      {
+  const getAllUsers = async (page, pageSize) => {
+    const startIndex = (page - 1) * pageSize;
+
+    try {
+      const response = await axios.get(`https://api.stntinternational.com/api/users?size=${pageSize}&page=${page}`, {
         headers: {
           'Authorization': 'Bearer ' + localStorage.getItem('token')
         }
-      }
-    ).then((response) => {
-      setAllUsers(response.data.data.rows);
-    })
-  }
+      });
 
-  useEffect(() => {
-    getAllUsers();
-  }, []);
+      const users = response.data.data.rows;
+      setTotal(response.data.data.count)
+      setAllUsers(users);
+    } catch (error) {
+      // Handle the error appropriately
+      console.error('Error retrieving users:', error);
+    }
+  };
+
+  const handleTableChange = (pagination, filters, sorter) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
 
   const [value, setValue] = useState(1);
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
+  const [updateId, setUpdateId] = useState(null)
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
-  const changeStudHandleOk = () => {
+  const changeStudHandleOk = async () => {
+    console.log(updateId,value);
+    const data = {
+      "status":value===1?"active":"terminate",
+      "userId": updateId
+    }
+    const res1 = await axios.put(`https://api.stntinternational.com/api/users/change-status`,data,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+    console.log(res1);
     setIsChangeStudModalOpen(false);
   };
   const onRadChange = (e) => {
     console.log('radio checked', e.target.value);
     setValue(e.target.value);
   };
+  const deleteUser = async (id) => {
+    const res1 = await axios.delete(`https://api.stntinternational.com/api/users/delete/${id}`,{
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+    console.log(res1);
+  }
   const columns = [
     {
       title: "Sr No",
-      dataIndex: "Sr_No",
+      dataIndex: "id",
     },
     {
       title: "User Name",
@@ -90,6 +122,9 @@ const UserManage = () => {
     {
       title: "Account Created On",
       dataIndex: "createdAt",
+      render:(date)=>{
+        return <>{moment(date).format('DD-MM-YYYY HH:MM')}</>
+      }
     },
     {
       title: "Status",
@@ -97,7 +132,7 @@ const UserManage = () => {
       render: (text) => {
         return (
           <p
-            className={`${text !== "Active" ? "text-danger" : "text-success"
+            className={`${text !== "active" ? "text-danger" : "text-success"
               } font-weight-semibold`}
           >
             {text}
@@ -115,17 +150,22 @@ const UserManage = () => {
               menu={
                 <Menu>
                   <Menu.Item>
-                    <span onClick={() => console.log('del')}> <DeleteOutlined className='mr-2 ' />Delete</span>
+                    <span onClick={() => deleteUser(record.id)}> <DeleteOutlined className='mr-2 ' />Delete</span>
                   </Menu.Item>
                   <Menu.Item>
-                    <Link to={`event_list/update/${record.id}`} className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</Link>
+                    <Link to={`user_management/edit_user/?id=${record.id}`} className='d-flex align-items-center' ><CustomIcon className='mr-2' svg={Edit} />Edit</Link>
                   </Menu.Item>
-                  <Menu.Item>
-                    <Link onClick={() => setIsChangeStudModalOpen(true)} className="d-flex align-items-center" ><span className='mr-2'><UpdateStatus /></span>Update Status</Link >
+                  <Menu.Item onClick={() =>{
+                    setUpdateId(record.id)
+                    setValue(record.status==='active'?1:2)
+                    setIsChangeStudModalOpen(true)
+                  } 
+                  }>
+                    <span className="d-flex align-items-center" ><span className='mr-2'><UpdateStatus /></span>Update Status</span >
                   </Menu.Item>
-                  <Menu.Item>
+                  {/* <Menu.Item>
                     <Link to='/app/events/sport-event-funds/details' className="d-flex align-items-center" ><span className='mr-2'><ResetPass /></span>Reset Password</Link >
-                  </Menu.Item>
+                  </Menu.Item> */}
                 </Menu>
               }
             />
@@ -134,6 +174,11 @@ const UserManage = () => {
       },
     },
   ];
+  
+  useEffect(() => {
+    getAllUsers(currentPage, pageSize);
+  }, [currentPage, pageSize]);
+
   return (
     <div>
       <div className="d-flex justify-content-between">
@@ -158,13 +203,23 @@ const UserManage = () => {
           <Link to={"user_management/register_new_user"}>Register New User</Link>
         </Button>
       </div>
-      <Helper clients={allUsers} attribiue={columns} />
-      {/* 
+      <Table
+        dataSource={allUsers}
+        columns={columns}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
+          showSizeChanger: true,
+          pageSizeOptions: ['10'],
+        }}
+        onChange={handleTableChange}
+      />
       <Modal
         width={600}
         footer={null}
         visible={isChangeStudModalOpen}
-        onOk={changeStudHandleOk}
+        // onOk={changeStudHandleOk}
         onCancel={() => setIsChangeStudModalOpen(false)}
       >
         <div className="d-flex my-3 flex-column w-75">
@@ -191,13 +246,13 @@ const UserManage = () => {
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
             onClick={() => {
-              setIsChangeStudModalOpen(false);
+              changeStudHandleOk()
             }}
           >
             Save
           </Button>
         </div>
-      </Modal> */}
+      </Modal>
     </div>
   );
 };

@@ -1,14 +1,19 @@
-import { Button, Form, Input, Modal, Result } from "antd";
+import { Button, Form, Input, Modal, Result, message } from "antd";
 import axios from "axios";
 import React from "react";
 import { useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import { ResetPassColor } from "assets/svg/icon";
 import { addUser } from "services/apiService";
+import { useEffect } from "react";
+import { useHistory } from "react-router-dom/cjs/react-router-dom.min";
 
 export default function AddNew() {
-  const param = useParams();
+  // const param = useParams();
   const location = useLocation();
+  const history = useHistory()
+  const queryParams = new URLSearchParams(location.search);
+  const id = queryParams.get("id");
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
   const [SuccessModal, setSuccessModal] = useState(false);
   const [firstName, setFirstName] = useState("");
@@ -20,13 +25,15 @@ export default function AddNew() {
   const [password, setPassword] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [allUsers, setAllUsers] = useState([]);
-
+  const [confirmNewPass, setConfirmNewPass] = useState('');
+  const [newPass, setNewPass] = useState('');
 
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
   };
   function handleBackClick() {
     console.log("test");
+    history.goBack()
   }
 
   const showModal = () => {
@@ -54,19 +61,68 @@ export default function AddNew() {
   //     createMembership(values, "http://127.0.0.1:3333/membership/new");
   //   }
   // };
+  const resetPass = async () => {
+    if (!newPass || !confirmNewPass) {
+      message.error('Please Enter Password and Confirm Password !')
+      return
+    }
+    if (newPass.length<5 || confirmNewPass.length<5) {
+      message.error('Password Length Should Equal or Greater Then 6 Digits !')
+      return
+    }
+    if (newPass===confirmNewPass) {
+      const data = {
+        "confirmPassword":confirmNewPass,
+        "password":newPass,
+        "userId": id
+    }
+      const res1 = await axios.post(`https://api.stntinternational.com/api/users/password-reset`,data,{
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+       }
+      })
+      console.log(res1)
+    } else {
+      return
+    }
+    setIsChangeStudModalOpen(false);
+    setSuccessModal(true)
+  }
+  const updateUserFn = async () => {
+    const data = {
+      firstName: firstName,
+      lastName: lastName,
+      phone: mobileNumber,
+      email: emailId,
+      jobTitle: jobTitle,
+      // password: password,
+      jobRole: jobRole,
+    }
 
+    const res1 = await axios.put(`https://api.stntinternational.com/api/users/${id}`,data,{headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+   }})
+    if(res1.data.status){
+      history.push('/app/user_management')
+    }
+  }
   const addUserFn = async () => {
     const data = {
       firstName: firstName,
       lastName: lastName,
-      mobileNumber: mobileNumber,
-      emailId: emailId,
+      phone: mobileNumber,
+      email: emailId,
       jobTitle: jobTitle,
       password: password,
       jobRole: jobRole,
+      phoneCode:phoneCode
     }
 
     const response = await addUser(data);
+    if(response.data.status){
+      history.push('/app/user_management')
+      // console.log(history);
+    }
   }
 
   const createMembership = (values, url) => {
@@ -92,6 +148,36 @@ export default function AddNew() {
         console.log(error);
       });
   };
+  const getSingleUser = async (id) => {
+    const res1 = await axios.get(`https://api.stntinternational.com/api/users/${id}`,{headers: {
+      'Authorization': 'Bearer ' + localStorage.getItem('token')
+   }});
+   const { firstName, lastName, phoneCode, phone, email, jobTitle, jobRole} = res1.data.data;
+   setFirstName(firstName)
+   setLastName(lastName)
+   setEmailId(email)
+   setMobileNumber(phone)
+   setPhoneCode(phoneCode)
+   setJobRole(jobRole)
+   setJobTitle(jobTitle)
+  //  console.log(firstName);
+   form.setFieldsValue({
+    first_name:firstName,
+    phone_code:phoneCode,
+    mobile_number:phone,
+    last_name:lastName,
+    email_id:email,
+    job_title:jobTitle,
+    job_role:jobRole
+   })
+  }
+  useEffect(() => {
+    console.log("id",id);
+    if (id) {
+    getSingleUser(id)
+  }
+}, [])
+  
 
   return (
     <div className="">
@@ -195,6 +281,8 @@ export default function AddNew() {
                 </Form.Item>
               </div>
             </div>
+            {
+              !id &&
             <div style={{ gap: "60px" }} className="d-flex ">
               <div style={{ width: "45%" }}>
                 <Form.Item
@@ -204,7 +292,7 @@ export default function AddNew() {
                   onChange={(e) => setPassword(e.target.value)}
                   rules={[
                     {
-                      required: true,
+                      required: id ? false : true,
                       message: "Please input Password!",
                     },
                   ]}
@@ -213,7 +301,8 @@ export default function AddNew() {
                 </Form.Item>
               </div>
             </div>
-          </div>
+            }
+            </div>
         </div>
         <Form.Item>
           <div
@@ -227,12 +316,26 @@ export default function AddNew() {
             >
               Back
             </Button>
-            <Button
+            {
+              id && 
+              <Button
               className="px-4 font-weight-semibold"
               onClick={() => setIsChangeStudModalOpen(true)}
             >
               Reset Password
             </Button>
+            }
+            {
+              id && <Button
+              className="px-4 font-weight-semibold text-white bg-info"
+              // htmlType="submit"
+              onClick={updateUserFn}
+            >
+              Update
+            </Button>
+            }
+            {
+              !id && 
             <Button
               className="px-4 font-weight-semibold text-white bg-info"
               htmlType="submit"
@@ -240,6 +343,7 @@ export default function AddNew() {
             >
               Save
             </Button>
+            }
           </div>
         </Form.Item>
       </Form>
@@ -256,17 +360,17 @@ export default function AddNew() {
             <span className="ml-2"> Reset Password</span>
           </h4>
           <div className="w-75 m-auto">
-            <div className="mt-3">
+            {/* <div className="mt-3">
               <h5>Username</h5>
               <Input placeholder="Enter Username" />
-            </div>
+            </div> */}
             <div className="mt-3">
               <h5>Password</h5>
-              <Input.Password placeholder="Enter password" />
+              <Input.Password value={newPass} onChange={(event)=>setNewPass(event.target.value)} placeholder="Enter password" />
             </div>
             <div className="mt-3">
               <h5>Confirm Password</h5>
-              <Input.Password placeholder="Enter Confirm password" />
+              <Input.Password value={confirmNewPass} onChange={(event)=>setConfirmNewPass(event.target.value)} placeholder="Enter Confirm password" />
             </div>
           </div>
         </div>
@@ -283,8 +387,7 @@ export default function AddNew() {
           <Button
             className="px-4 font-weight-semibold text-white bg-info"
             onClick={() => {
-              setIsChangeStudModalOpen(false);
-              setSuccessModal(true)
+              resetPass()
             }}
           >
             Save

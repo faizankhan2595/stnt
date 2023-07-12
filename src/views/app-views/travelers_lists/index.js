@@ -1,4 +1,4 @@
-import { Button, Form, Input, Menu, Select, Switch } from 'antd'
+import { Button, Form, Input, Menu, Select, Switch, Table } from 'antd'
 import EllipsisDropdown from 'components/shared-components/EllipsisDropdown'
 import React, { useState, useEffect } from 'react'
 import './MembershipRequest.css'
@@ -21,16 +21,21 @@ export default function MembershipRequest() {
   const [membershipRequestData, setmembershipRequestData] = useState(membershipRequest)
   const [visible, setVisible] = useState(false)
   const [travelersList, setTravelersList] = useState([])
-
-  const getTravelersList = () => {
-    axios.get("https://api.stntinternational.com/api/travellers/?size=10000&page=1").then((response) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState()
+  const getTravelersList = (page, pageSize) => {
+    axios.get(`https://api.stntinternational.com/api/travellers/?size=${pageSize}&page=${page}`).then((response) => {
       setTravelersList(response.data.data);
     });
   };
-
+  const handleTableChange = (pagination, filters, sorter) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
   useEffect(() => {
-    getTravelersList();
-  }, []);
+    getTravelersList(currentPage, pageSize);
+  }, [currentPage, pageSize]);
   
 
   const showDrawer = () => {
@@ -327,7 +332,17 @@ export default function MembershipRequest() {
 
       </div>
       <div>
-        <Helper clients={travelersList} attribiue={travelersColumns} />
+        <Table 
+        dataSource={travelersList} 
+        columns={travelersColumns}
+        pagination={{
+          current: currentPage,
+          pageSize: pageSize,
+          total: total,
+          showSizeChanger: true,
+          pageSizeOptions: ['10'],
+        }}
+        onChange={handleTableChange} />
       </div>
 
     </div>

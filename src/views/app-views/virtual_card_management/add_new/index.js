@@ -1,7 +1,8 @@
-import { Button, Select, Form } from "antd";
+import { Button, Select, Form, message } from "antd";
 import { VirtialCard } from "assets/svg/icon";
 import React, { useState } from "react";
 import { countries } from "./country";
+import axios from "axios";
 
 let styles = {
   // files: {
@@ -45,17 +46,63 @@ const AddNew = () => {
   const [form] = Form.useForm();
   const [selectedFiles, setSelectedFiles] = useState(null);
   const [selectedFilesone, setSelectedFilesone] = useState(null);
-  const onFinish = (values) => {
-    console.log("Success:", values);
+  const [sendingFile, setSendingFile] = useState({
+    front:'',
+    back:''
+  })
+  const onFinish = async (values) => {
+    console.log("Success:", values.Country, selectedFiles, selectedFilesone);
+    if (selectedFiles === null) {
+      message.error('Please Upload Front Side of Card!');
+      return;
+    }
+    if (selectedFilesone === null) {
+      message.error('Please Upload Back Side of Card!');
+      return;
+    }
+    const data = new FormData();
+    data.append('country', values.Country);
+    data.append('front', sendingFile.front);
+    data.append('back', sendingFile.back);
+  
+    try {
+      const res = await axios.post(`https://api.stntinternational.com/api/virtual-cards`, data, {
+        headers: {
+          'Authorization': 'Bearer ' + localStorage.getItem('token')
+        }
+      });
+  
+      if (res.status === 200) {
+        const responseData = await res.json();
+        console.log(responseData);
+      } else {
+        throw new Error('Request failed with status ' + res.status);
+      }
+    } catch (error) {
+      console.error(error);
+      // Handle error gracefully
+    }
   };
   function handleFrontFile(event) {
     const file = event.target.files[0];
     const imageUrl = URL.createObjectURL(file);
+    setSendingFile((pre)=>{
+      return {
+        ...pre,
+        front:event.target.files[0]
+      }
+    })
     setSelectedFiles(imageUrl);
   }
   function handleBackFile(event) {
     const file = event.target.files[0];
     const imageUrl = URL.createObjectURL(file);
+    setSendingFile((pre)=>{
+      return {
+        ...pre,
+        back:event.target.files[0]
+      }
+    })
     setSelectedFilesone(imageUrl);
   }
   return (
@@ -101,9 +148,17 @@ const AddNew = () => {
                     width: "300px",
                     overflow: "hidden",
                     height: "300px",
+                    position:"relative"
                   }}
                   className="p-3 fileImage d-flex justify-content-center align-items-center"
                 >
+                  <input
+                    style={styles.uploadFile}
+                    className="uploadFile"
+                    type="file"
+                    multiple
+                    onChange={handleFrontFile}
+                  />
                   <img src={selectedFiles} alt="img" />
                 </div>
               ) : (
@@ -135,9 +190,17 @@ const AddNew = () => {
                     width: "300px",
                     overflow: "hidden",
                     height: "300px",
+                    position:'relative'
                   }}
                   className="fileImage p-3 d-flex flex-column justify-content-center align-items-center"
                 >
+                  <input
+                    style={styles.uploadFile}
+                    className="uploadFile"
+                    type="file"
+                    multiple
+                    onChange={handleBackFile}
+                  />
                   <img src={selectedFilesone} alt="img" />
                 </div>
               ) : (

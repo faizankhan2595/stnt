@@ -55,6 +55,7 @@ export const AppViews = () => {
 
         
       <Route exact path={`${APP_PREFIX_PATH}/user_management/register_new_user`} component={lazy(() => import(`./user_management/register_new_user`))} />
+      <Route exact path={`${APP_PREFIX_PATH}/user_management/edit_user`} component={lazy(() => import(`./user_management/register_new_user`))} />
       </>
       }
       </Switch>
