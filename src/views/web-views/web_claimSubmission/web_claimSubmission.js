@@ -2438,7 +2438,8 @@ useEffect(() => {
                         <Upload
                           name="file"
                           onRemove={async (e) => {
-                            console.log(newFileList,e)
+                            // console.log(newFileList,e.title)
+                            // return
                             const update = newFileList.filter((elem)=>{
                                   return elem.uid!==e.uid
                                 })
@@ -2448,8 +2449,9 @@ useEffect(() => {
                             //     return elem.uid!==e.uid
                             //   })
                             // })
-                            return
-                            if (reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null) {
+                            // return
+                            if (e.title===undefined && reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null) {
+                              console.log('2');
                             const data = {
                               claimRequestId: reviewDataNew?.claimRequestDocs[claimReqIndex].claimRequestId,
                               fieldName: e.fieldname,
