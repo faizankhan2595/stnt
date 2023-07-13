@@ -217,13 +217,13 @@ export const DeleteTravelAgency = async ({ id }) => {
 
 }
 
-export const GetAllTravelAgency = async ({ size, page, search }) => {
+export const GetAllTravelAgency = async (page, pageSize) => {
     let data = '{\n    "confirmPassword":"123456",\n    "password":"123456",\n    "userId": "6"\n}';
 
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: BASE_URL + `/api/travel-agencies?size=${size}&page=${page}&searchByAgencyName=${search}`,
+        url: BASE_URL + `/api/travel-agencies?size=${pageSize}&page=${page}`,
         headers: {
             'Authorization': 'Bearer ' + localStorage.getItem('token')
         },

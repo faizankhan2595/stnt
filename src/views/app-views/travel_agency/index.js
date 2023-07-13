@@ -1,5 +1,5 @@
 import React from "react";
-import { Menu } from "antd";
+import { Menu, Table } from "antd";
 import Icon from "@ant-design/icons";
 import { CsvIcon, FilterIcon } from "assets/svg/icon";
 import { Link } from "react-router-dom";
@@ -50,7 +50,9 @@ const TravelAgency = () => {
   const [isChangeStudModalOpen, setIsChangeStudModalOpen] = useState(false);
   const [statusId, setStatusId] = useState(null)
   const [value, setValue] = useState(1);
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState()
 
   const changeStudHandleOk = () => {
     setIsChangeStudModalOpen(false);
@@ -147,12 +149,21 @@ const TravelAgency = () => {
       },
     },
   ];
-
-  useEffect(async () => {
-    const response = await GetAllTravelAgency({ size: 10000, page: 1, search: '' });
-    console.log(response.data.data.rows);
+  const getTravelAgency = async (page, pageSize) => {
+    const startIndex = (page - 1) * pageSize;
+    const response = await GetAllTravelAgency(page, pageSize);
+    // console.log(response.data.data);
+    setTotal(response.data.data.count)
     setData(response.data.data.rows);
-  }, []);
+  }
+  const handleTableChange = (pagination, filters, sorter) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
+
+  useEffect(() => {
+    getTravelAgency(currentPage, pageSize)
+  }, [currentPage, pageSize]);
 
   return (
     <div>
@@ -223,7 +234,17 @@ const TravelAgency = () => {
           <Link to={"travel_agency/add_new"}> + Add New</Link>
         </Button>
       </div>
-      <Helper clients={data} attribiue={columns} />
+      <Table 
+      dataSource={data} 
+      columns={columns} 
+      pagination={{
+        current: currentPage,
+        pageSize: pageSize,
+        total: total,
+        showSizeChanger: true,
+        pageSizeOptions: ['10'],
+      }}
+      onChange={handleTableChange} />
     </div>
   );
 };

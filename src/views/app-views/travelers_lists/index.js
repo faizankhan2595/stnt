@@ -25,8 +25,10 @@ export default function MembershipRequest() {
   const [pageSize, setPageSize] = useState(10);
   const [total, setTotal] = useState()
   const getTravelersList = (page, pageSize) => {
+    const startIndex = (page - 1) * pageSize;
     axios.get(`https://api.stntinternational.com/api/travellers/?size=${pageSize}&page=${page}`).then((response) => {
-      setTravelersList(response.data.data);
+      setTravelersList(response.data.data.rows);
+      setTotal(response.data.data.count)
     });
   };
   const handleTableChange = (pagination, filters, sorter) => {

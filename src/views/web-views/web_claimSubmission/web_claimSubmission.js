@@ -105,7 +105,7 @@ const ClaimSubmission = () => {
 
   const [imageSrc, setImageSrc] = useState("/img/sgp-card.jpg");
   const [isAlternateImage, setIsAlternateImage] = useState(false);
-  const [newFileList, setNewFileList] = useState([])
+  const [newFileList, setNewFileList] = useState([]);
   const [residentType, setResidentType] = useState();
   const [blockNo, setBlockNo] = useState();
   const [buildingName, setBuildingName] = useState();
@@ -125,7 +125,7 @@ const ClaimSubmission = () => {
   const [reviewDataNew, setReviewDataNew] = useState({});
   const [claimByUserDetails, setClaimByUserDetails] = useState({});
   const [claimReqIndex, setClaimReqIndex] = useState(0);
-  const [editCategory, setEditCategory] = useState({})
+  const [editCategory, setEditCategory] = useState({});
   const [disableOpt, setDisableOpt] = useState([{ index: 0, val: "" }]);
   const [claims, setClaims] = useState([
     {
@@ -196,6 +196,7 @@ const ClaimSubmission = () => {
 
   const [countries, setCountries] = useState([]);
   const [userName, setUserName] = useState("");
+  const [updateDocRequestId, setUpdateDocRequestId] = useState("");
   const [ip, setIp] = useState("");
   //get countries list from api
   useEffect(() => {
@@ -269,14 +270,13 @@ const ClaimSubmission = () => {
         });
         const claimCategoryData = claimDocsData.data?.claimCategoryData;
         const files = claimCategory.files;
-        if (files!==null) {
-          
+        if (files !== null) {
           let claimDocuments = claimCategoryData?.claimDocuments.map(
             (claimDocument, index) => {
               const file = files.find(
                 (file) => file?.fieldname === claimDocument.title
               );
-  
+
               if (!file) {
                 return {
                   ...claimDocument,
@@ -286,7 +286,7 @@ const ClaimSubmission = () => {
                   documentId: null,
                 };
               }
-  
+
               return {
                 ...claimDocument,
                 url: file?.path,
@@ -303,7 +303,6 @@ const ClaimSubmission = () => {
             files: claimCategory.files,
           });
         }
-
       }
 
       if (claimsNew.length === 0) {
@@ -660,39 +659,44 @@ const ClaimSubmission = () => {
     };
     getData();
   }, []);
-useEffect(() => {
-  if (editMode) {
-    console.log("tst");
-    reviewDataFn();
-  }
-}, [])
-// }, [reviewDataNew])
+  useEffect(() => {
+    if (editMode) {
+      console.log("tst");
+      reviewDataFn();
+    }
+  }, []);
+  // }, [reviewDataNew])
 
   //address details logic ends here
 
   const onSearch = (val) => {};
 
   const updateAllClaims = async (updateDoc) => {
-    console.log(reviewDataNew.lossCountry);
+    console.log(updateDoc);
     const FormData = require("form-data");
     let data = new FormData();
-    data.append("claimRequestId", updateDoc.claimDocs[0].claimRequestId);
-    data.append('lossCountry',reviewDataNew.lossCountry)
+    data.append("claimRequestId", updateDocRequestId);
+    data.append("lossCountry", reviewDataNew.lossCountry);
     for (var i = 0; i < newFileList.length; i++) {
       // Append each file to the FormData object
-      if (newFileList[i].title!==undefined) {
-        console.log(i,newFileList[i].file);
-        data.append(newFileList[i].title, newFileList[i].file)
+      if (newFileList[i].title !== undefined) {
+        console.log(i, newFileList[i].file);
+        data.append(newFileList[i].title, newFileList[i].file);
       }
     }
-    const res1 = await axios.put(`https://api.stntinternational.com/api/website/claim-request`,data,{
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
+    const res1 = await axios.put(
+      `https://api.stntinternational.com/api/website/claim-request`,
+      data,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
       }
-    })
-    
-    console.log("update", res1)
-    reviewDataFn()
+    );
+
+    console.log("update", res1);
+    // setUpdateDocRequestId()
+    reviewDataFn();
   };
 
   const addAllClaims = async (changePage = false, update = false) => {
@@ -708,7 +712,7 @@ useEffect(() => {
         console.log(claimDoc);
         for (var i = 0; i < claimDoc.file.length; i++) {
           // Append each file to the FormData object
-          console.log(i,claimDoc.file[i]);
+          console.log(i, claimDoc.file[i]);
           data.append(claimDoc.title, claimDoc.file[i]);
         }
         // data.append(claimDoc.title, claimDoc.file);// [ file1, file2]
@@ -803,7 +807,7 @@ useEffect(() => {
     getCompleteCliamData(claimByUserDetails.id).then((data) => {
       const reviewDataNew2 = data.data;
       console.log("reviewDataNew2", reviewDataNew2);
-      if (reviewDataNew2.data.paymentDetails!==null) {
+      if (reviewDataNew2.data.paymentDetails !== null) {
         setPaymentId(reviewDataNew2.data.paymentDetails.id);
       }
       setReviewDataNew(reviewDataNew2.data);
@@ -899,18 +903,21 @@ useEffect(() => {
   };
 
   const deleteClaimDraft = async (id) => {
-    const res1 = await axios.delete(`https://api.stntinternational.com/api/website/claim-request/delete/draft/${id}`,{
-      headers: {
-        Authorization: "Bearer " + localStorage.getItem("token"),
+    const res1 = await axios.delete(
+      `https://api.stntinternational.com/api/website/claim-request/delete/draft/${id}`,
+      {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
       }
-    }) 
-    if(res1.data.status){
-      message.success(`Draft ${id} Deleted Successfully !`)
+    );
+    if (res1.data.status) {
+      message.success(`Draft ${id} Deleted Successfully !`);
       setTimeout(() => {
-        window.location.reload()
+        window.location.reload();
       }, 400);
     }
-  }
+  };
 
   const handleStepBack = () => {
     setActiveStep((prevStep) => prevStep - 1);
@@ -979,7 +986,7 @@ useEffect(() => {
                 className="secondary-btn ml-2"
                 style={{ maxWidth: "fit-content" }}
                 onClick={() => {
-                  deleteClaimDraft(record.key)
+                  deleteClaimDraft(record.key);
                 }}
               >
                 <DeleteTwoTone twoToneColor="#eb2f96" />
@@ -1681,14 +1688,14 @@ useEffect(() => {
                       {claimMetaData?.policyDetails?.uidNo}
                     </div>
                   </div>
-                  <div className="policy-details-container">
+                  {/* <div className="policy-details-container">
                     <div className="policy-details-label">
                       Geographical Limit:
                     </div>
                     <div className="policy-detail">
                       {claimMetaData?.policyDetails?.geographicalUnit}
                     </div>
-                  </div>
+                  </div> */}
                 </Col>
                 <Col
                   span={6}
@@ -1719,12 +1726,12 @@ useEffect(() => {
                       {claimMetaData?.policyDetails?.durationOfPackage}
                     </div>
                   </div>
-                  <div className="policy-details-container">
+                  {/* <div className="policy-details-container">
                     <div className="policy-details-label">Cost:</div>
                     <div className="policy-detail">
                       {claimMetaData?.policyDetails?.cost}
                     </div>
-                  </div>
+                  </div> */}
                 </Col>
                 <Col span={12} className="virtual-card-img">
                   <div className="virtual-card-img-container">
@@ -2156,9 +2163,19 @@ useEffect(() => {
                           action={(file) => {
                             // console.log(claims);
                             const claimNew = [...claims];
-                            let files = claimNew[index].claimDocs[claim_doc_index].file===undefined ? [file] : [...claimNew[index].claimDocs[claim_doc_index].file,file]
+                            let files =
+                              claimNew[index].claimDocs[claim_doc_index]
+                                .file === undefined
+                                ? [file]
+                                : [
+                                    ...claimNew[index].claimDocs[
+                                      claim_doc_index
+                                    ].file,
+                                    file,
+                                  ];
                             // console.log(claimNew[index].claimDocs[claim_doc_index].file,files);
-                            claimNew[index].claimDocs[claim_doc_index].file = files;
+                            claimNew[index].claimDocs[claim_doc_index].file =
+                              files;
                             setClaims(claimNew);
                           }}
                           customRequest={({ file, onSuccess }) => {
@@ -2328,190 +2345,200 @@ useEffect(() => {
           } */}
 
           {claims.map((claim, index) => {
-            if(index!==claimReqIndex){
-              return false
+            if (index !== claimReqIndex) {
+              return false;
             }
             return (
-            <>
-              <div
-                className="heading-icon-container-2"
-                style={{ display: "flex", alignItems: "center" }}
-              >
-                <div className="virtual-card-icon-container">
-                  <img
-                    src="/img/policy-details-icon.svg"
-                    alt="policy-details-icon"
-                    style={{
-                      width: "32px",
-                      height: "auto",
-                      marginRight: "10px",
-                    }}
+              <>
+                <div
+                  className="heading-icon-container-2"
+                  style={{ display: "flex", alignItems: "center" }}
+                >
+                  <div className="virtual-card-icon-container">
+                    <img
+                      src="/img/policy-details-icon.svg"
+                      alt="policy-details-icon"
+                      style={{
+                        width: "32px",
+                        height: "auto",
+                        marginRight: "10px",
+                      }}
+                    />
+                  </div>
+                  <div
+                    className="virtual-card-heading-text"
+                    style={{ backgroundColor: "#FCFAFA", padding: "15px" }}
+                  >
+                    Claim request {index + 1}
+                  </div>
+                </div>
+
+                <div className="claim-category-select mb-3">
+                  <div className="label" style={{ marginBottom: "10px" }}>
+                    Claim Category
+                  </div>
+                  <Select
+                    showSearch
+                    disabled
+                    // onChange={async (value) => {
+                    //   console.log("value", value);
+                    //   setClaimCategories((prevVal) => {
+                    //     return prevVal.map((elem) => {
+                    //       if (elem.value === value) {
+                    //         return { ...elem, disabled: true };
+                    //       } else if (claim.claimCategoryId === elem.value) {
+                    //         return { ...elem, disabled: false };
+                    //       } else {
+                    //         return elem;
+                    //       }
+                    //     });
+                    //   });
+
+                    //   const claimNew = [...claims];
+                    //   const data = await getClaimCategoryAndDocs({ id: value });
+                    //   const claimCategoryData = data.data?.claimCategoryData;
+                    //   claimNew[index].claimCategoryId = value;
+                    //   claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
+                    //   setClaims(claimNew);
+                    // }}
+                    placeholder="Select a category"
+                    optionFilterProp="children" // Use "children" property for filtering options
+                    filterOption={(input, option) => {
+                      console.log(input, option);
+                      return (
+                        option?.label
+                          ?.toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
+                      );
+                    }} // Filter options based on the "children" property
+                    name="categories"
+                    value={
+                      reviewDataNew?.claimRequestDocs[claimReqIndex]
+                        .claimCategory.id
+                    }
+                    options={claimCategories}
+                    className="claim-category-select-input"
                   />
                 </div>
+
                 <div
-                  className="virtual-card-heading-text"
-                  style={{ backgroundColor: "#FCFAFA", padding: "15px" }}
+                  className="documents-upload-heading"
+                  style={{ margrinBottom: "10px", margrinTop: "20px" }}
                 >
-                  Claim request {index + 1}
+                  Documents Upload
                 </div>
-              </div>
-
-              <div className="claim-category-select mb-3">
-                <div className="label" style={{ marginBottom: "10px" }}>
-                  Claim Category
+                <div className="mandatory-items-note">
+                  * are mandatory items
                 </div>
-                <Select
-                  showSearch
-                  disabled
-                  // onChange={async (value) => {
-                  //   console.log("value", value);
-                  //   setClaimCategories((prevVal) => {
-                  //     return prevVal.map((elem) => {
-                  //       if (elem.value === value) {
-                  //         return { ...elem, disabled: true };
-                  //       } else if (claim.claimCategoryId === elem.value) {
-                  //         return { ...elem, disabled: false };
-                  //       } else {
-                  //         return elem;
-                  //       }
-                  //     });
-                  //   });
 
-                  //   const claimNew = [...claims];
-                  //   const data = await getClaimCategoryAndDocs({ id: value });
-                  //   const claimCategoryData = data.data?.claimCategoryData;
-                  //   claimNew[index].claimCategoryId = value;
-                  //   claimNew[index].claimDocs = claimCategoryData?.claimDocuments;
-                  //   setClaims(claimNew);
-                  // }}
-                  placeholder="Select a category"
-                  optionFilterProp="children" // Use "children" property for filtering options
-                  filterOption={(input, option) => {
-                    console.log(input, option);
-                    return (
-                      option?.label
-                        ?.toLowerCase()
-                        .indexOf(input.toLowerCase()) >= 0
-                    );
-                  }} // Filter options based on the "children" property
-                  name="categories"
-                  value={
-                    reviewDataNew?.claimRequestDocs[claimReqIndex].claimCategory
-                      .id
-                  }
-                  options={claimCategories}
-                  className="claim-category-select-input"
-                />
-              </div>
+                <div className="documents-upload-container">
+                  <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
+                    {console.log(
+                      claim.claimDocs,
+                      reviewDataNew?.claimRequestDocs[claimReqIndex]
+                    )}
+                    {editCategory.claimDocuments.map(
+                      (claim_doc, claim_doc_index) => (
+                        <>
+                          <Col
+                            lg={{ span: 24 }}
+                            xs={{ span: 24 }}
+                            className="document-upload-label mb-2 mt-2"
+                          >
+                            {claim_doc.title}
+                            {claim_doc.isMandatory && (
+                              <span className="mandatory-item">*</span>
+                            )}
+                          </Col>
+                          <Col
+                            lg={{ span: 24 }}
+                            xs={{ span: 24 }}
+                            className="pl-4 mb-2"
+                          >
+                            <Upload
+                              name="file"
+                              onRemove={async (e) => {
+                                console.log(newFileList, e);
+                                // return
+                                const update = newFileList.filter((elem) => {
+                                  return elem.uid !== e.uid;
+                                });
+                                setNewFileList(update);
+                                // setNewFileList((preval)=>{
+                                //   preval.filter((elem)=>{
+                                //     return elem.uid!==e.uid
+                                //   })
+                                // })
+                                // return
+                                if (
+                                  e.title === undefined &&
+                                  reviewDataNew?.claimRequestDocs[claimReqIndex]
+                                    .files !== null
+                                ) {
+                                  console.log("2");
+                                  const data = {
+                                    claimRequestId:
+                                      reviewDataNew?.claimRequestDocs[
+                                        claimReqIndex
+                                      ].claimRequestId,
+                                    fieldName: e.fieldname,
+                                    documentId: "" + e.id,
+                                    // "id": claim.claimCategoryId
+                                  };
 
-              <div
-                className="documents-upload-heading"
-                style={{ margrinBottom: "10px", margrinTop: "20px" }}
-              >
-                Documents Upload
-              </div>
-              <div className="mandatory-items-note">* are mandatory items</div>
-
-              <div className="documents-upload-container">
-                <Row className="w-100 d-flex align-items-center mt-2 mb-2 pr-2">
-                  {
-                    console.log(claim.claimDocs,reviewDataNew?.claimRequestDocs[claimReqIndex])
-                  }
-                  {
-                   editCategory.claimDocuments.map((claim_doc, claim_doc_index) => (
-                    <>
-                      <Col
-                        lg={{ span: 24 }}
-                        xs={{ span: 24 }}
-                        className="document-upload-label mb-2 mt-2"
-                      >
-                        {claim_doc.title}
-                        {claim_doc.isMandatory && (
-                          <span className="mandatory-item">*</span>
-                        )}
-                      </Col>
-                      <Col
-                        lg={{ span: 24 }}
-                        xs={{ span: 24 }}
-                        className="pl-4 mb-2"
-                      >
-                        <Upload
-                          name="file"
-                          onRemove={async (e) => {
-                            // console.log(newFileList,e.title)
-                            // return
-                            const update = newFileList.filter((elem)=>{
-                                  return elem.uid!==e.uid
-                                })
-                                setNewFileList(update)
-                            // setNewFileList((preval)=>{
-                            //   preval.filter((elem)=>{
-                            //     return elem.uid!==e.uid
-                            //   })
-                            // })
-                            // return
-                            if (e.title===undefined && reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null) {
-                              console.log('2');
-                            const data = {
-                              claimRequestId: reviewDataNew?.claimRequestDocs[claimReqIndex].claimRequestId,
-                              fieldName: e.fieldname,
-                              documentId: "" + e.id,
-                              // "id": claim.claimCategoryId
-                            };
-
-                            const response = await deleteDoc(data);
-                            console.log(response);
-                            if(response.data.status){
-                              getClaimsByUserFn(null, currentDraftID);
-                              reviewDataFn()
-                            }} else{
-                              console.log(e);
-                            }
-                          }}
-                          fileList={newFileList.filter((elem,i)=>{
-                            console.log(newFileList,i);
-                            if (elem.fieldname===undefined) {
-                              if (claim_doc.title===elem.title) {
-                                console.log(elem);
-                                return elem
-                              }
-                            } else {
-                              return claim_doc.title===elem.fieldname
-                            }
-                          })
-                        }
-                          action={(file) => {
-                            console.log(newFileList);
-                            const newList={
-                              title:claim_doc.title,
-                              ind:claim_doc_index,
-                              file:file,
-                              name:file.name
-                            }
-                            console.log(newList);
-                            const update = [...newFileList,newList]
-                            console.log(update);
-                            setNewFileList(update)
-                            // if(claims[index].claimDocs.length===0){
-                              // setNewFileList([...newFileList,file])
-                              // return
-                            // }
-                            // const claimNew = [...claims];
-                            // claimNew[index].claimDocs[claim_doc_index].file =
-                            //   file;
-                            // setClaims(claimNew);
-                          }}
-                          customRequest={({ file, onSuccess }) => {
-                            setTimeout(() => {
-                              onSuccess("ok");
-                            }, 0);
-                          }}
-                        >
-                          <Button icon={<UploadOutlined />}>
-                            Click to Upload
-                          </Button>
-                        </Upload>
-                        {/* {(reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index]!==null) && (
+                                  const response = await deleteDoc(data);
+                                  console.log(response);
+                                  if (response.data.status) {
+                                    getClaimsByUserFn(null, currentDraftID);
+                                    reviewDataFn();
+                                  }
+                                } else {
+                                  console.log(e);
+                                }
+                              }}
+                              fileList={newFileList.filter((elem, i) => {
+                                console.log(newFileList, i);
+                                if (elem.fieldname === undefined) {
+                                  if (claim_doc.title === elem.title) {
+                                    console.log(elem);
+                                    return elem;
+                                  }
+                                } else {
+                                  return claim_doc.title === elem.fieldname;
+                                }
+                              })}
+                              action={(file) => {
+                                console.log(newFileList);
+                                const newList = {
+                                  title: claim_doc.title,
+                                  ind: claim_doc_index,
+                                  file: file,
+                                  name: file.name,
+                                };
+                                console.log(newList);
+                                const update = [...newFileList, newList];
+                                console.log(update);
+                                setNewFileList(update);
+                                // if(claims[index].claimDocs.length===0){
+                                // setNewFileList([...newFileList,file])
+                                // return
+                                // }
+                                // const claimNew = [...claims];
+                                // claimNew[index].claimDocs[claim_doc_index].file =
+                                //   file;
+                                // setClaims(claimNew);
+                              }}
+                              customRequest={({ file, onSuccess }) => {
+                                setTimeout(() => {
+                                  onSuccess("ok");
+                                }, 0);
+                              }}
+                            >
+                              <Button icon={<UploadOutlined />}>
+                                Click to Upload
+                              </Button>
+                            </Upload>
+                            {/* {(reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files[claim_doc_index]!==null) && (
                           <>
                             <div className="mt-2">
                               <a
@@ -2543,10 +2570,11 @@ useEffect(() => {
                             </div>
                           </>
                         )} */}
-                      </Col>
-                    </>
-                  ))}
-                  {/* {reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files.map((claim_doc, claim_doc_index) => (
+                          </Col>
+                        </>
+                      )
+                    )}
+                    {/* {reviewDataNew?.claimRequestDocs[claimReqIndex].files!==null && reviewDataNew?.claimRequestDocs[claimReqIndex].files.map((claim_doc, claim_doc_index) => (
                     <>
                       <Col
                         lg={{ span: 24 }}
@@ -2615,27 +2643,58 @@ useEffect(() => {
                       </Col>
                     </>
                   ))} */}
-                </Row>
-              </div>
-            </>
-          )})}
+                  </Row>
+                </div>
+              </>
+            );
+          })}
 
           <div className="btns-container">
             <div className="save-draft-next-btn-container d-flex align-items-center">
-              
               {editMode && (
                 <div
                   className="web-btn"
                   onClick={() => {
-                    if (claims[0].claimCategoryId === null) {
-                      message.error(
-                        "Please select at least one req and document !"
-                      );
-                      return;
+                    console.log(editCategory.claimDocuments, newFileList);
+                    const firstArray = editCategory.claimDocuments;
+                    
+                    const secondArray = newFileList;
+                    
+                    // Check if any title from the first array matches any object in the second array
+                    let hasMatch = false;
+                    for (let i = 0; i < firstArray.length; i++) {
+                      const title = firstArray[i].title;
+                      if (secondArray.some(obj => obj.fieldname === title || obj.title === title)) {
+                        hasMatch = true;
+                        break;
+                      }
                     }
-                    updateAllClaims(claims[claimReqIndex]);
-                    // addAllClaims(true,true)
-                    setActiveStep(4);
+                    
+                    // Check if all titles from the first array match at least one object in the second array
+                    const firstArrayTitles = firstArray.map(obj => obj.title);
+                    const uniqueTitles = [...new Set(firstArrayTitles)];
+                    const allTitlesMatch = uniqueTitles.every(title =>
+                      secondArray.some(obj => obj.fieldname === title || obj.title === title)
+                    );
+                    
+                    // Print success or error message based on the matches
+                    if (hasMatch && allTitlesMatch) {
+                      console.log("Success: All conditions are met.");
+                      updateAllClaims(claims[claimReqIndex]);
+                      // addAllClaims(true,true)
+                      setActiveStep(4);
+                    } else {
+                      message.error("Please select at least one req and document !");
+                    }
+                    
+                    // return;
+                    // if (newFileList.length === 0) {
+                    //   message.error(
+                    //     "Please select at least one req and document !"
+                    //   );
+                    //   return;
+                    // }
+
                   }}
                 >
                   Update
@@ -3255,22 +3314,31 @@ useEffect(() => {
                     >
                       <div
                         className="edit-icon-container"
-                        onClick={async() => {
-                          let res1 = await axios.get(`https://api.stntinternational.com/api/website/claim-categories/documents/${claimRequestDoc.claimCategory.id}`,{headers: {
-                            'Authorization': 'Bearer ' + localStorage.getItem('token')
-                        }})
-                        const listOfFiles = claimRequestDoc.files.map((elem,i)=>{
-                          return {
-                              uid:elem.id,
-                              name:elem.originalname,
-                              url:elem.path,
-                              id:elem.id,
-                              fieldname:elem.fieldname
+                        onClick={async () => {
+                          let res1 = await axios.get(
+                            `https://api.stntinternational.com/api/website/claim-categories/documents/${claimRequestDoc.claimCategory.id}`,
+                            {
+                              headers: {
+                                Authorization:
+                                  "Bearer " + localStorage.getItem("token"),
+                              },
                             }
-                          })
-                        setEditCategory(res1.data.claimCategoryData);
-                        setNewFileList(listOfFiles);
-                        setClaimReqIndex(index);
+                          );
+                          const listOfFiles = claimRequestDoc.files.map(
+                            (elem, i) => {
+                              return {
+                                uid: elem.id,
+                                name: elem.originalname,
+                                url: elem.path,
+                                id: elem.id,
+                                fieldname: elem.fieldname,
+                              };
+                            }
+                          );
+                          setUpdateDocRequestId(claimRequestDoc.claimRequestId);
+                          setEditCategory(res1.data.claimCategoryData);
+                          setNewFileList(listOfFiles);
+                          setClaimReqIndex(index);
                           handleStepChange(2);
                         }}
                       >

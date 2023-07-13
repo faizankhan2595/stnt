@@ -6,7 +6,7 @@ import {
   TotatReq,
 } from "assets/svg/icon";
 import React, { useState, useEffect, useParams } from "react";
-import { Input, Menu, Button, Radio, Modal } from "antd";
+import { Input, Menu, Button, Radio, Modal, Table } from "antd";
 import Icon from "@ant-design/icons";
 import { CsvIcon, FilterIcon } from "assets/svg/icon";
 import { Link } from "react-router-dom";
@@ -17,31 +17,34 @@ import TextArea from "antd/lib/input/TextArea";
 import { claimRequestStatus, getClaimRequests } from "services/apiService";
 import moment from "moment";
 
-
 const ClaimReq = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const [value, setValue] = useState('wip');
+  const [value, setValue] = useState("wip");
   const [comment, setComment] = useState("");
   const [claimId, setClaimId] = useState("");
-
-
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [total, setTotal] = useState();
+  const handleTableChange = (pagination, filters, sorter) => {
+    setCurrentPage(pagination.current);
+    setPageSize(pagination.pageSize);
+  };
   const showModal = (claimId) => {
     setIsModalOpen(true);
     setClaimId(claimId);
   };
 
   const onRadChange = (e) => {
-    console.log('radio checked', e.target.value);
+    console.log("radio checked", e.target.value);
     setValue(e.target.value);
   };
   const handleOk = () => {
-
     claimRequestStatus(claimId, value, comment).then((response) => {
       console.log(response);
       if (response.data.status) {
         setIsModalOpen(false);
-        window.location.reload()
+        window.location.reload();
       }
     });
 
@@ -52,36 +55,43 @@ const ClaimReq = () => {
 
   const [claimRequests, setClaimRequests] = useState([]);
   const [consolidateClaimsData, setConsolidateClaimsData] = useState({});
+  const getClaimsReq = async (page, pageSize) => {
+    // const size = 100000;
+    // const page = 1;
 
-  useEffect(() => {
+    getClaimRequests(pageSize, page).then((response) => {
+      let pageNumber = response.data.claimData.currentPage; 
+      let generateSr = [];
+      for (let i = 1 + (pageNumber - 1) * 10; i <= pageNumber * 10; i++) {
+        generateSr.push(i);
+      }
 
-    const size = 100000;
-    const page = 1;
-    
-    getClaimRequests(size, page).then((response) => {
-      const claimRequests = response.data.claimData?.data?.map((claimData,i) => {
+      const claimRequests = response.data.claimData?.data?.map(
+        (claimData, i) => {
           return {
-              sr_no:i+1,
-              uidNo: claimData.userUidNo,
-              claimId: claimData.claimUidNo,
-              originalClaimId: claimData.claimId,
-              userId: claimData.userId,
-              insuredName: claimData.name,
-              gender: claimData.gender,
-              travelAgency: claimData.travelAgencyName,
-              passport: claimData.passport,
-              claimedDate: claimData.claimedDate,
-              status: claimData.status,
+            sr_no: generateSr[i],
+            uidNo: claimData.userUidNo,
+            claimId: claimData.claimUidNo,
+            originalClaimId: claimData.claimId,
+            userId: claimData.userId,
+            insuredName: claimData.name,
+            gender: claimData.gender,
+            travelAgency: claimData.travelAgencyName,
+            passport: claimData.passport,
+            claimedDate: claimData.claimedDate,
+            status: claimData.status,
           };
-      })
+        }
+      );
 
       setClaimRequests(claimRequests);
+      setTotal(response.data.claimData.count);
       setConsolidateClaimsData(response.data.claimData?.consolidateClaimsData);
     });
-  }, []);
-
-
-
+  };
+  useEffect(() => {
+    getClaimsReq(currentPage, pageSize);
+  }, [currentPage, pageSize]);
 
   const onSearch = (value) => console.log(value);
   const { Search } = Input;
@@ -97,7 +107,7 @@ const ClaimReq = () => {
     },
     {
       title: "Claim ID",
-      dataIndex: "claimId"
+      dataIndex: "claimId",
     },
     {
       title: "Insured Name",
@@ -118,7 +128,7 @@ const ClaimReq = () => {
     {
       title: "Claimed Date",
       dataIndex: "claimedDate",
-      width:120,
+      width: 120,
       render: (date) => {
         return <>{moment(date).format("DD MMM YYYY, hh:mm:ss A")}</>;
       },
@@ -129,8 +139,9 @@ const ClaimReq = () => {
       render: (text) => {
         return (
           <p
-            className={`${text !== "completed" ? "text-danger" : "text-success"
-              } font-weight-semibold`}
+            className={`${
+              text !== "completed" ? "text-danger" : "text-success"
+            } font-weight-semibold`}
           >
             {text}
           </p>
@@ -147,12 +158,17 @@ const ClaimReq = () => {
               menu={
                 <Menu>
                   <Menu.Item>
-                    <Link to={`/app/claim_management/claim_request/view_detail/${record.originalClaimId}/${record.userId}`}>
+                    <Link
+                      to={`/app/claim_management/claim_request/view_detail/${record.originalClaimId}/${record.userId}`}
+                    >
                       View Details
                     </Link>
                   </Menu.Item>
                   <Menu.Item>
-                    <span onClick={() => showModal(record?.originalClaimId)}> Update Status</span>
+                    <span onClick={() => showModal(record?.originalClaimId)}>
+                      {" "}
+                      Update Status
+                    </span>
                   </Menu.Item>
                 </Menu>
               }
@@ -165,7 +181,7 @@ const ClaimReq = () => {
 
   return (
     <div>
-        <h3>Claim Management / Claim Request</h3>
+      <h3>Claim Management / Claim Request</h3>
       <div className="mb-4 bg-white d-flex justify-content-between">
         <div className="w-25 p-3 d-flex align-items-center justify-content-center">
           <div
@@ -175,7 +191,6 @@ const ClaimReq = () => {
             <div>
               <h5 className="m-0">Total Requests</h5>
               <h4 className="m-0">{consolidateClaimsData?.totalRequests}</h4>
-              
             </div>
             <div>
               <TotatReq />
@@ -255,7 +270,18 @@ const ClaimReq = () => {
           <Link to={"travel_agency/add_new"}> + Add New</Link>
         </Button> */}
         </div>
-        <Helper checkbox={false} clients={claimRequests} attribiue={claimRequestsColumns} />
+        <Table
+          dataSource={claimRequests}
+          columns={claimRequestsColumns}
+          pagination={{
+            current: currentPage,
+            pageSize: pageSize,
+            total: total,
+            showSizeChanger: true,
+            pageSizeOptions: ["10"],
+          }}
+          onChange={handleTableChange}
+        />
       </div>
       <Modal
         width={600}
@@ -266,20 +292,29 @@ const ClaimReq = () => {
       >
         <div className="d-flex my-3 flex-column">
           <h3 className="mb-4 d-flex align-items-center">
-
             <ChangeAgStatus />
             <span className="ml-2"> Change Claim Status</span>
           </h3>
           <Radio.Group className="ml-5" onChange={onRadChange} value={value}>
-            <Radio value={'wip'}>WIP</Radio>
-            <Radio className="ml-3" value={'completed'}>Completed</Radio>
-            <Radio className="ml-3" value={'rejected'}>Rejected</Radio>
-            <Radio className="ml-3" value={'new'}>New</Radio>
+            <Radio value={"wip"}>WIP</Radio>
+            <Radio className="ml-3" value={"completed"}>
+              Completed
+            </Radio>
+            <Radio className="ml-3" value={"rejected"}>
+              Rejected
+            </Radio>
+            <Radio className="ml-3" value={"new"}>
+              New
+            </Radio>
           </Radio.Group>
           <h5 className="ml-5 w-75 mt-3">Add Comment</h5>
-          <TextArea className="ml-5 w-75" value={comment} onChange={(e) => {
-            setComment(e.target.value)
-          }}  />
+          <TextArea
+            className="ml-5 w-75"
+            value={comment}
+            onChange={(e) => {
+              setComment(e.target.value);
+            }}
+          />
         </div>
         <div
           style={{ gap: "10px" }}
@@ -287,14 +322,15 @@ const ClaimReq = () => {
         >
           <Button
             className="px-4 font-weight-semibold"
-          // onClick={() => setIsChangeStudModalOpen(false)}
-          onClick={() => setIsModalOpen(false)}
+            // onClick={() => setIsChangeStudModalOpen(false)}
+            onClick={() => setIsModalOpen(false)}
           >
             Cancel
           </Button>
           <Button
             onClick={handleOk}
-            className="px-4 font-weight-semibold text-white bg-info">
+            className="px-4 font-weight-semibold text-white bg-info"
+          >
             Save
           </Button>
         </div>
